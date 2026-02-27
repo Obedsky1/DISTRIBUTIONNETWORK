@@ -1,0 +1,32 @@
+# Web scraping and HTTP
+aiohttp==3.9.1
+beautifulsoup4==4.12.2
+selenium==4.16.0
+requests==2.31.0
+lxml==5.1.0
+
+# Reddit API
+praw==7.7.1
+
+# API Framework
+fastapi==0.109.0
+uvicorn==0.27.0
+python-multipart==0.0.6
+
+# Database
+sqlalchemy==2.0.25
+aiosqlite==0.19.0
+
+# Utilities
+python-dotenv==1.0.0
+pydantic==2.5.3
+pydantic-settings==2.1.0
+
+# Rate limiting and async
+aiolimiter==1.1.0
+asyncio==3.4.3
+
+# Testing
+pytest==7.4.4
+pytest-asyncio==0.23.3
+httpx==0.26.0

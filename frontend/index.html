@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GrowthHub - Find Your Perfect Community to Grow</title>
+    <meta name="description"
+        content="The #1 platform for builders, founders, freelancers, and agencies to find communities that accelerate growth.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- Gamification Bar -->
+    <div class="gamification-bar" id="gamificationBar">
+        <div class="container">
+            <div class="gamification-content">
+                <div class="user-stats">
+                    <div class="stat-box">
+                        <span class="icon">⭐</span>
+                        <span class="value" id="userPoints">0</span>
+                        <span class="label">Points</span>
+                    </div>
+                    <div class="streak-counter" id="streakCounter">
+                        <span class="flame">🔥</span>
+                        <span class="count" id="streakDays">0</span>
+                        <span class="text">day streak</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="icon">👁️</span>
+                        <span class="value" id="viewedCount">0</span>
+                        <span class="label">Viewed</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="icon">❤️</span>
+                        <span class="value" id="savedCount">0</span>
+                        <span class="label">Saved</span>
+                    </div>
+                </div>
+                <div class="badges-row" id="badgesRow">
+                    <div class="badge earned" data-badge="first-timer">
+                        🔰
+                        <span class="badge-tooltip">First Timer</span>
+                    </div>
+                    <div class="badge locked" data-badge="explorer">
+                        ⭐
+                        <span class="badge-tooltip">Explorer - View 10 communities</span>
+                    </div>
+                    <div class="badge locked" data-badge="power-user">
+                        🏆
+                        <span class="badge-tooltip">Power User - View 50 communities</span>
+                    </div>
+                    <div class="badge locked" data-badge="streak-master">
+                        🔥
+                        <span class="badge-tooltip">Streak Master - 7 day streak</span>
+                    </div>
+                    <div class="badge locked" data-badge="contributor">
+                        💎
+                        <span class="badge-tooltip">Contributor - Rate 5 communities</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="logo">
+                    <span class="logo-icon">🚀</span>
+                    GrowthHub
+                </h1>
+                <div class="header-stats" id="headerStats">
+                    <span class="stat-item">
+                        <span class="stat-value" id="totalCommunities">0</span>
+                        <span class="stat-label">Communities</span>
+                    </span>
+                    <span class="stat-item">
+                        <span class="stat-value" id="totalPlatforms">5</span>
+                        <span class="stat-label">Platforms</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h2 class="hero-title">Find the Perfect Community to Grow</h2>
+            <p class="hero-subtitle">For builders, SaaS founders, freelancers, agencies & creators looking to grow their
+                audience</p>
+
+            <!-- Search Bar -->
+            <div class="search-container">
+                <div class="search-wrapper">
+                    <svg class="search-icon" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <input type="text" id="searchInput" class="search-input"
+                        placeholder="Search for startup, SaaS, freelance, marketing communities..." autocomplete="off">
+                    <button class="search-clear" id="clearSearch" style="display: none;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Match Button -->
+            <button class="btn-primary" id="quickMatchBtn" style="margin-top: 1.5rem;">
+                🎯 Find My Perfect Community
+            </button>
+        </div>
+    </section>
+
+    <!-- Trending Section -->
+    <section class="trending-section">
+        <div class="container">
+            <div class="trending-header">
+                <h3 class="trending-title">
+                    <span class="fire">🔥</span>
+                    Hot Communities for Growth
+                </h3>
+                <div class="activity-pulse">
+                    <span class="pulse-dot"></span>
+                    <span class="pulse-ring"></span>
+                    <span class="activity-text">Live updates</span>
+                </div>
+            </div>
+            <div class="trending-carousel" id="trendingCarousel">
+                <!-- Trending cards will be inserted here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Filters Section -->
+    <section class="filters-section">
+        <div class="container">
+            <!-- Category Pills -->
+            <div class="category-pills" id="categoryPills">
+                <button class="category-pill active" data-category="all">
+                    🌐 All
+                    <span class="count" id="allCount">0</span>
+                </button>
+                <button class="category-pill" data-category="founders">
+                    🚀 Founders
+                    <span class="count">3.2K</span>
+                </button>
+                <button class="category-pill" data-category="saas">
+                    💻 SaaS Builders
+                    <span class="count">2.1K</span>
+                </button>
+                <button class="category-pill" data-category="freelancers">
+                    💼 Freelancers
+                    <span class="count">1.8K</span>
+                </button>
+                <button class="category-pill" data-category="agencies">
+                    🏢 Agencies
+                    <span class="count">950</span>
+                </button>
+                <button class="category-pill" data-category="creators">
+                    🎯 Creators
+                    <span class="count">2.5K</span>
+                </button>
+                <button class="category-pill" data-category="marketing">
+                    📈 Marketing
+                    <span class="count">1.4K</span>
+                </button>
+            </div>
+
+            <!-- Platform Filters -->
+            <div class="filter-group">
+                <h3 class="filter-title">Platforms</h3>
+                <div class="platform-filters" id="platformFilters">
+                    <button class="platform-btn active" data-platform="all">
+                        <span class="platform-icon">🌐</span>
+                        <span class="platform-name">All</span>
+                    </button>
+                    <button class="platform-btn" data-platform="Discord">
+                        <span class="platform-icon">💬</span>
+                        <span class="platform-name">Discord</span>
+                    </button>
+                    <button class="platform-btn" data-platform="Reddit">
+                        <span class="platform-icon">🔴</span>
+                        <span class="platform-name">Reddit</span>
+                    </button>
+                    <button class="platform-btn" data-platform="Telegram">
+                        <span class="platform-icon">✈️</span>
+                        <span class="platform-name">Telegram</span>
+                    </button>
+                    <button class="platform-btn" data-platform="Quora">
+                        <span class="platform-icon">❓</span>
+                        <span class="platform-name">Quora</span>
+                    </button>
+                    <button class="platform-btn" data-platform="Facebook">
+                        <span class="platform-icon">👥</span>
+                        <span class="platform-name">Facebook</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sort and Filter Controls -->
+            <div class="controls-row">
+                <div class="control-group">
+                    <label for="sortBy">Sort by</label>
+                    <select id="sortBy" class="control-select">
+                        <option value="trending">🔥 Trending</option>
+                        <option value="member_count">Most Members</option>
+                        <option value="rating">⭐ Highest Rated</option>
+                        <option value="name">Name (A-Z)</option>
+                        <option value="created_at">Recently Added</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="minMembers">Min Members</label>
+                    <input type="number" id="minMembers" class="control-input" placeholder="0" min="0">
+                </div>
+
+                <button class="btn-secondary" id="resetFilters">Reset Filters</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section class="results-section">
+        <div class="container">
+            <!-- Daily Spotlight -->
+            <div class="daily-spotlight" id="dailySpotlight">
+                <div class="spotlight-label">
+                    🚀 Top Pick for Growth
+                </div>
+                <div class="spotlight-content">
+                    <div class="spotlight-image" id="spotlightImage">💬</div>
+                    <div class="spotlight-info">
+                        <h3 class="spotlight-name" id="spotlightName">Loading...</h3>
+                        <p class="spotlight-description" id="spotlightDescription">The perfect community to grow your
+                            network
+                        </p>
+                        <div class="spotlight-meta">
+                            <span id="spotlightMembers">👥 Loading...</span>
+                            <span id="spotlightPlatform">📱 Loading...</span>
+                            <span class="rating-container">
+                                <div class="stars">
+                                    <span class="star filled">★</span>
+                                    <span class="star filled">★</span>
+                                    <span class="star filled">★</span>
+                                    <span class="star filled">★</span>
+                                    <span class="star">★</span>
+                                </div>
+                                <span class="rating-count">(128)</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-header">
+                <h3 class="results-title">
+                    <span id="resultsCount">0</span> Communities Found
+                </h3>
+                <div class="view-toggle">
+                    <button class="view-btn active" data-view="grid">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                        </svg>
+                    </button>
+                    <button class="view-btn" data-view="list">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="8" y1="6" x2="21" y2="6"></line>
+                            <line x1="8" y1="12" x2="21" y2="12"></line>
+                            <line x1="8" y1="18" x2="21" y2="18"></line>
+                            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div class="loading" id="loading">
+                <div class="loading-spinner"></div>
+                <p>Loading communities...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="empty-icon">🔍</div>
+                <h3>No communities found</h3>
+                <p>Try adjusting your search or filters</p>
+            </div>
+
+            <!-- Communities Grid -->
+            <div class="communities-grid" id="communitiesGrid"></div>
+
+            <!-- Load More Button -->
+            <div class="load-more-container" id="loadMoreContainer" style="display: none;">
+                <button class="btn-primary" id="loadMoreBtn">Load More</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 GrowthHub. Find communities that accelerate your growth.</p>
+        </div>
+    </footer>
+
+    <!-- Interest Quiz Modal -->
+    <div class="modal-overlay" id="quizModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">🎯 Find Your Perfect Match</h2>
+                <p class="modal-subtitle">Answer 3 quick questions for personalized recommendations</p>
+            </div>
+
+            <div class="quiz-progress">
+                <div class="progress-step active" id="step1"></div>
+                <div class="progress-step" id="step2"></div>
+                <div class="progress-step" id="step3"></div>
+            </div>
+
+            <div id="quizContent">
+                <!-- Question 1 -->
+                <div class="quiz-step" id="quizStep1">
+                    <h3 class="quiz-question">What best describes you?</h3>
+                    <div class="quiz-options">
+                        <div class="quiz-option" data-value="founders">
+                            <span class="icon">🚀</span>
+                            <span class="text">Founder / Entrepreneur</span>
+                        </div>
+                        <div class="quiz-option" data-value="saas">
+                            <span class="icon">💻</span>
+                            <span class="text">SaaS Builder / Developer</span>
+                        </div>
+                        <div class="quiz-option" data-value="freelancers">
+                            <span class="icon">💼</span>
+                            <span class="text">Freelancer / Consultant</span>
+                        </div>
+                        <div class="quiz-option" data-value="agencies">
+                            <span class="icon">🏢</span>
+                            <span class="text">Agency Owner</span>
+                        </div>
+                        <div class="quiz-option" data-value="creators">
+                            <span class="icon">🎯</span>
+                            <span class="text">Content Creator / Influencer</span>
+                        </div>
+                        <div class="quiz-option" data-value="marketing">
+                            <span class="icon">📈</span>
+                            <span class="text">Marketer / Growth Hacker</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question 2 -->
+                <div class="quiz-step" id="quizStep2" style="display: none;">
+                    <h3 class="quiz-question">What's your main goal?</h3>
+                    <div class="quiz-options">
+                        <div class="quiz-option" data-value="clients">
+                            <span class="icon">🤝</span>
+                            <span class="text">Find clients or customers</span>
+                        </div>
+                        <div class="quiz-option" data-value="audience">
+                            <span class="icon">👥</span>
+                            <span class="text">Build an audience</span>
+                        </div>
+                        <div class="quiz-option" data-value="hiring">
+                            <span class="icon">💰</span>
+                            <span class="text">Get hired for gigs/jobs</span>
+                        </div>
+                        <div class="quiz-option" data-value="network">
+                            <span class="icon">🌐</span>
+                            <span class="text">Network with peers</span>
+                        </div>
+                        <div class="quiz-option" data-value="learn">
+                            <span class="icon">📚</span>
+                            <span class="text">Learn and grow skills</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question 3 -->
+                <div class="quiz-step" id="quizStep3" style="display: none;">
+                    <h3 class="quiz-question">Preferred community vibe?</h3>
+                    <div class="quiz-options">
+                        <div class="quiz-option" data-value="casual">
+                            <span class="icon">☕</span>
+                            <span class="text">Casual networking - Low pressure</span>
+                        </div>
+                        <div class="quiz-option" data-value="active">
+                            <span class="icon">⚡</span>
+                            <span class="text">Active collaboration - Regular engagement</span>
+                        </div>
+                        <div class="quiz-option" data-value="hardcore">
+                            <span class="icon">🔥</span>
+                            <span class="text">Hustle culture - High intensity</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="quiz-actions">
+                <button class="quiz-skip" id="quizSkip">Skip for now</button>
+                <button class="btn-primary" id="quizNext" style="display: none;">
+                    Next →
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="bundle.js"></script>
+</body>
+
+</html>

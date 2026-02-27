@@ -1,0 +1,88 @@
+﻿.next/types/app/api/communities/route.ts(3,34): error TS7016: Could not find a declaration file for module 'next/server.js'. 'C:/all my startup/community for me/node_modules/next/server.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/server.js';`
+.next/types/app/api/directories/route.ts(3,34): error TS7016: Could not find a declaration file for module 'next/server.js'. 'C:/all my startup/community for me/node_modules/next/server.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/server.js';`
+.next/types/app/api/projects/route.ts(3,34): error TS7016: Could not find a declaration file for module 'next/server.js'. 'C:/all my startup/community for me/node_modules/next/server.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/server.js';`
+.next/types/app/api/stats/route.ts(3,34): error TS7016: Could not find a declaration file for module 'next/server.js'. 'C:/all my startup/community for me/node_modules/next/server.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/server.js';`
+.next/types/app/api/submissions/route.ts(3,34): error TS7016: Could not find a declaration file for module 'next/server.js'. 'C:/all my startup/community for me/node_modules/next/server.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/server.js';`
+.next/types/app/dashboard/communities/page.ts(3,59): error TS7016: Could not find a declaration file for module 'next/dist/lib/metadata/types/metadata-interface.js'. 'C:/all my startup/community for me/node_modules/next/dist/lib/metadata/types/metadata-interface.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/dist/lib/metadata/types/metadata-interface.js';`
+.next/types/app/dashboard/directories/page.ts(3,59): error TS7016: Could not find a declaration file for module 'next/dist/lib/metadata/types/metadata-interface.js'. 'C:/all my startup/community for me/node_modules/next/dist/lib/metadata/types/metadata-interface.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/dist/lib/metadata/types/metadata-interface.js';`
+.next/types/app/discover/page.ts(3,59): error TS7016: Could not find a declaration file for module 'next/dist/lib/metadata/types/metadata-interface.js'. 'C:/all my startup/community for me/node_modules/next/dist/lib/metadata/types/metadata-interface.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/dist/lib/metadata/types/metadata-interface.js';`
+.next/types/app/layout.ts(3,59): error TS7016: Could not find a declaration file for module 'next/dist/lib/metadata/types/metadata-interface.js'. 'C:/all my startup/community for me/node_modules/next/dist/lib/metadata/types/metadata-interface.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/dist/lib/metadata/types/metadata-interface.js';`
+.next/types/app/page.ts(3,59): error TS7016: Could not find a declaration file for module 'next/dist/lib/metadata/types/metadata-interface.js'. 'C:/all my startup/community for me/node_modules/next/dist/lib/metadata/types/metadata-interface.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/dist/lib/metadata/types/metadata-interface.js';`
+app/api/ai/analyze-brand/route.ts(1,43): error TS7016: Could not find a declaration file for module 'next/server'. 'C:/all my startup/community for me/node_modules/next/server.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/server';`
+app/api/ai/generate-content/route.ts(1,43): error TS7016: Could not find a declaration file for module 'next/server'. 'C:/all my startup/community for me/node_modules/next/server.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/server';`
+app/api/ai/generate-copy/route.ts(1,30): error TS7016: Could not find a declaration file for module 'next/server'. 'C:/all my startup/community for me/node_modules/next/server.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/server';`
+app/api/ai/saas-analyze/route.ts(1,43): error TS7016: Could not find a declaration file for module 'next/server'. 'C:/all my startup/community for me/node_modules/next/server.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/server';`
+app/api/ai/seo-analyze/route.ts(1,43): error TS7016: Could not find a declaration file for module 'next/server'. 'C:/all my startup/community for me/node_modules/next/server.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/server';`
+app/api/categories/route.ts(1,30): error TS7016: Could not find a declaration file for module 'next/server'. 'C:/all my startup/community for me/node_modules/next/server.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/server';`
+app/api/communities/route.ts(1,30): error TS7016: Could not find a declaration file for module 'next/server'. 'C:/all my startup/community for me/node_modules/next/server.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/server';`
+app/api/directories/route.ts(1,30): error TS7016: Could not find a declaration file for module 'next/server'. 'C:/all my startup/community for me/node_modules/next/server.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/server';`
+app/api/platforms/route.ts(1,30): error TS7016: Could not find a declaration file for module 'next/server'. 'C:/all my startup/community for me/node_modules/next/server.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/server';`
+app/api/premium/generate/route.ts(1,43): error TS7016: Could not find a declaration file for module 'next/server'. 'C:/all my startup/community for me/node_modules/next/server.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/server';`
+app/api/preview/route.ts(1,43): error TS7016: Could not find a declaration file for module 'next/server'. 'C:/all my startup/community for me/node_modules/next/server.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/server';`
+app/api/projects/[id]/activity/route.ts(1,30): error TS7016: Could not find a declaration file for module 'next/server'. 'C:/all my startup/community for me/node_modules/next/server.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/server';`
+app/api/projects/[id]/assets/route.ts(1,30): error TS7016: Could not find a declaration file for module 'next/server'. 'C:/all my startup/community for me/node_modules/next/server.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/server';`
+app/api/projects/route.ts(1,30): error TS7016: Could not find a declaration file for module 'next/server'. 'C:/all my startup/community for me/node_modules/next/server.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/server';`
+app/api/recommendations/route.ts(1,43): error TS7016: Could not find a declaration file for module 'next/server'. 'C:/all my startup/community for me/node_modules/next/server.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/server';`
+app/api/scrape/route.ts(1,43): error TS7016: Could not find a declaration file for module 'next/server'. 'C:/all my startup/community for me/node_modules/next/server.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/server';`
+app/api/search/route.ts(1,43): error TS7016: Could not find a declaration file for module 'next/server'. 'C:/all my startup/community for me/node_modules/next/server.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/server';`
+app/api/stats/route.ts(1,30): error TS7016: Could not find a declaration file for module 'next/server'. 'C:/all my startup/community for me/node_modules/next/server.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/server';`
+app/api/stripe/checkout/route.ts(1,43): error TS7016: Could not find a declaration file for module 'next/server'. 'C:/all my startup/community for me/node_modules/next/server.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/server';`
+app/api/stripe/portal/route.ts(1,43): error TS7016: Could not find a declaration file for module 'next/server'. 'C:/all my startup/community for me/node_modules/next/server.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/server';`
+app/api/submissions/[id]/route.ts(1,30): error TS7016: Could not find a declaration file for module 'next/server'. 'C:/all my startup/community for me/node_modules/next/server.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/server';`
+app/api/submissions/[id]/versions/route.ts(1,30): error TS7016: Could not find a declaration file for module 'next/server'. 'C:/all my startup/community for me/node_modules/next/server.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/server';`
+app/api/submissions/route.ts(1,30): error TS7016: Could not find a declaration file for module 'next/server'. 'C:/all my startup/community for me/node_modules/next/server.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/server';`
+app/auth/page.tsx(5,27): error TS7016: Could not find a declaration file for module 'next/navigation'. 'C:/all my startup/community for me/node_modules/next/navigation.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/navigation';`
+app/dashboard/brand-analysis/page.tsx(8,27): error TS7016: Could not find a declaration file for module 'next/navigation'. 'C:/all my startup/community for me/node_modules/next/navigation.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/navigation';`
+app/dashboard/content-studio/page.tsx(6,27): error TS7016: Could not find a declaration file for module 'next/navigation'. 'C:/all my startup/community for me/node_modules/next/navigation.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/navigation';`
+app/dashboard/page.tsx(1,26): error TS7016: Could not find a declaration file for module 'next/navigation'. 'C:/all my startup/community for me/node_modules/next/navigation.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/navigation';`
+app/dashboard/seo-tools/page.tsx(6,27): error TS7016: Could not find a declaration file for module 'next/navigation'. 'C:/all my startup/community for me/node_modules/next/navigation.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/navigation';`
+app/layout.tsx(1,41): error TS7016: Could not find a declaration file for module 'next'. 'C:/all my startup/community for me/node_modules/next/dist/server/next.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next';`
+app/layout.tsx(2,23): error TS7016: Could not find a declaration file for module 'next/font/google'. 'C:/all my startup/community for me/node_modules/next/font/google/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/font/google';`
+app/onboarding/page.tsx(5,27): error TS7016: Could not find a declaration file for module 'next/navigation'. 'C:/all my startup/community for me/node_modules/next/navigation.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/navigation';`
+app/pricing/page.tsx(7,27): error TS7016: Could not find a declaration file for module 'next/navigation'. 'C:/all my startup/community for me/node_modules/next/navigation.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/next` if it exists or add a new declaration (.d.ts) file containing `declare module 'next/navigation';`
+lib/ai/content-generator.ts(71,20): error TS2339: Property 'voice' does not exist on type '{ productName?: string | undefined; brandVoice?: "professional" | "casual" | "friendly" | "technical" | undefined; targetAudience?: string | undefined; topic?: string | undefined; platform?: string | undefined; additionalContext?: string | undefined; }'.
+lib/ai/content-generator.ts(92,20): error TS2339: Property 'voice' does not exist on type '{ productName?: string | undefined; brandVoice?: "professional" | "casual" | "friendly" | "technical" | undefined; targetAudience?: string | undefined; topic?: string | undefined; platform?: string | undefined; additionalContext?: string | undefined; }'.
+lib/ai/content-generator.ts(114,20): error TS2339: Property 'voice' does not exist on type '{ productName?: string | undefined; brandVoice?: "professional" | "casual" | "friendly" | "technical" | undefined; targetAudience?: string | undefined; topic?: string | undefined; platform?: string | undefined; additionalContext?: string | undefined; }'.
+lib/ai/content-generator.ts(138,20): error TS2339: Property 'voice' does not exist on type '{ productName?: string | undefined; brandVoice?: "professional" | "casual" | "friendly" | "technical" | undefined; targetAudience?: string | undefined; topic?: string | undefined; platform?: string | undefined; additionalContext?: string | undefined; }'.
