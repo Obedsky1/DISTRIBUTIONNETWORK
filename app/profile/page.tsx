@@ -165,7 +165,7 @@ export default function ProfilePage() {
     if (!user) return null;
 
     return (
-        <div className="min-h-screen bg-[#0a0a0f] text-white pt-24 pb-12 px-4 sm:px-6">
+        <div className="min-h-screen bg-[#0a0a0f] text-white pt-8 pb-12 px-4 sm:px-6">
             <div className="max-w-4xl mx-auto">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                     <div>
@@ -179,13 +179,6 @@ export default function ProfilePage() {
                         >
                             <Settings className="w-4 h-4" />
                             Account Settings
-                        </button>
-                        <button
-                            onClick={handleLogout}
-                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 text-sm font-medium transition-all"
-                        >
-                            <LogOut className="w-4 h-4" />
-                            Sign Out
                         </button>
                     </div>
                 </div>

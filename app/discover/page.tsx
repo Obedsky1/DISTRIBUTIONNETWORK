@@ -217,7 +217,7 @@ export default function DiscoverPage() {
         <main className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-black">
 
             {/* Header */}
-            <header className="sticky top-0 z-50 glass-dark backdrop-blur-xl border-b border-white/10">
+            <header className="sticky top-0 z-50 glass-dark backdrop-blur-xl border-b border-white/10 md:hidden">
                 <div className="max-w-7xl mx-auto px-4 py-3 sm:py-4">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <div>

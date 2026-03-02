@@ -107,7 +107,7 @@ export default function AccountPage() {
     ];
 
     return (
-        <div className="min-h-screen bg-[#0a0a0f] text-white pt-24 pb-12 px-4 sm:px-6">
+        <div className="min-h-screen bg-[#0a0a0f] text-white pt-8 pb-12 px-4 sm:px-6">
             <div className="max-w-4xl mx-auto space-y-8">
 
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

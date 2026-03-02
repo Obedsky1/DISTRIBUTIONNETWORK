@@ -254,7 +254,7 @@ export default function CampaignPage() {
     const activeTargets = targetSource === 'suggested' ? suggestedTargets : pipelineItems;
 
     return (
-        <main className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-black py-12 px-4 sm:px-6">
+        <main className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-black py-4 md:py-8 px-4 sm:px-6">
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
                 <div className="flex items-center gap-3 mb-8">

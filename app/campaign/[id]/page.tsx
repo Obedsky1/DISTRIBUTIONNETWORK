@@ -218,7 +218,7 @@ export default function CampaignWorkspace() {
     return (
         <main className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-black">
             {/* ── Top bar ── */}
-            <div className="border-b border-white/10 bg-black/20 backdrop-blur-xl sticky top-0 z-30">
+            <div className="border-b border-white/10 bg-black/20 backdrop-blur-xl sticky top-0 z-30 md:hidden">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
                     <div className="flex items-center gap-4 min-w-0">
                         <button onClick={() => router.push('/campaign')} className="text-white/40 hover:text-white transition-colors flex-shrink-0">
@@ -246,7 +246,7 @@ export default function CampaignWorkspace() {
                 </div>
 
                 {/* Tabs */}
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 flex gap-0">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 flex gap-0 md:mt-4">
                     {tabs.map(t => (
                         <button
                             key={t.id}

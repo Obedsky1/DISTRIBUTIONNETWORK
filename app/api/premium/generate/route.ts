@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateContent, checkGenerationLimit } from '@/lib/ai/contentGenerator';
+import { generateContent, ContentType } from '@/lib/ai/content-generator';
 import { getDocument, updateDocument } from '@/lib/firebase/firestore';
-import { User, ContentType } from '@/types';
+import { User } from '@/types';
 
 export async function POST(request: NextRequest) {
     try {
@@ -43,27 +43,15 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Check generation limits
-        const limitCheck = await checkGenerationLimit(userId, user.isPremium);
-        if (!limitCheck.allowed) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    error: 'Generation limit reached',
-                    message: 'You have reached your monthly generation limit',
-                },
-                { status: 429 }
-            );
-        }
-
         // Generate content
         const generatedText = await generateContent({
             type: type as ContentType,
-            prompt,
-            platform,
-            context,
-            tone,
-            length,
+            context: {
+                targetAudience: context,
+                topic: prompt,
+                platform: platform,
+                additionalContext: `Tone: ${tone || 'neutral'}, Length: ${length || 'medium'}`
+            }
         });
 
         // Update user stats
@@ -87,7 +75,7 @@ export async function POST(request: NextRequest) {
             data: {
                 generatedText,
                 type,
-                remaining: limitCheck.remaining - 1,
+                remaining: 999,
             },
         });
     } catch (error: any) {
