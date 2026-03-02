@@ -29,7 +29,7 @@ export async function GET(req: Request) {
 
         return NextResponse.json({ projects });
     } catch (error) {
-        console.error('Error fetching launch projects:', error);
+        console.error('Error fetching distribute projects:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }
@@ -62,7 +62,7 @@ export async function POST(req: Request) {
 
         return NextResponse.json({ project: newProject }, { status: 201 });
     } catch (error: any) {
-        console.error('Error creating launch project:', error);
+        console.error('Error creating distribute project:', error);
         return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
     }
 }

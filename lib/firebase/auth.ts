@@ -6,7 +6,6 @@ import {
     User as FirebaseUser,
     GoogleAuthProvider,
     signInWithPopup,
-    signInAnonymously as firebaseSignInAnonymously,
     updateProfile,
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
@@ -30,7 +29,7 @@ export async function signUp(email: string, password: string, displayName: strin
         const newUser: Omit<User, 'id'> = {
             email: firebaseUser.email!,
             displayName,
-            photoURL: firebaseUser.photoURL || undefined,
+            photoURL: firebaseUser.photoURL || '',
             interests: [],
             interestEmbedding: [],
             joinedCommunities: [],
@@ -115,7 +114,7 @@ export async function signInWithGoogle(): Promise<User> {
             const newUser: Omit<User, 'id'> = {
                 email: firebaseUser.email!,
                 displayName: firebaseUser.displayName || 'User',
-                photoURL: firebaseUser.photoURL || undefined,
+                photoURL: firebaseUser.photoURL || '',
                 interests: [],
                 interestEmbedding: [],
                 joinedCommunities: [],
@@ -164,18 +163,6 @@ export async function signInWithGoogle(): Promise<User> {
         }
     } catch (error: any) {
         throw new Error(error.message || 'Failed to sign in with Google');
-    }
-}
-
-/**
- * Sign in anonymously
- */
-export async function signInAnonymously(): Promise<FirebaseUser> {
-    try {
-        const result = await firebaseSignInAnonymously(auth);
-        return result.user;
-    } catch (error: any) {
-        throw new Error(error.message || 'Failed to sign in anonymously');
     }
 }
 

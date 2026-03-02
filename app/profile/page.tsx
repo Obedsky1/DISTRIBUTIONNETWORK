@@ -6,13 +6,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Save, User, Globe, Briefcase, FileText, ImageIcon,
     LogOut, Trash2, ExternalLink, Sparkles, Copy, Check,
-    UploadCloud, X, Loader2, Link as LinkIcon, Image as ImageIcon2
+    UploadCloud, X, Loader2, Link as LinkIcon, Image as ImageIcon2, Settings
 } from 'lucide-react';
 import { useAuthStore } from '@/lib/store/auth-store';
 import { updateDocument } from '@/lib/firebase/firestore';
 import { signOut } from '@/lib/firebase/auth';
 import { storage } from '@/lib/firebase/config';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { PageGuide } from '@/components/PageGuide';
 
 export default function ProfilePage() {
     const { user, loading, openAuthModal } = useAuthStore();
@@ -62,7 +63,7 @@ export default function ProfilePage() {
                 bannerUrl: user.startup.bannerUrl || '',
                 industry: user.startup.industry || '',
                 keywords: user.startup.keywords || '',
-                otherAssets: user.startup.otherAssets || []
+                otherAssets: Array.isArray(user.startup.otherAssets) ? user.startup.otherAssets : []
             });
         }
     }, [user, loading, router, openAuthModal]);
@@ -171,13 +172,22 @@ export default function ProfilePage() {
                         <h1 className="text-3xl font-bold tracking-tight mb-2">Startup Setup</h1>
                         <p className="text-white/60 text-sm">Manage your copy and brand assets for faster distribution.</p>
                     </div>
-                    <button
-                        onClick={handleLogout}
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 text-sm font-medium transition-all"
-                    >
-                        <LogOut className="w-4 h-4" />
-                        Sign Out
-                    </button>
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => router.push('/account')}
+                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 text-sm font-medium transition-all"
+                        >
+                            <Settings className="w-4 h-4" />
+                            Account Settings
+                        </button>
+                        <button
+                            onClick={handleLogout}
+                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 text-sm font-medium transition-all"
+                        >
+                            <LogOut className="w-4 h-4" />
+                            Sign Out
+                        </button>
+                    </div>
                 </div>
 
                 {/* Tabs */}
@@ -191,8 +201,8 @@ export default function ProfilePage() {
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id as any)}
                             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all whitespace-nowrap ${activeTab === tab.id
-                                    ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/25'
-                                    : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white'
+                                ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/25'
+                                : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white'
                                 }`}
                         >
                             <tab.icon className="w-4 h-4" />
@@ -457,7 +467,7 @@ export default function ProfilePage() {
                                     </button>
                                 </div>
 
-                                {formData.otherAssets.length === 0 ? (
+                                {!formData.otherAssets || !Array.isArray(formData.otherAssets) || formData.otherAssets.length === 0 ? (
                                     <div className="text-center py-8 rounded-2xl bg-white/5 border border-white/5 border-dashed">
                                         <p className="text-white/30 text-xs">No extra assets uploaded yet.</p>
                                     </div>
@@ -562,6 +572,15 @@ export default function ProfilePage() {
                     )}
                 </div>
             </div>
+
+            <PageGuide
+                title="Startup Setup"
+                steps={[
+                    { title: 'Copy Editor', description: 'Centralize all your startup information (name, taglines, descriptions, keywords). You can easily copy and paste this into directories when submitting.' },
+                    { title: 'Brand Assets', description: 'Upload your primary logo, hero banner, and other product assets. Click the link icon to copy the direct URL of the image for distribution.' },
+                    { title: 'Distro Pipeline', description: 'View and manage all the communities, groups, and directories you have saved from the Discover page. Use this list as a tracker for your launch.' },
+                ]}
+            />
         </div>
     );
 }

@@ -172,3 +172,34 @@ export interface ApiResponse<T> {
     error?: string;
     message?: string;
 }
+
+export type CampaignType = 'seo' | 'betatesters' | 'aiseo' | 'community' | 'pr' | 'launch' | 'reddit_growth' | 'newsletter_outreach' | 'social_media_blitz';
+export type CampaignStatus = 'draft' | 'active' | 'paused' | 'completed';
+
+export interface CampaignTarget {
+    id: string; // The ID from distroPipeline
+    name: string;
+    url: string;
+    kind: 'community' | 'directory';
+    status: 'pending' | 'completed' | 'skipped';
+    completedAt?: Date | null | any;
+    submissionUrl?: string | null; // URL the user pastes when marking as done
+}
+
+export interface Campaign {
+    id?: string;
+    userId: string;
+    type: CampaignType;
+    status: CampaignStatus;
+    name: string;
+    createdAt?: Date | any; // allow any for Firestore Timestamp
+    updatedAt?: Date | any;
+    config?: Record<string, any>;
+    targets: CampaignTarget[];
+    currentBatchIndex: number; // Groups of 3 targets
+    submissions?: {
+        directoryId: string;
+        status: string;
+        submittedAt: Date | any;
+    }[];
+}

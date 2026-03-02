@@ -26,7 +26,7 @@ export async function GET(request: Request) {
     };
 
     // Map directories to community structure
-    const directories = directoriesData.directories.map(d => ({
+    const directories = (directoriesData.directories as any[]).map(d => ({
         id: `dir_${d.id}`,
         name: d.name,
         platform: 'Directory', // or d.platform if you want specific types
@@ -39,14 +39,14 @@ export async function GET(request: Request) {
         is_directory: true // Flag for UI if needed
     }));
 
-    let communities = [...communitiesData.communities, ...directories];
+    let communities: any[] = [...(communitiesData.communities as any[]), ...directories];
 
     // Apply filters
     if (search) {
         communities = communities.filter(c =>
             c.name.toLowerCase().includes(search) ||
             (c.description || '').toLowerCase().includes(search) ||
-            c.categories.some(cat => cat.toLowerCase().includes(search))
+            c.categories.some((cat: string) => cat.toLowerCase().includes(search))
         );
     }
 
@@ -58,7 +58,7 @@ export async function GET(request: Request) {
 
     if (category) {
         communities = communities.filter(c =>
-            c.categories.some(cat => cat.toLowerCase().includes(category))
+            c.categories.some((cat: string) => cat.toLowerCase().includes(category))
         );
     }
 

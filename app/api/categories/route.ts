@@ -2,12 +2,12 @@ import { NextResponse } from 'next/server';
 import communitiesData from '@/data/communities.json';
 
 export async function GET() {
-    const communities = communitiesData.communities;
+    const communities: any[] = communitiesData.communities;
 
     // Get all unique categories
     const categorySet = new Set<string>();
     communities.forEach(c => {
-        c.categories.forEach(cat => categorySet.add(cat));
+        c.categories.forEach((cat: string) => categorySet.add(cat));
     });
 
     const categories = Array.from(categorySet).sort();

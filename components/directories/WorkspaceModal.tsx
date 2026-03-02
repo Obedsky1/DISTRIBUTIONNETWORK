@@ -1,8 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, ExternalLink, Save, Clock, Type, Image as ImageIcon, Activity } from 'lucide-react';
-import { DirectorySubmission, SubmissionVersion, ActivityLog, SubmissionStatus } from '@/types/distribution';
+import { X, ExternalLink, Save, Clock, Type, Image as ImageIcon, Activity, Loader2, Globe, Search, Check } from 'lucide-react';
+import { DirectorySubmission, SubmissionVersion, ActivityLog, SubmissionStatus, ProjectAsset } from '@/types/distribution';
+import { updateDocument, setDocument, queryDocuments, deleteDocument } from '@/lib/firebase/firestore';
+import { uploadAsset } from '@/lib/firebase/storage';
+import { v4 as uuidv4 } from 'uuid';
+
+import { useAuthStore } from '@/lib/store/auth-store';
 
 interface WorkspaceModalProps {
     isOpen: boolean;
@@ -12,6 +17,7 @@ interface WorkspaceModalProps {
 }
 
 export function WorkspaceModal({ isOpen, onClose, submission, userId }: WorkspaceModalProps) {
+    const { user } = useAuthStore();
     const [activeTab, setActiveTab] = useState<'submission' | 'copy' | 'assets' | 'activity'>('submission');
 
     // Form States
@@ -21,10 +27,18 @@ export function WorkspaceModal({ isOpen, onClose, submission, userId }: Workspac
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
 
+    // Tracking
+    const [liveUrl, setLiveUrl] = useState('');
+    const [targetDomain, setTargetDomain] = useState('');
+    const [backlinkStatus, setBacklinkStatus] = useState<'found' | 'not_found' | 'checking' | 'error' | undefined>();
+    const [backlinkRel, setBacklinkRel] = useState<string | null>(null);
+    const [backlinkAnchor, setBacklinkAnchor] = useState<string | null>(null);
+
     // Data States
     const [versions, setVersions] = useState<SubmissionVersion[]>([]);
+    const [assets, setAssets] = useState<ProjectAsset[]>([]);
     const [activity, setActivity] = useState<ActivityLog[]>([]);
-    const [loadingAI, setLoadingAI] = useState(false);
+    const [uploadingAsset, setUploadingAsset] = useState(false);
 
     useEffect(() => {
         if (isOpen && submission) {
@@ -32,75 +46,179 @@ export function WorkspaceModal({ isOpen, onClose, submission, userId }: Workspac
             setUrl(submission.submission_url || '');
             setNotes(submission.notes || '');
 
-            // Fetch versions
-            fetch(`/api/submissions/${submission.id}/versions`)
-                .then(r => r.json())
-                .then(data => {
-                    const v = data.versions || [];
-                    setVersions(v);
-                    if (v.length > 0) {
-                        setTitle(v[0].title);
-                        setDescription(v[0].description);
-                    } else {
-                        setTitle('');
-                        setDescription('');
-                    }
-                });
+            setLiveUrl(submission.live_url || '');
+            setTargetDomain(submission.target_domain || '');
+            setBacklinkStatus(submission.backlink_status);
+            setBacklinkRel(submission.backlink_rel || null);
+            setBacklinkAnchor(submission.backlink_anchor || null);
 
-            // Fetch activity
-            fetch(`/api/projects/${submission.project_id}/activity`)
-                .then(r => r.json())
-                .then(data => setActivity(data.activity || []));
+            // Fetch versions - sort client-side to avoid composite index requirement
+            queryDocuments<SubmissionVersion>('submission_versions', [
+                { field: 'submission_id', operator: '==', value: submission.id }
+            ]).then(v => {
+                const sorted = (v || []).sort((a, b) =>
+                    new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+                );
+                setVersions(sorted);
+                if (sorted.length > 0) {
+                    setTitle(sorted[0].title);
+                    setDescription(sorted[0].description);
+                } else {
+                    setTitle('');
+                    setDescription('');
+                }
+            });
+
+            // Fetch activity from client-side firestore
+            queryDocuments<ActivityLog>('activity_logs', [
+                { field: 'project_id', operator: '==', value: submission.project_id }
+            ], 'created_at', 'desc').then(logs => {
+                setActivity(logs || []);
+            });
+
+            // Fetch assets
+            queryDocuments<ProjectAsset>('project_assets', [
+                { field: 'project_id', operator: '==', value: submission.project_id }
+            ], 'created_at', 'desc').then(a => {
+                setAssets(a || []);
+            });
         }
     }, [isOpen, submission]);
 
     if (!isOpen || !submission) return null;
 
     const saveSubmissionInfo = async () => {
-        await fetch(`/api/submissions/${submission.id}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status, submission_url: url, notes, user_id: userId })
-        });
-        // Optionally refresh activity log here
-    };
+        try {
+            await updateDocument('directory_submissions', submission.id, {
+                status,
+                submission_url: url,
+                live_url: liveUrl,
+                target_domain: targetDomain,
+                backlink_status: backlinkStatus,
+                backlink_rel: backlinkRel,
+                backlink_anchor: backlinkAnchor,
+                notes,
+                updated_at: new Date()
+            });
 
-    const saveNewVersion = async () => {
-        const res = await fetch(`/api/submissions/${submission.id}/versions`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title, description, user_id: userId, project_id: submission.project_id, directory_name: submission.directory_name })
-        });
-        if (res.ok) {
-            const data = await res.json();
-            setVersions([data.version, ...versions]);
+            // Add activity log
+            const logId = `log_${uuidv4()}`;
+            const log: ActivityLog = {
+                id: logId,
+                project_id: submission.project_id,
+                user_id: userId,
+                action_type: 'status_updated',
+                metadata: { directory_name: submission.directory_name, status },
+                created_at: new Date()
+            };
+            await setDocument('activity_logs', logId, log);
+            setActivity(prev => [log, ...prev]);
+            alert('Settings saved!');
+        } catch (err) {
+            console.error('Failed to save submission info:', err);
+            alert('Failed to save settings. Check your console.');
         }
     };
 
-    const generateCopy = async () => {
-        setLoadingAI(true);
+    const verifyBacklink = async () => {
+        if (!liveUrl || !targetDomain) {
+            alert('Please provide both the Live URL and your Target Domain to verify.');
+            return;
+        }
+
+        setBacklinkStatus('checking');
+
         try {
-            const res = await fetch('/api/ai/generate-copy', {
+            const res = await fetch('/api/backlinks/verify', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    directory_name: submission.directory_name,
-                    project_id: submission.project_id,
-                    user_id: userId,
-                    submission_id: submission.id
-                })
+                body: JSON.stringify({ liveUrl, targetDomain })
             });
-            if (res.ok) {
-                const data = await res.json();
-                setTitle(data.title);
-                setDescription(data.description);
-                // Also fetch the newly created version to update the list
-                const vRes = await fetch(`/api/submissions/${submission.id}/versions`);
-                const vData = await vRes.json();
-                setVersions(vData.versions || []);
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                const { found, rel, anchor } = data.result;
+                setBacklinkStatus(found ? 'found' : 'not_found');
+                setBacklinkRel(rel || null);
+                setBacklinkAnchor(anchor || null);
+                alert(found ? 'Backlink confirmed!' : 'Backlink not found.');
+            } else {
+                setBacklinkStatus('error');
+                alert(data.error || 'Verification failed');
             }
+        } catch {
+            setBacklinkStatus('error');
+            alert('Verification request failed');
+        }
+    };
+
+    const saveNewVersion = async () => {
+        try {
+            const nextVersion = versions.length + 1;
+            const versionId = `ver_${uuidv4()}`;
+            const newVersion: SubmissionVersion = {
+                id: versionId,
+                submission_id: submission.id,
+                version_number: nextVersion,
+                title,
+                description,
+                created_at: new Date()
+            };
+
+            await setDocument('submission_versions', versionId, newVersion);
+            setVersions([newVersion, ...versions]);
+            alert('New version saved!');
+        } catch (err) {
+            console.error('Failed to save version:', err);
+            alert('Failed to save version.');
+        }
+    };
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !submission) return;
+
+        setUploadingAsset(true);
+        try {
+            const fileName = `${userId}/${submission.project_id}/${file.name}`;
+            const downloadUrl = await uploadAsset(file, fileName);
+
+            const assetId = `asset_${uuidv4()}`;
+            const newAsset: ProjectAsset = {
+                id: assetId,
+                project_id: submission.project_id,
+                type: 'screenshot', // Default or detect
+                file_url: downloadUrl,
+                created_at: new Date()
+            };
+
+            await setDocument('project_assets', assetId, newAsset);
+            setAssets([newAsset, ...assets]);
+
+            // Log activity
+            const logId = `log_${uuidv4()}`;
+            await setDocument('activity_logs', logId, {
+                id: logId,
+                project_id: submission.project_id,
+                user_id: userId,
+                action_type: 'asset_uploaded',
+                metadata: { file_name: file.name },
+                created_at: new Date()
+            });
+        } catch (err) {
+            console.error('Failed to upload asset:', err);
+            alert('Upload failed.');
         } finally {
-            setLoadingAI(false);
+            setUploadingAsset(false);
+        }
+    };
+
+    const removeAsset = async (asset: ProjectAsset) => {
+        try {
+            await deleteDocument('project_assets', asset.id);
+            setAssets(assets.filter(a => a.id !== asset.id));
+        } catch (err) {
+            console.error('Failed to remove asset:', err);
         }
     };
 
@@ -135,7 +253,7 @@ export function WorkspaceModal({ isOpen, onClose, submission, userId }: Workspac
                             <div>
                                 <label className="block text-xs font-semibold text-white/50 uppercase tracking-widest mb-2">Status</label>
                                 <select
-                                    className="w-full bg-[#1a1a24] border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-violet-500/50"
+                                    className="w-full bg-[#1a1a24] border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500/50"
                                     value={status}
                                     onChange={(e) => setStatus(e.target.value as SubmissionStatus)}
                                 >
@@ -160,13 +278,82 @@ export function WorkspaceModal({ isOpen, onClose, submission, userId }: Workspac
                             <div>
                                 <label className="block text-xs font-semibold text-white/50 uppercase tracking-widest mb-2">Internal Notes</label>
                                 <textarea
-                                    className="w-full h-32 bg-[#1a1a24] border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-violet-500/50 resize-none placeholder-white/20"
+                                    className="w-full h-32 bg-[#1a1a24] border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500/50 resize-none placeholder-white/20"
                                     placeholder="Add any specific requirements, login details, or context here..."
                                     value={notes}
                                     onChange={(e) => setNotes(e.target.value)}
                                 />
                             </div>
-                            <button onClick={saveSubmissionInfo} className="flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white font-semibold py-3 px-6 rounded-xl transition-all w-full justify-center">
+
+                            {/* Backlink Tracking Section */}
+                            <div className="pt-4 border-t border-white/10 mt-6 space-y-4">
+                                <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                                    <Globe className="w-4 h-4 text-indigo-400" />
+                                    Advanced Tracking & Backlink Setup
+                                </h3>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-semibold text-white/50 uppercase tracking-widest mb-2">Live Published URL</label>
+                                        <input
+                                            type="url"
+                                            className="w-full bg-[#1a1a24] border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500/50 placeholder-white/20"
+                                            placeholder="https://..."
+                                            value={liveUrl}
+                                            onChange={(e) => setLiveUrl(e.target.value)}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-white/50 uppercase tracking-widest mb-2">Your Target Domain</label>
+                                        <input
+                                            type="text"
+                                            className="w-full bg-[#1a1a24] border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500/50 placeholder-white/20"
+                                            placeholder="your-startup.com"
+                                            value={targetDomain}
+                                            onChange={(e) => setTargetDomain(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-4 bg-white/5 border border-white/10 p-4 rounded-xl">
+                                    <button
+                                        onClick={verifyBacklink}
+                                        disabled={backlinkStatus === 'checking' || !liveUrl || !targetDomain}
+                                        className="flex items-center gap-2 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 font-semibold py-2 px-4 rounded-lg transition-all text-sm border border-indigo-500/30 disabled:opacity-50"
+                                    >
+                                        {backlinkStatus === 'checking' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+                                        {backlinkStatus === 'checking' ? 'Validating...' : 'Verify Backlink'}
+                                    </button>
+
+                                    <div className="flex-1 flex gap-2 justify-end">
+                                        {backlinkStatus === 'found' && (
+                                            <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-xs font-bold rounded-full border border-emerald-500/30 flex items-center gap-1">
+                                                <Check className="w-3 h-3" /> Backlink Found
+                                            </span>
+                                        )}
+                                        {backlinkStatus === 'not_found' && (
+                                            <span className="px-3 py-1 bg-red-500/20 text-red-400 text-xs font-bold rounded-full border border-red-500/30 flex items-center gap-1">
+                                                <X className="w-3 h-3" /> Not Found
+                                            </span>
+                                        )}
+                                        {backlinkStatus === 'error' && (
+                                            <span className="px-3 py-1 bg-orange-500/20 text-orange-400 text-xs font-bold rounded-full border border-orange-500/30">
+                                                Error Checking
+                                            </span>
+                                        )}
+                                        {backlinkRel && backlinkStatus === 'found' && (
+                                            <span className="px-3 py-1 bg-blue-500/20 text-blue-400 text-xs font-bold rounded-full border border-blue-500/30 uppercase tracking-wider">
+                                                {backlinkRel}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                                {backlinkAnchor && backlinkStatus === 'found' && (
+                                    <p className="text-xs text-white/50 px-1 pt-1">
+                                        Anchor: <span className="text-white/80">"{backlinkAnchor}"</span>
+                                    </p>
+                                )}
+                            </div>
+
+                            <button onClick={saveSubmissionInfo} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-6 rounded-xl transition-all w-full justify-center">
                                 <Save className="w-4 h-4" /> Save Details
                             </button>
                         </div>
@@ -176,13 +363,6 @@ export function WorkspaceModal({ isOpen, onClose, submission, userId }: Workspac
                         <div className="space-y-6 flex flex-col h-full">
                             <div className="flex justify-between items-center bg-[#1a1a24] p-3 rounded-xl border border-white/10">
                                 <span className="text-sm font-medium">Versioned Copy Editor</span>
-                                <button
-                                    onClick={generateCopy}
-                                    disabled={loadingAI}
-                                    className="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-violet-600 text-white text-xs font-bold rounded-lg shadow-lg hover:shadow-violet-600/25 disabled:opacity-50 transition-all flex items-center gap-1.5"
-                                >
-                                    {loadingAI ? 'Generating...' : <>✨ Generate AI Copy</>}
-                                </button>
                             </div>
 
                             <div className="flex-1 flex flex-col gap-4">
@@ -198,7 +378,7 @@ export function WorkspaceModal({ isOpen, onClose, submission, userId }: Workspac
                                 <div className="flex-1 flex flex-col">
                                     <label className="block text-xs font-semibold text-white/50 uppercase tracking-widest mb-2">Description / Pitch</label>
                                     <textarea
-                                        className="w-full flex-1 min-h-[200px] bg-[#1a1a24] border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-violet-500/50 resize-none leading-relaxed"
+                                        className="w-full flex-1 min-h-[200px] bg-[#1a1a24] border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500/50 resize-none leading-relaxed"
                                         value={description}
                                         onChange={(e) => setDescription(e.target.value)}
                                     />
@@ -232,12 +412,86 @@ export function WorkspaceModal({ isOpen, onClose, submission, userId }: Workspac
                     )}
 
                     {activeTab === 'assets' && (
-                        <div className="flex flex-col items-center justify-center h-full text-center space-y-4 opacity-60">
-                            <ImageIcon className="w-12 h-12 text-white/20" />
-                            <div>
-                                <p className="font-semibold text-white/80">Asset Vault Integration Coming Soon</p>
-                                <p className="text-sm text-white/40 mt-1">Manage logos, screenshots, and decks for this project.</p>
+                        <div className="space-y-6">
+                            <div className="bg-[#1a1a24] p-5 rounded-2xl border border-white/10 text-center relative overflow-hidden group">
+                                <input
+                                    type="file"
+                                    className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                                    onChange={handleFileUpload}
+                                    disabled={uploadingAsset}
+                                    accept="image/*"
+                                />
+                                {uploadingAsset ? (
+                                    <div className="flex flex-col items-center gap-2 py-4">
+                                        <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+                                        <p className="text-sm text-white/40 font-medium">Uploading to vault...</p>
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col items-center gap-2 py-4">
+                                        <div className="w-12 h-12 rounded-2xl bg-indigo-600/20 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
+                                            <ImageIcon className="w-6 h-6" />
+                                        </div>
+                                        <p className="font-bold text-white group-hover:text-indigo-300 transition-colors">Add Brand Asset</p>
+                                        <p className="text-xs text-white/30">Drop or click to upload logo, screenshot or pitch deck image</p>
+                                    </div>
+                                )}
                             </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                                {user?.startup?.logoUrl && (
+                                    <div className="group relative aspect-video bg-white/5 rounded-xl border border-white/10 overflow-hidden flex items-center justify-center p-4">
+                                        <img src={user.startup.logoUrl} className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500" alt="Primary Logo" title="Primary Logo" />
+                                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                                            <span className="text-xs font-bold text-white mb-1">Primary Logo</span>
+                                            <a href={user.startup.logoUrl} target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 backdrop-blur-md rounded-lg text-white hover:bg-white/20">
+                                                <ExternalLink className="w-4 h-4" />
+                                            </a>
+                                        </div>
+                                    </div>
+                                )}
+                                {user?.startup?.bannerUrl && (
+                                    <div className="group relative aspect-video bg-white/5 rounded-xl border border-white/10 overflow-hidden flex items-center justify-center">
+                                        <img src={user.startup.bannerUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Hero Banner" title="Hero Banner" />
+                                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                                            <span className="text-xs font-bold text-white mb-1">Hero Banner</span>
+                                            <a href={user.startup.bannerUrl} target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 backdrop-blur-md rounded-lg text-white hover:bg-white/20">
+                                                <ExternalLink className="w-4 h-4" />
+                                            </a>
+                                        </div>
+                                    </div>
+                                )}
+                                {user?.startup?.otherAssets?.map((assetUrl, idx) => (
+                                    <div key={`profile-asset-${idx}`} className="group relative aspect-video bg-white/5 rounded-xl border border-white/10 overflow-hidden flex items-center justify-center">
+                                        <img src={assetUrl} className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500" alt={`Product Asset ${idx}`} title={`Product Asset ${idx}`} />
+                                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                                            <span className="text-xs font-bold text-white mb-1">Product Asset</span>
+                                            <a href={assetUrl} target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 backdrop-blur-md rounded-lg text-white hover:bg-white/20">
+                                                <ExternalLink className="w-4 h-4" />
+                                            </a>
+                                        </div>
+                                    </div>
+                                ))}
+                                {assets.map(asset => (
+                                    <div key={asset.id} className="group relative aspect-video bg-white/5 rounded-xl border border-white/10 overflow-hidden">
+                                        <img src={asset.file_url} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Project asset" />
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                            <a href={asset.file_url} target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 backdrop-blur-md rounded-lg text-white hover:bg-white/20">
+                                                <ExternalLink className="w-4 h-4" />
+                                            </a>
+                                            <button onClick={() => removeAsset(asset)} className="p-2 bg-red-500/20 backdrop-blur-md rounded-lg text-red-300 hover:bg-red-500/30">
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {assets.length === 0 && !uploadingAsset && (!user?.startup?.logoUrl && !user?.startup?.bannerUrl && (!user?.startup?.otherAssets || user?.startup?.otherAssets.length === 0)) && (
+                                <div className="py-12 text-center text-white/20">
+                                    <p className="text-xs tracking-widest uppercase font-bold mb-1">Vault Empty</p>
+                                    <p className="text-xs">Upload your marketing materials here.</p>
+                                </div>
+                            )}
                         </div>
                     )}
 
@@ -263,12 +517,11 @@ export function WorkspaceModal({ isOpen, onClose, submission, userId }: Workspac
         </div>
     );
 }
-
 function TabBtn({ active, onClick, icon, label }: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string }) {
     return (
         <button
             onClick={onClick}
-            className={`flex items-center gap-1.5 px-1 py-3 text-sm font-semibold border-b-2 transition-colors ${active ? 'border-violet-500 text-violet-300' : 'border-transparent text-white/40 hover:text-white/80'
+            className={`flex items-center gap-1.5 px-1 py-3 text-sm font-semibold border-b-2 transition-colors ${active ? 'border-indigo-500 text-indigo-300' : 'border-transparent text-white/40 hover:text-white/80'
                 }`}
         >
             {icon} {label}

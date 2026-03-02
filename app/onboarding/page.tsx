@@ -7,6 +7,8 @@ import { ArrowRight, ArrowLeft, Check, Sparkles } from 'lucide-react';
 import FadeTransition from '@/components/FadeTransition';
 import { setDocument } from '@/lib/firebase/firestore';
 import { v4 as uuidv4 } from 'uuid';
+import { useAuthStore } from '@/lib/store/auth-store';
+import { Loader2 } from 'lucide-react';
 
 // User types/roles
 const USER_TYPES = [
@@ -44,8 +46,10 @@ const INDUSTRIES = [
 ];
 
 export default function OnboardingPage() {
+    const { user } = useAuthStore();
     const router = useRouter();
     const [step, setStep] = useState(1);
+    const [saving, setSaving] = useState(false);
     const [formData, setFormData] = useState({
         userType: '',
         goals: [] as string[],
@@ -87,10 +91,12 @@ export default function OnboardingPage() {
             setStep(step + 1);
         } else {
             // Save data and redirect to communities list
+            setSaving(true);
             try {
-                let userId = localStorage.getItem('growthhub_user_id');
+                let userId = user?.id;
+
                 if (!userId) {
-                    userId = uuidv4();
+                    userId = localStorage.getItem('growthhub_user_id') || uuidv4();
                     localStorage.setItem('growthhub_user_id', userId);
                 }
 
@@ -99,10 +105,14 @@ export default function OnboardingPage() {
                     completed_at: new Date()
                 });
                 console.log('Onboarding complete and saved to database.', formData);
+                router.push('/discover'); // Redirect to communities list
             } catch (error) {
                 console.error('Failed to save to database', error);
+                alert('Save failed. But continuing to discover...');
+                router.push('/discover');
+            } finally {
+                setSaving(false);
             }
-            router.push('/discover'); // Redirect to communities list
         }
     };
 
@@ -296,7 +306,7 @@ export default function OnboardingPage() {
                                 >
                                     <h2 className="text-xl sm:text-2xl font-bold mb-2">What industries are you in?</h2>
                                     <p className="text-sm sm:text-base text-white/60 mb-4 sm:mb-6">Select all relevant industries</p>
-                                    <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                                         {INDUSTRIES.map((industry) => (
                                             <motion.button
                                                 key={industry}
@@ -336,7 +346,7 @@ export default function OnboardingPage() {
 
                         <motion.button
                             onClick={handleNext}
-                            disabled={!canProceed()}
+                            disabled={!canProceed() || saving}
                             whileHover={canProceed() ? { scale: 1.05 } : {}}
                             whileTap={canProceed() ? { scale: 0.95 } : {}}
                             className={`flex-1 flex items-center justify-center gap-2 px-4 sm:px-6 py-3 rounded-full font-semibold transition-all text-sm sm:text-base touch-target ${canProceed()
@@ -344,8 +354,14 @@ export default function OnboardingPage() {
                                 : 'bg-white/10 text-white/40 cursor-not-allowed'
                                 }`}
                         >
-                            {step === totalSteps ? 'Find Communities' : 'Continue'}
-                            <ArrowRight className="w-4 sm:w-5 h-4 sm:h-5" />
+                            {saving ? (
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                            ) : (
+                                <>
+                                    {step === totalSteps ? 'Find Communities' : 'Continue'}
+                                    <ArrowRight className="w-4 sm:w-5 h-4 sm:h-5" />
+                                </>
+                            )}
                         </motion.button>
                     </div>
                 </div>

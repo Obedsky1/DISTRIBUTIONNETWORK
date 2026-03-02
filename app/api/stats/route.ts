@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import communitiesData from '@/data/communities.json';
 
 export async function GET() {
-    const communities = communitiesData.communities;
+    const communities: any[] = communitiesData.communities;
 
     // Calculate platform counts
     const platforms: Record<string, number> = {};
@@ -13,7 +13,7 @@ export async function GET() {
     // Calculate category counts
     const categoryMap: Record<string, number> = {};
     communities.forEach(c => {
-        c.categories.forEach(cat => {
+        c.categories.forEach((cat: string) => {
             categoryMap[cat] = (categoryMap[cat] || 0) + 1;
         });
     });

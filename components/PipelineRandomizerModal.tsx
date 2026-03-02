@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Sparkles, Plus, Check, RefreshCw } from 'lucide-react';
 import { useAuthStore } from '@/lib/store/auth-store';
-import { updateDocument } from '@/lib/firebase/firestore';
+import { updateDocument, setDocument, queryDocuments } from '@/lib/firebase/firestore';
+import { DirectorySubmission } from '@/types/distribution';
 
 interface Item {
     id: string;
@@ -28,21 +29,24 @@ export default function PipelineRandomizerModal({ isOpen, onClose, mixedFeed }: 
     const [addedIds, setAddedIds] = useState<Set<string>>(new Set());
     const [adding, setAdding] = useState(false);
 
+    const userId = user?.id || 'anonymous';
+    const projectId = `default_project_${userId}`;
+
     useEffect(() => {
         if (isOpen && mixedFeed.length > 0) {
             generateRecommendations();
         }
     }, [isOpen, mixedFeed]);
 
-    const generateRecommendations = () => {
+    const generateRecommendations = async () => {
         // Try to get a mix of different categories: 
-        // 1 SEO/Content, 1 Beta Launch/Product Hunt, 1 Community/Group, 1 Directory, 1 random
+        // 1 SEO/Content, 1 Beta Distribute/Product Hunt, 1 Community/Group, 1 Directory, 1 random
 
         const seoItems = mixedFeed.filter(i =>
             i.category?.includes('SEO') || i.categories?.includes('SEO') || i.description?.toLowerCase().includes('seo')
         );
-        const launchItems = mixedFeed.filter(i =>
-            i.category?.includes('Launch') || i.category?.includes('Startup') || i.categories?.includes('Startup') || i.description?.toLowerCase().includes('launch') || i.name?.toLowerCase().includes('product hunt')
+        const distributeItems = mixedFeed.filter(i =>
+            i.category?.includes('Distribute') || i.category?.includes('Launch') || i.category?.includes('Startup') || i.categories?.includes('Startup') || i.description?.toLowerCase().includes('distribute') || i.description?.toLowerCase().includes('launch') || i.name?.toLowerCase().includes('product hunt')
         );
         const communityItems = mixedFeed.filter(i => i.kind === 'community');
         const directoryItems = mixedFeed.filter(i => i.kind === 'directory');
@@ -55,8 +59,8 @@ export default function PipelineRandomizerModal({ isOpen, onClose, mixedFeed }: 
         if (seo) selected.add(seo);
 
         // keep adding while we don't have 5 elements
-        const launch = pickRandom(launchItems.filter(i => !selected.has(i)));
-        if (launch) selected.add(launch);
+        const distributeItem = pickRandom(distributeItems.filter(i => !selected.has(i)));
+        if (distributeItem) selected.add(distributeItem);
 
         const comm = pickRandom(communityItems.filter(i => !selected.has(i)));
         if (comm) selected.add(comm);
@@ -76,12 +80,21 @@ export default function PipelineRandomizerModal({ isOpen, onClose, mixedFeed }: 
 
         setRecommendations(Array.from(selected));
 
-        // initialize added ids based on user pipeline
-        if (user?.distroPipeline) {
-            const existingIds = new Set(user.distroPipeline.map(p => p.id));
-            setAddedIds(existingIds);
-        } else {
-            setAddedIds(new Set());
+        // Initialize added ids by checking both collections
+        if (user) {
+            try {
+                const [dirSubs, commSubs] = await Promise.all([
+                    queryDocuments<DirectorySubmission>('directory_submissions', [{ field: 'project_id', operator: '==', value: projectId }]),
+                    queryDocuments<DirectorySubmission>('community_submissions', [{ field: 'project_id', operator: '==', value: projectId }])
+                ]);
+                const existingIds = new Set([
+                    ...(dirSubs || []).map(s => s.directory_id),
+                    ...(commSubs || []).map(s => s.directory_id)
+                ]);
+                setAddedIds(existingIds);
+            } catch (err) {
+                console.error("Failed to check existing pipeline:", err);
+            }
         }
     };
 
@@ -95,30 +108,37 @@ export default function PipelineRandomizerModal({ isOpen, onClose, mixedFeed }: 
 
         setAdding(true);
         try {
-            const newPipelineItem = {
-                id: item.id,
-                kind: item.kind,
-                name: item.name,
-                url: item.url,
-                category: item.kind === 'directory' ? item.category : (item as any).categories?.[0] || 'Community'
+            const collection = item.kind === 'directory' ? 'directory_submissions' : 'community_submissions';
+            const subId = `${item.kind}_sub_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+
+            const newSubmission: DirectorySubmission = {
+                id: subId,
+                project_id: projectId,
+                directory_id: item.id,
+                directory_name: item.name,
+                directory_url: item.url || '',
+                status: 'not_started',
+                created_at: new Date(),
+                updated_at: new Date()
             };
 
-            const currentPipeline = user.distroPipeline || [];
-            const updatedPipeline = [...currentPipeline, newPipelineItem];
-
-            await updateDocument('users', user.id, { distroPipeline: updatedPipeline });
-
-            useAuthStore.setState({
-                user: { ...user, distroPipeline: updatedPipeline }
-            });
+            if (user?.id !== 'dev_local_user_123') {
+                await setDocument(collection, subId, newSubmission);
+            }
 
             setAddedIds(prev => {
                 const newSet = new Set(prev);
                 newSet.add(item.id);
                 return newSet;
             });
-        } catch (error) {
+            alert(`Added ${item.name} to your pipeline!`);
+        } catch (error: any) {
             console.error("Failed to add to pipeline", error);
+            if (error.message && error.message.includes('Missing or insufficient permissions')) {
+                alert(`Firebase Error: Insufficient permissions to write to ${item.kind === 'directory' ? 'directory_submissions' : 'community_submissions'}. Please update your Firestore Security Rules.`);
+            } else {
+                alert("Failed to add. Check your permissions.");
+            }
         } finally {
             setAdding(false);
         }
@@ -130,41 +150,45 @@ export default function PipelineRandomizerModal({ isOpen, onClose, mixedFeed }: 
             return;
         }
 
+        const itemsToAdd = recommendations.filter(i => !addedIds.has(i.id));
+        if (itemsToAdd.length === 0) return;
+
         setAdding(true);
         try {
-            const currentPipeline = user.distroPipeline || [];
-            const existingIdsThisSession = new Set(currentPipeline.map(p => p.id));
+            await Promise.all(itemsToAdd.map(async item => {
+                const collection = item.kind === 'directory' ? 'directory_submissions' : 'community_submissions';
+                const subId = `${item.kind}_sub_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 
-            const newItems = recommendations
-                .filter(item => !existingIdsThisSession.has(item.id))
-                .map(item => ({
-                    id: item.id,
-                    kind: item.kind,
-                    name: item.name,
-                    url: item.url,
-                    category: item.kind === 'directory' ? item.category : (item as any).categories?.[0] || 'Community'
-                }));
+                const newSubmission: DirectorySubmission = {
+                    id: subId,
+                    project_id: projectId,
+                    directory_id: item.id,
+                    directory_name: item.name,
+                    directory_url: item.url || '',
+                    status: 'not_started',
+                    created_at: new Date(),
+                    updated_at: new Date()
+                };
 
-            if (newItems.length === 0) {
-                setAdding(false);
-                return;
-            }
-
-            const updatedPipeline = [...currentPipeline, ...newItems];
-
-            await updateDocument('users', user.id, { distroPipeline: updatedPipeline });
-
-            useAuthStore.setState({
-                user: { ...user, distroPipeline: updatedPipeline }
-            });
+                if (user?.id !== 'dev_local_user_123') {
+                    return setDocument(collection, subId, newSubmission);
+                }
+                return Promise.resolve();
+            }));
 
             setAddedIds(prev => {
                 const newSet = new Set(prev);
-                newItems.forEach(i => newSet.add(i.id));
+                itemsToAdd.forEach(i => newSet.add(i.id));
                 return newSet;
             });
-        } catch (error) {
+            alert(`Added ${itemsToAdd.length} items to your pipeline!`);
+        } catch (error: any) {
             console.error("Failed to add all to pipeline", error);
+            if (error.message && error.message.includes('Missing or insufficient permissions')) {
+                alert('Firebase Error: Insufficient permissions to write to firestore. Please update your Firestore Security Rules.');
+            } else {
+                alert("Some items failed to add.");
+            }
         } finally {
             setAdding(false);
         }
@@ -191,7 +215,7 @@ export default function PipelineRandomizerModal({ isOpen, onClose, mixedFeed }: 
                 >
                     {/* Header */}
                     <div className="flex-shrink-0 px-6 py-5 border-b border-white/10 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-violet-500/20 blur-[80px] -z-10 rounded-full" />
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/20 blur-[80px] -z-10 rounded-full" />
                         <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-500/20 blur-[60px] -z-10 rounded-full" />
 
                         <button
@@ -202,12 +226,12 @@ export default function PipelineRandomizerModal({ isOpen, onClose, mixedFeed }: 
                         </button>
 
                         <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-blue-600 flex items-center justify-center shadow-lg shadow-violet-500/30">
+                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
                                 <Sparkles className="w-6 h-6 text-white" />
                             </div>
                             <div>
                                 <h2 className="text-xl font-bold text-white mb-1">AI Recommendation curated list</h2>
-                                <p className="text-sm text-white/60">Generate random channels across different aspects (SEO, Beta Launch, Groups) and add them to your distribution pipeline.</p>
+                                <p className="text-sm text-white/60">Generate random channels across different aspects (SEO, Beta Distribute, Groups) and add them to your distribution pipeline.</p>
                             </div>
                         </div>
                     </div>
@@ -225,8 +249,8 @@ export default function PipelineRandomizerModal({ isOpen, onClose, mixedFeed }: 
                                 if (item.category?.includes('SEO') || item.description?.toLowerCase().includes('seo')) {
                                     aspectLabel = 'SEO Boosting';
                                     aspectColor = 'bg-blue-500/20 text-blue-300 border-blue-500/30';
-                                } else if (item.category?.includes('Launch') || item.description?.toLowerCase().includes('launch')) {
-                                    aspectLabel = 'Beta Launch';
+                                } else if (item.category?.includes('Distribute') || item.category?.includes('Launch') || item.description?.toLowerCase().includes('distribute') || item.description?.toLowerCase().includes('launch')) {
+                                    aspectLabel = 'Beta Distribute';
                                     aspectColor = 'bg-orange-500/20 text-orange-300 border-orange-500/30';
                                 } else {
                                     aspectLabel = 'Directory';
@@ -234,7 +258,7 @@ export default function PipelineRandomizerModal({ isOpen, onClose, mixedFeed }: 
                                 }
                             } else {
                                 aspectLabel = 'Group to scale';
-                                aspectColor = 'bg-purple-500/20 text-purple-300 border-purple-500/30';
+                                aspectColor = 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30';
                             }
 
                             return (
@@ -260,7 +284,7 @@ export default function PipelineRandomizerModal({ isOpen, onClose, mixedFeed }: 
                                         disabled={isAdded || adding}
                                         className={`flex-shrink-0 flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-semibold transition-all ${isAdded
                                             ? 'bg-green-500/20 text-green-400 border border-green-500/30 cursor-default'
-                                            : 'bg-white/10 hover:bg-violet-600 border border-white/10 hover:border-violet-500 text-white'
+                                            : 'bg-white/10 hover:bg-indigo-600 border border-white/10 hover:border-indigo-500 text-white'
                                             }`}
                                     >
                                         {isAdded ? <><Check className="w-3.5 h-3.5" /> Added</> : <><Plus className="w-3.5 h-3.5" /> Add to Pipeline</>}
@@ -289,7 +313,7 @@ export default function PipelineRandomizerModal({ isOpen, onClose, mixedFeed }: 
                             <button
                                 onClick={handleAddAll}
                                 disabled={adding || recommendations.every(r => addedIds.has(r.id))}
-                                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white text-sm font-semibold shadow-lg shadow-violet-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white text-sm font-semibold shadow-lg shadow-indigo-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <Plus className="w-4 h-4" /> Add All to Pipeline
                             </button>

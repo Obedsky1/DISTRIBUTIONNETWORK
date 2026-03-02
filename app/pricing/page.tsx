@@ -1,177 +1,98 @@
-'use client';
-
-import { motion } from 'framer-motion';
-import { Check, Sparkles, Zap, Crown } from 'lucide-react';
-import { useState } from 'react';
-import { PRICING_PLANS } from '@/lib/stripe/config';
-import { useRouter } from 'next/navigation';
+import { Sparkles } from 'lucide-react';
+import PricingCards from '@/components/PricingCards';
 
 export default function PricingPage() {
-    const router = useRouter();
-    const [loading, setLoading] = useState<string | null>(null);
-
-    const handleSelectPlan = async (planId: string) => {
-        if (planId === 'FREE') {
-            router.push('/dashboard');
-            return;
-        }
-
-        setLoading(planId);
-
-        try {
-            // TODO: Get actual user ID from auth
-            const userId = 'demo-user-' + Date.now();
-
-            const response = await fetch('/api/stripe/checkout', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ planId, userId }),
-            });
-
-            const { url } = await response.json();
-            if (url) {
-                window.location.href = url;
-            }
-        } catch (error) {
-            console.error('Checkout error:', error);
-            alert('Failed to start checkout. Please try again.');
-        } finally {
-            setLoading(null);
-        }
-    };
-
-    const plans = [
-        {
-            ...PRICING_PLANS.FREE,
-            icon: Sparkles,
-            color: 'from-blue-500 to-cyan-500',
-            buttonText: 'Get Started Free',
-        },
-        {
-            ...PRICING_PLANS.PRO,
-            icon: Zap,
-            color: 'from-indigo-500 to-blue-500',
-            buttonText: 'Start Pro Trial',
-        },
-        {
-            ...PRICING_PLANS.ENTERPRISE,
-            icon: Crown,
-            color: 'from-orange-500 to-red-500',
-            buttonText: 'Contact Sales',
-        },
-    ];
-
     return (
-        <main className="min-h-screen relative overflow-hidden">
-            {/* Background gradients */}
-            <div className="fixed inset-0 -z-10">
-                <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary-500/20 rounded-full blur-3xl animate-pulse" />
-                <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <main className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-900 via-gray-900 to-black text-white">
+            {/* Background elements */}
+            <div className="absolute inset-0 z-0">
+                <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
+                <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none" />
             </div>
 
-            <div className="container mx-auto px-4 py-20">
+            <div className="container mx-auto px-4 py-20 relative z-10">
                 {/* Header */}
-                <div className="text-center mb-16">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-6"
-                    >
-                        <Sparkles className="w-4 h-4 text-primary-400" />
-                        <span className="text-sm text-white/80">Simple, Transparent Pricing</span>
-                    </motion.div>
+                <div className="text-center mb-16 max-w-2xl mx-auto">
+                    <div className="inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 mb-6 font-medium text-sm text-indigo-300">
+                        <Sparkles className="w-4 h-4" />
+                        <span>Simple, Transparent Pricing</span>
+                    </div>
 
-                    <motion.h1
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
-                        className="text-4xl md:text-6xl font-bold mb-4"
-                    >
-                        Choose Your{' '}
-                        <span className="bg-gradient-to-r from-primary-400 to-purple-500 bg-clip-text text-transparent">
-                            Growth Plan
-                        </span>
-                    </motion.h1>
+                    <h1 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight">
+                        Choose Your <span className="bg-gradient-to-r from-emerald-400 to-indigo-400 bg-clip-text text-transparent">Distribution Growth</span> Plan
+                    </h1>
 
-                    <motion.p
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="text-xl text-white/70 max-w-2xl mx-auto"
-                    >
-                        AI-powered tools to analyze your brand, generate content, and grow your business
-                    </motion.p>
+                    <p className="text-lg text-white/60">
+                        Distribute your product, maximize your visibility, and access 500+ distribution channels with Flutterwave secure payments.
+                    </p>
                 </div>
 
-                {/* Pricing Cards */}
-                <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-20">
-                    {plans.map((plan, index) => {
-                        const Icon = plan.icon;
-                        const isPopular = 'popular' in plan && plan.popular;
+                {/* Twitter Testimonials Section */}
+                <div className="mb-20">
+                    <div className="text-center mb-10">
+                        <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent mb-2">
+                            Distribution is Everything
+                        </h2>
+                        <p className="text-sm text-white/50">See what the community is saying</p>
+                    </div>
 
-                        return (
-                            <motion.div
-                                key={plan.id}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.1 * index }}
-                                className={`relative ${isPopular ? 'md:scale-105' : ''}`}
-                            >
-                                {isPopular && (
-                                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-full text-sm font-semibold">
-                                        Most Popular
-                                    </div>
-                                )}
+                    {/* Masonry-like grid for Tweets */}
+                    <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
+                        {/* Tweet 1 */}
+                        <div className="break-inside-avoid bg-white/5 rounded-2xl p-4 border border-white/10 hover:border-indigo-500/50 transition-colors">
+                            <blockquote className="twitter-tweet" data-theme="dark">
+                                <p lang="en" dir="ltr">Distribution beats optimization for news SEO. <a href="https://t.co/iScIEclAit">https://t.co/iScIEclAit</a></p>&mdash; Natia Kurdadze - SEO (@seonatia) <a href="https://twitter.com/seonatia/status/2006644119020716530?ref_src=twsrc%5Etfw">January 1, 2026</a>
+                            </blockquote>
+                        </div>
 
-                                <div className={`glass-strong rounded-3xl p-8 h-full flex flex-col ${isPopular ? 'border-2 border-purple-500/50' : ''}`}>
-                                    {/* Icon */}
-                                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${plan.color} flex items-center justify-center mb-4`}>
-                                        <Icon className="w-6 h-6 text-white" />
-                                    </div>
+                        {/* Tweet 2 */}
+                        <div className="break-inside-avoid bg-white/5 rounded-2xl p-4 border border-white/10 hover:border-indigo-500/50 transition-colors">
+                            <blockquote className="twitter-tweet" data-theme="dark">
+                                <p lang="en" dir="ltr">“Now I think people are going to be much more focused on marketing on distribution”<br /><br />AI can’t solve distribution<br /><br /> <a href="https://t.co/zJtVT6dHlB">pic.twitter.com/zJtVT6dHlB</a></p>&mdash; Matthew Kobach (@mkobach) <a href="https://twitter.com/mkobach/status/2024331681872658647?ref_src=twsrc%5Etfw">February 19, 2026</a>
+                            </blockquote>
+                        </div>
 
-                                    {/* Plan Name */}
-                                    <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
+                        {/* Tweet 3 */}
+                        <div className="break-inside-avoid bg-white/5 rounded-2xl p-4 border border-white/10 hover:border-indigo-500/50 transition-colors">
+                            <blockquote className="twitter-tweet" data-theme="dark">
+                                <p lang="en" dir="ltr">People great at marketing and distribution are about to get insanely rich.</p>&mdash; Saurabh (@TheOvermanEthos) <a href="https://twitter.com/TheOvermanEthos/status/2027707871836635349?ref_src=twsrc%5Etfw">February 28, 2026</a>
+                            </blockquote>
+                            {/* Tweet 5 */}
+                            <div className="break-inside-avoid bg-white/5 rounded-2xl p-4 border border-white/10 hover:border-indigo-500/50 transition-colors">
+                                <blockquote className="twitter-tweet" data-theme="dark">
+                                    <p lang="en" dir="ltr">Layers just distributed, and it’s rethinking marketing for developers.<br /><br />Most developers build good products. But getting users is where things break.<br /><br />Not because the product is bad - because distribution is hard.<br /><br />That’s the problem Layers is built to solve.<br /><br />Here’s why it matters: <a href="https://t.co/eYCmB7J531">pic.twitter.com/eYCmB7J531</a></p>&mdash; Markandey Sharma (@TechByMarkandey) <a href="https://twitter.com/TechByMarkandey/status/2024506793972682816?ref_src=twsrc%5Etfw">February 19, 2026</a>
+                                </blockquote>
+                            </div>
 
-                                    {/* Price */}
-                                    <div className="mb-6">
-                                        <span className="text-4xl font-bold">${plan.price}</span>
-                                        <span className="text-white/60">/month</span>
-                                    </div>
+                            {/* Tweet 6 */}
+                            <div className="break-inside-avoid bg-white/5 rounded-2xl p-4 border border-white/10 hover:border-indigo-500/50 transition-colors">
+                                <blockquote className="twitter-tweet" data-theme="dark">
+                                    <p lang="en" dir="ltr">Stop building features that nobody is ever going to see. If you’re a startup founder, you need to hear this right now.<br /><br />You can fall down a rabbit hole building ten features, ten tools, ten ideas… but often neglect distribution and marketing. You can have amazing tech - but if… <a href="https://t.co/xfWWsZC9hP">pic.twitter.com/xfWWsZC9hP</a></p>&mdash; Victor Young (@VictorYoungMe) <a href="https://twitter.com/VictorYoungMe/status/2026587547762307175?ref_src=twsrc%5Etfw">February 25, 2026</a>
+                                </blockquote>
+                            </div>
+                        </div>
 
-                                    {/* Features */}
-                                    <ul className="space-y-3 mb-8 flex-grow">
-                                        {plan.features.map((feature, i) => (
-                                            <li key={i} className="flex items-start gap-3">
-                                                <Check className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
-                                                <span className="text-white/80">{feature}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
+                        {/* Tweet 4 */}
+                        <div className="break-inside-avoid bg-white/5 rounded-2xl p-4 border border-white/10 hover:border-indigo-500/50 transition-colors">
+                            <blockquote className="twitter-tweet" data-theme="dark">
+                                <p lang="en" dir="ltr">YC giving their expert advice: <br />“Build something people want” <br />“Talk to users”<br />“Hire A players” <br />“Focus on distribution” <br /><br />Founders: <a href="https://t.co/gH4oiLcvuE">pic.twitter.com/gH4oiLcvuE</a></p>&mdash; VCs Congratulating Themselves 👏👏👏 (@VCBrags) <a href="https://twitter.com/VCBrags/status/2026017038255177804?ref_src=twsrc%5Etfw">February 23, 2026</a>
+                            </blockquote>
+                        </div>
+                    </div>
+                    {/* Load Twitter Widgets Script */}
+                    <script async src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script>
+                </div>
 
-                                    {/* CTA Button */}
-                                    <motion.button
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                        onClick={() => handleSelectPlan(plan.id)}
-                                        disabled={loading === plan.id}
-                                        className={`w-full py-4 rounded-full font-semibold transition-all ${isPopular
-                                            ? 'bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-600 hover:to-blue-600 text-white shadow-lg shadow-indigo-500/50'
-                                            : 'glass hover:bg-white/20 text-white'
-                                            }`}
-                                    >
-                                        {loading === plan.id ? 'Loading...' : plan.buttonText}
-                                    </motion.button>
-                                </div>
-                            </motion.div>
-                        );
-                    })}
+                {/* Pricing Cards Component */}
+                <div className="mb-20">
+                    <PricingCards />
                 </div>
 
                 {/* FAQ Section */}
                 <div className="max-w-3xl mx-auto">
                     <h2 className="text-3xl font-bold text-center mb-12">Frequently Asked Questions</h2>
 
-                    <div className="space-y-6">
+                    <div className="grid gap-6">
                         {[
                             {
                                 q: 'Can I change my plan later?',
@@ -179,27 +100,20 @@ export default function PricingPage() {
                             },
                             {
                                 q: 'What payment methods do you accept?',
-                                a: 'We accept all major credit cards through Stripe, our secure payment processor.',
+                                a: 'We use Flutterwave to safely and securely process payments directly from your Dashboard.',
                             },
                             {
-                                q: 'Is there a free trial?',
-                                a: 'The Free plan is available forever with no credit card required. Pro and Enterprise plans offer a 7-day money-back guarantee.',
-                            },
-                            {
-                                q: 'How does the AI content generation work?',
-                                a: 'Our AI uses Google Gemini to generate high-quality, contextual content based on your brand voice and target audience.',
-                            },
+                                q: 'What is the "Done For You" plan?',
+                                a: 'If you want to focus completely on your product, our team will handle the distribution and directory submissions for you from end to end.',
+                            }
                         ].map((faq, index) => (
-                            <motion.div
+                            <div
                                 key={index}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.5 + index * 0.1 }}
-                                className="glass rounded-2xl p-6"
+                                className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-colors"
                             >
-                                <h3 className="text-lg font-semibold mb-2">{faq.q}</h3>
-                                <p className="text-white/70">{faq.a}</p>
-                            </motion.div>
+                                <h3 className="text-lg font-bold mb-2 text-white">{faq.q}</h3>
+                                <p className="text-white/60 leading-relaxed">{faq.a}</p>
+                            </div>
                         ))}
                     </div>
                 </div>

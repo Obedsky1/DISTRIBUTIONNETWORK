@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { signIn, signUp, signInWithGoogle, signInAnonymously } from '@/lib/firebase/auth';
+import { signIn, signUp, signInWithGoogle } from '@/lib/firebase/auth';
 import { useRouter } from 'next/navigation';
-import { Mail, Lock, User, Chrome, UserCircle } from 'lucide-react';
+import { Mail, Lock, User, Chrome } from 'lucide-react';
 
 export default function AuthPage() {
     const router = useRouter();
@@ -50,19 +50,7 @@ export default function AuthPage() {
         }
     };
 
-    const handleAnonymousSignIn = async () => {
-        setError('');
-        setLoading(true);
 
-        try {
-            await signInAnonymously();
-            router.push('/onboarding');
-        } catch (err: any) {
-            setError(err.message || 'Anonymous sign-in failed');
-        } finally {
-            setLoading(false);
-        }
-    };
 
     return (
         <main className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 flex items-center justify-center px-4">
@@ -162,19 +150,7 @@ export default function AuthPage() {
                         Continue with Google
                     </button>
 
-                    {/* Anonymous Sign In */}
-                    <button
-                        type="button"
-                        onClick={handleAnonymousSignIn}
-                        disabled={loading}
-                        className="w-full mt-3 py-2 glass rounded-xl font-semibold hover:glass-strong transition-all flex flex-col items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        <div className="flex items-center justify-center gap-2">
-                            <UserCircle className="w-5 h-5" />
-                            Continue as Guest
-                        </div>
-                        <span className="text-xs text-yellow-400 font-normal px-2 text-center">Note: Your pipeline will not be saved.</span>
-                    </button>
+
 
                     {/* Toggle */}
                     <div className="text-center mt-6">

@@ -7,6 +7,9 @@ import { TableView } from '@/components/directories/TableView';
 import { WorkspaceModal } from '@/components/directories/WorkspaceModal';
 import { DirectorySubmission } from '@/types/distribution';
 import { DropResult } from '@hello-pangea/dnd';
+import { useAuthStore } from '@/lib/store/auth-store';
+import { queryDocuments, setDocument, updateDocument } from '@/lib/firebase/firestore';
+import { PageGuide } from '@/components/PageGuide';
 
 /* ─── Types ─── */
 interface Directory {
@@ -34,7 +37,7 @@ function enrich(d: Directory): EnrichedDirectory {
 const STEPS = [
     {
         id: 'product',
-        question: "What are you launching?",
+        question: "What are you distributing?",
         subtitle: "We'll tailor the best directories for you",
         options: [
             { value: 'ai-saas', label: 'AI / SaaS Tool', icon: '🤖', desc: 'Software, AI, or web app' },
@@ -43,7 +46,7 @@ const STEPS = [
             { value: 'community', label: 'Community', icon: '👥', desc: 'Forum, group, or network' },
             { value: 'content', label: 'Blog / Content', icon: '✍️', desc: 'Newsletter, blog, or media' },
             { value: 'marketplace', label: 'Marketplace', icon: '🛒', desc: 'Platform connecting buyers & sellers' },
-            { value: 'beta', label: 'Beta / Pre-Launch', icon: '🧪', desc: 'Early access, seeking first testers' },
+            { value: 'beta', label: 'Beta / Pre-Distribute', icon: '🧪', desc: 'Early access, seeking first testers' },
         ],
     },
     {
@@ -51,7 +54,7 @@ const STEPS = [
         question: "What's your primary goal?",
         subtitle: "We'll prioritise for the highest return",
         options: [
-            { value: 'visibility', label: 'Launch Visibility', icon: '🚀', desc: 'Get discovered fast' },
+            { value: 'visibility', label: 'Distribute Visibility', icon: '🚀', desc: 'Get discovered fast' },
             { value: 'seo', label: 'SEO Backlinks', icon: '🔍', desc: 'Boost search rankings' },
             { value: 'users', label: 'Get First Users', icon: '🎯', desc: 'Drive sign-ups or leads' },
             { value: 'community-growth', label: 'Community Growth', icon: '💬', desc: 'Build an engaged audience' },
@@ -75,13 +78,13 @@ function scoreDir(dir: EnrichedDirectory, answers: Answers): number {
     let score = 0;
     const { product, goal, budget } = answers;
 
-    if (product === 'ai-saas' && ['AI Tools', 'AI Hubs', 'Software Reviews', 'Product Launch'].includes(dir.category)) score += 3;
+    if (product === 'ai-saas' && ['AI Tools', 'AI Hubs', 'Software Reviews', 'Product Launch', 'Product Distribute'].includes(dir.category)) score += 3;
     if (product === 'dev-tool' && ['Design & Dev', 'Cloud Marketplaces', 'AI Tools', 'Software Reviews'].includes(dir.category)) score += 3;
     if (product === 'agency' && ['Startup Networks', 'Directories', 'Solopreneur Hubs'].includes(dir.category)) score += 3;
     if (product === 'community' && ['Communities', 'Reddit', 'Solopreneur Hubs'].includes(dir.category)) score += 3;
     if (product === 'content' && ['SEO Guest Posts', 'AI Hubs', 'Directories'].includes(dir.category)) score += 3;
     if (product === 'marketplace' && ['Marketplaces', 'Cloud Marketplaces', 'Startup Networks'].includes(dir.category)) score += 3;
-    if (product === 'beta' && ['Beta Tester', 'Product Launch', 'Communities', 'Reddit', 'Solopreneur Hubs'].includes(dir.category)) score += 3;
+    if (product === 'beta' && ['Beta Tester', 'Product Launch', 'Product Distribute', 'Communities', 'Reddit', 'Solopreneur Hubs'].includes(dir.category)) score += 3;
     if (product === 'beta' && dir.name.toLowerCase().includes('beta')) score += 2;
 
     if (goal === 'visibility' && dir.impact === 'High') score += 2;
@@ -102,16 +105,16 @@ function scoreDir(dir: EnrichedDirectory, answers: Answers): number {
 /* ─── Styles ─── */
 const DIFF_STYLE: Record<string, string> = { Easy: 'bg-green-500/15 text-green-300 border-green-500/25', Medium: 'bg-yellow-500/15 text-yellow-300 border-yellow-500/25', Hard: 'bg-red-500/15 text-red-300 border-red-500/25' };
 const IMPACT_STYLE: Record<string, string> = { High: 'bg-violet-500/15 text-violet-300 border-violet-500/25', Medium: 'bg-blue-500/15 text-blue-300 border-blue-500/25', Low: 'bg-gray-500/15 text-gray-400 border-gray-500/25' };
-const PRICING_STYLE: Record<string, string> = { Free: 'bg-green-500/15 text-green-300', Paid: 'bg-purple-500/15 text-purple-300', 'Free/Paid': 'bg-blue-500/15 text-blue-300', 'Revenue Share': 'bg-orange-500/15 text-orange-300' };
+const PRICING_STYLE: Record<string, string> = { Free: 'bg-green-500/15 text-green-300', Paid: 'bg-indigo-500/15 text-indigo-300', 'Free/Paid': 'bg-blue-500/15 text-blue-300', 'Revenue Share': 'bg-orange-500/15 text-orange-300' };
 const DA_COLOR = (da: number) => da >= 80 ? 'text-green-400' : da >= 60 ? 'text-blue-400' : da >= 40 ? 'text-yellow-400' : 'text-gray-500';
 
 /* ─── Directory Card ─── */
 function DirCard({ dir, isSubmitted, onToggle }: { dir: EnrichedDirectory; isSubmitted: boolean; onToggle: () => void }) {
     return (
-        <div className={`relative rounded-2xl border p-4 flex flex-col gap-2.5 transition-all hover:bg-white/5 group ${isSubmitted ? 'border-violet-500/40 bg-violet-500/5' : 'border-white/8 bg-white/2'}`}>
+        <div className={`relative rounded-2xl border p-4 flex flex-col gap-2.5 transition-all hover:bg-white/5 group ${isSubmitted ? 'border-indigo-500/40 bg-indigo-500/5' : 'border-white/8 bg-white/2'}`}>
             <div className="flex items-start gap-2">
                 <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-sm text-white truncate group-hover:text-violet-300 transition-colors">{dir.name}</h3>
+                    <h3 className="font-bold text-sm text-white truncate group-hover:text-indigo-300 transition-colors">{dir.name}</h3>
                     <p className="text-[11px] text-white/35 line-clamp-2 mt-0.5 leading-relaxed">{dir.description}</p>
                 </div>
                 <span className={`flex items-center gap-0.5 flex-shrink-0 text-[11px] font-bold ${DA_COLOR(dir.domain_authority ?? 0)}`}>
@@ -128,8 +131,8 @@ function DirCard({ dir, isSubmitted, onToggle }: { dir: EnrichedDirectory; isSub
                     onClick={onToggle}
                     disabled={isSubmitted}
                     className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-xl text-[11px] font-semibold border transition-all ${isSubmitted
-                        ? 'bg-violet-500/20 border-violet-500/30 text-violet-300 opacity-60 cursor-not-allowed'
-                        : 'bg-violet-500/10 border-violet-500/20 text-violet-300 hover:bg-violet-500/22'
+                        ? 'bg-indigo-500/20 border-indigo-500/30 text-indigo-300 opacity-60 cursor-not-allowed'
+                        : 'bg-indigo-500/10 border-indigo-500/20 text-indigo-300 hover:bg-indigo-500/22'
                         }`}
                 >
                     {isSubmitted ? <><CheckCircle className="w-3.5 h-3.5" />In Pipeline</> : <><Plus className="w-3.5 h-3.5" />Add to Pipeline</>}
@@ -139,13 +142,11 @@ function DirCard({ dir, isSubmitted, onToggle }: { dir: EnrichedDirectory; isSub
     );
 }
 
-/* ═══════════════════════════════════════════════════════════ */
-
-// Static USER ID for current impl
-const USER_ID = 'test_user_id';
-const PROJECT_ID = 'default_project_id';
 
 export default function DirectoriesPage() {
+    const { user, openAuthModal } = useAuthStore();
+    const userId = user?.id || 'anonymous';
+    const projectId = `default_project_${userId}`;
     const [directories, setDirectories] = useState<EnrichedDirectory[]>([]);
     const [loading, setLoading] = useState(true);
     const [step, setStep] = useState(0);
@@ -159,46 +160,54 @@ export default function DirectoriesPage() {
     const [showAll, setShowAll] = useState(false);
 
     useEffect(() => {
-        // Fetch Directories
+        // Fetch Directories (Public data)
         fetch('/api/directories?limit=1000')
             .then(r => r.json())
             .then(data => setDirectories((data.directories || []).map(enrich)))
-            .catch(() => { })
-            .finally(() => setLoading(false));
+            .catch(() => { });
 
-        // Setup initial project if needed
-        fetch('/api/projects', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ user_id: USER_ID, name: 'Default Project', goal_type: 'beta_users' })
-        }).then(() => {
-            // Fetch Submissions
-            fetch(`/api/submissions?projectId=${PROJECT_ID}`)
-                .then(r => r.json())
-                .then(data => setSubmissions(data.submissions || []));
-        });
-    }, []);
+        // Fetch Submissions (User data)
+        if (user) {
+            queryDocuments<DirectorySubmission>('directory_submissions', [
+                { field: 'project_id', operator: '==', value: projectId }
+            ]).then(subs => {
+                setSubmissions(subs || []);
+            }).catch(err => {
+                console.error('Failed to fetch submissions:', err);
+            }).finally(() => setLoading(false));
+        } else {
+            setLoading(false);
+        }
+    }, [user, projectId]);
 
     const isSubmitted = (name: string) => submissions.some(s => s.directory_name === name);
 
     const addToPipeline = async (dir: EnrichedDirectory) => {
+        if (!user) {
+            openAuthModal();
+            return;
+        }
         if (isSubmitted(dir.name)) return;
 
-        const res = await fetch('/api/submissions', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                project_id: PROJECT_ID,
-                user_id: USER_ID,
-                directory_id: dir.url,
-                directory_name: dir.name,
-                directory_url: dir.url
-            })
-        });
+        const newSubmission: DirectorySubmission = {
+            id: `sub_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+            project_id: projectId,
+            directory_id: dir.url,
+            directory_name: dir.name,
+            directory_url: dir.url || '',
+            status: 'not_started',
+            created_at: new Date(),
+            updated_at: new Date()
+        };
 
-        if (res.ok) {
-            const data = await res.json();
-            setSubmissions(prev => [data.submission, ...prev]);
+        try {
+            await setDocument('directory_submissions', newSubmission.id, newSubmission);
+            setSubmissions(prev => [newSubmission, ...prev]);
+        } catch (err: any) {
+            console.error('Failed to add to pipeline:', err);
+            if (err.message && err.message.includes('Missing or insufficient permissions')) {
+                alert('Firebase Error: Insufficient permissions to write to directory_submissions. Please update your Firestore Security Rules in the Firebase Console (Build -> Firestore Database -> Rules) to allow reads/writes.');
+            }
         }
     };
 
@@ -215,11 +224,18 @@ export default function DirectoriesPage() {
         setSubmissions(updatedSubs);
 
         // Backend update
-        await fetch(`/api/submissions/${draggableId}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status: destination.droppableId, user_id: USER_ID })
-        });
+        try {
+            await updateDocument('directory_submissions', draggableId, {
+                status: destination.droppableId as any
+            });
+        } catch (err: any) {
+            console.error('Failed to update status:', err);
+            if (err.message?.includes('Missing or insufficient permissions')) {
+                alert('Firebase Error: Could not save status change. Please update your Firestore Security Rules.');
+            }
+            // Revert on error
+            setSubmissions(submissions);
+        }
     };
 
     const openWorkspace = (sub: DirectorySubmission) => {
@@ -230,10 +246,14 @@ export default function DirectoriesPage() {
     const closeWorkspace = () => {
         setIsWorkspaceOpen(false);
         setSelectedSubmission(null);
-        // Refresh submissions
-        fetch(`/api/submissions?projectId=${PROJECT_ID}`)
-            .then(r => r.json())
-            .then(data => setSubmissions(data.submissions || []));
+        // Refresh submissions from client-side firestore
+        if (user) {
+            queryDocuments<DirectorySubmission>('directory_submissions', [
+                { field: 'project_id', operator: '==', value: projectId }
+            ]).then(subs => {
+                setSubmissions(subs || []);
+            });
+        }
     };
 
     /* ── Scoring logic ── */
@@ -265,19 +285,19 @@ export default function DirectoriesPage() {
     if (step < 3) {
         const progress = ((step) / STEPS.length) * 100;
         return (
-            <div className="min-h-screen bg-[#080810] text-white flex flex-col pt-20" style={{ fontFamily: 'Inter, sans-serif' }}>
+            <div className="min-h-screen bg-[#080810] text-white flex flex-col pt-6" style={{ fontFamily: 'Inter, sans-serif' }}>
                 <div className="h-0.5 bg-white/8">
-                    <div className="h-full bg-gradient-to-r from-violet-500 to-blue-500 transition-all duration-500" style={{ width: `${progress}%` }} />
+                    <div className="h-full bg-gradient-to-r from-indigo-500 to-blue-500 transition-all duration-500" style={{ width: `${progress}%` }} />
                 </div>
                 <div className="flex-1 flex items-center justify-center px-4 py-12">
                     <div className="w-full max-w-2xl">
                         <div className="flex items-center gap-2 mb-8">
                             {STEPS.map((s, i) => (
                                 <div key={i} className="flex items-center gap-2">
-                                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border ${i < step ? 'bg-violet-600 border-violet-600' : i === step ? 'border-violet-500 text-violet-400' : 'border-white/15 text-white/25'}`}>
+                                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border ${i < step ? 'bg-indigo-600 border-indigo-600' : i === step ? 'border-indigo-500 text-indigo-400' : 'border-white/15 text-white/25'}`}>
                                         {i < step ? '✓' : i + 1}
                                     </div>
-                                    {i < STEPS.length - 1 && <div className={`flex-1 h-px w-8 ${i < step ? 'bg-violet-500' : 'bg-white/10'}`} />}
+                                    {i < STEPS.length - 1 && <div className={`flex-1 h-px w-8 ${i < step ? 'bg-indigo-500' : 'bg-white/10'}`} />}
                                 </div>
                             ))}
                         </div>
@@ -285,12 +305,12 @@ export default function DirectoriesPage() {
                             <h1 className="text-2xl sm:text-3xl font-black mb-2 tracking-tight">{currentStep.question}</h1>
                             <p className="text-white/40 text-sm">{currentStep.subtitle}</p>
                         </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                             {currentStep.options.map(opt => (
-                                <button key={opt.value} onClick={() => answer(currentStep.id, opt.value)} className="flex flex-col items-start gap-2 p-4 rounded-2xl border border-white/8 bg-white/3 hover:border-violet-500/40 text-left transition-all group">
+                                <button key={opt.value} onClick={() => answer(currentStep.id, opt.value)} className="flex flex-col items-start gap-2 p-4 rounded-2xl border border-white/8 bg-white/3 hover:border-indigo-500/40 text-left transition-all group">
                                     <span className="text-2xl">{opt.icon}</span>
                                     <div>
-                                        <p className="text-sm font-bold group-hover:text-violet-300">{opt.label}</p>
+                                        <p className="text-sm font-bold group-hover:text-indigo-300">{opt.label}</p>
                                         <p className="text-[11px] text-white/35 mt-0.5">{opt.desc}</p>
                                     </div>
                                 </button>
@@ -303,7 +323,7 @@ export default function DirectoriesPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#080810] text-white pt-24" style={{ fontFamily: 'Inter, sans-serif' }}>
+        <div className="min-h-screen bg-[#080810] text-white pt-6" style={{ fontFamily: 'Inter, sans-serif' }}>
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
                 {/* Header & View Toggles */}
@@ -341,7 +361,7 @@ export default function DirectoriesPage() {
                         <div className="space-y-6">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
                                 <h2 className="text-base sm:text-lg font-bold flex items-center gap-2">
-                                    <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-violet-400" /> Curated Directories
+                                    <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-400" /> Curated Directories
                                 </h2>
                                 <button onClick={reset} className="text-[11px] sm:text-xs text-white/40 hover:text-white transition-colors flex items-center gap-1.5 self-start sm:self-auto">
                                     <RotateCcw className="w-3.5 h-3.5" /> Retake Questionnaire
@@ -397,7 +417,17 @@ export default function DirectoriesPage() {
                 isOpen={isWorkspaceOpen}
                 onClose={closeWorkspace}
                 submission={selectedSubmission}
-                userId={USER_ID}
+                userId={userId}
+            />
+
+            <PageGuide
+                title="Directories"
+                steps={[
+                    { title: 'Questionnaire', description: 'If you havent already, answer the 3 quick questions. We will use this to sort the directory targets by the highest ROI for your startup.' },
+                    { title: 'Grid View', description: 'Browse the top directory targets and click Add to Pipeline for the ones you want to submit to.' },
+                    { title: 'Pipeline View', description: 'Switch to Pipeline to see your kanban board. Drag and drop targets as you submit to them to track your progress.' },
+                    { title: 'Workspace Modal', description: 'Click any target in your Pipeline to open a popup workspace. We generate submission copy for you automatically!' },
+                ]}
             />
         </div>
     );

@@ -9,6 +9,7 @@ import {
     Sparkles, FileText, MessageSquare, BookOpen, Zap,
     Globe, X, AlertTriangle, Copy, Check, RefreshCw, Home
 } from 'lucide-react';
+import { PageGuide } from '@/components/PageGuide';
 
 interface Directory {
     id: string;
@@ -46,7 +47,7 @@ type AITab = 'analyze' | 'generate';
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
 const CATEGORY_ICONS: Record<string, string> = {
-    'Product Launch': '🚀',
+    'Product Distribute': '🚀',
     'SEO Guest Posts': '📝',
     'Software Reviews': '⭐',
     'Startup Networks': '🏢',
@@ -126,9 +127,7 @@ export default function WorkspacePage() {
         }
     }, [user, loading, router, openAuthModal]);
 
-    if (loading || (!loading && !user)) {
-        return null; // Don't render anything while checking auth or redirecting
-    }
+
 
     // ----- Load directories -----
     useEffect(() => {
@@ -298,6 +297,10 @@ export default function WorkspacePage() {
     };
 
     const daColor = (da: number) => da >= 80 ? 'text-green-400' : da >= 60 ? 'text-blue-400' : da >= 40 ? 'text-yellow-400' : 'text-gray-500';
+
+    if (loading || (!loading && !user)) {
+        return null; // Don't render anything while checking auth or redirecting
+    }
 
     return (
         <div className="h-screen bg-gray-950 flex flex-col overflow-hidden" style={{ fontFamily: 'Inter, sans-serif' }}>
@@ -928,6 +931,16 @@ export default function WorkspacePage() {
                     <span className="text-[10px] font-semibold">AI Studio</span>
                 </button>
             </div>
+
+            <PageGuide
+                title="Distribution Workspace"
+                steps={[
+                    { title: 'Directories Panel', description: 'Browse or search through hundreds of startup directories. Click any directory to open it in the center panel.' },
+                    { title: 'Center Preview', description: 'Interact with the directory website directly in this workspace without opening a new tab. Some websites block this, in which case we show a quick preview.' },
+                    { title: 'AI Studio', description: 'Enter your SaaS details to get actionable insights, then seamlessly generate copy tailored to the platform you are distributing on.' },
+                    { title: 'Resize Panels', description: 'You can drag the dividers between the panels to customize your workspace layout.' },
+                ]}
+            />
         </div>
     );
 }

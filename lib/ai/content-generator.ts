@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY || '');
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || process.env.GOOGLE_GEMINI_API_KEY || '');
 
 export type ContentType = 'comment' | 'story' | 'post' | 'description';
 
@@ -68,7 +68,7 @@ Generate an engaging, authentic comment for a ${context.platform || 'social medi
 
 Context:
 - Brand/Product: ${context.productName || 'Not specified'}
-- Voice: ${context.voice || 'professional'}
+- Voice: ${context.brandVoice || 'professional'}
 - Target Audience: ${context.targetAudience || 'general'}
 - Additional Context: ${context.additionalContext || 'None'}
 
@@ -89,7 +89,7 @@ Create a compelling brand story or narrative for ${context.productName || 'a pro
 
 Context:
 - Brand/Product: ${context.productName || 'Not specified'}
-- Voice: ${context.voice || 'professional'}
+- Voice: ${context.brandVoice || 'professional'}
 - Target Audience: ${context.targetAudience || 'general'}
 - Topic/Theme: ${context.topic || 'brand origin story'}
 - Additional Context: ${context.additionalContext || 'None'}
@@ -111,7 +111,7 @@ Create an engaging ${context.platform || 'social media'} post for ${context.prod
 
 Context:
 - Brand/Product: ${context.productName || 'Not specified'}
-- Voice: ${context.voice || 'professional'}
+- Voice: ${context.brandVoice || 'professional'}
 - Target Audience: ${context.targetAudience || 'general'}
 - Topic: ${context.topic || 'product announcement'}
 - Platform: ${context.platform || 'general social media'}
@@ -135,7 +135,7 @@ Write a compelling product description for ${context.productName || 'a product'}
 
 Context:
 - Product Name: ${context.productName || 'Not specified'}
-- Voice: ${context.voice || 'professional'}
+- Voice: ${context.brandVoice || 'professional'}
 - Target Audience: ${context.targetAudience || 'general'}
 - Additional Context: ${context.additionalContext || 'None'}
 

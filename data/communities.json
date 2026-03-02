@@ -4664,6 +4664,639 @@
         "Beta Test",
         "Get Feedback"
       ]
+    },
+    {
+      "id": "saas-microconf",
+      "name": "MicroConf",
+      "platform": "Forum",
+      "description": "Community for self-funded and independent SaaS founders.",
+      "url": "https://microconf.com/",
+      "categories": [
+        "SaaS Founders",
+        "Bootstrapping"
+      ],
+      "member_count": 28194,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "saas-saastock",
+      "name": "SaaStock Founder Membership",
+      "platform": "Community",
+      "description": "Private community for B2B SaaS founders to connect and scale.",
+      "url": "https://www.saastock.com/founder-membership/",
+      "categories": [
+        "SaaS Founders",
+        "B2B SaaS"
+      ],
+      "member_count": 13711,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "saas-saasalliance",
+      "name": "SaaS Alliance",
+      "platform": "Slack",
+      "description": "Invite-only community for SaaS professionals and operators.",
+      "url": "https://www.saasalliance.com/",
+      "categories": [
+        "SaaS Operators",
+        "Networking"
+      ],
+      "member_count": 8578,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "saas-thesaascommunity",
+      "name": "The SaaS Community",
+      "platform": "Slack",
+      "description": "Global community of SaaS founders and professionals.",
+      "url": "https://thesaascommunity.com/",
+      "categories": [
+        "SaaS Founders",
+        "Operators"
+      ],
+      "member_count": 49776,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "saas-saasrevolutionaries",
+      "name": "SaaS Revolutionaries",
+      "platform": "Slack",
+      "description": "Exclusive network for scaling B2B SaaS founders.",
+      "url": "https://saasrevolution.com/",
+      "categories": [
+        "B2B SaaS",
+        "Scaling"
+      ],
+      "member_count": 35570,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "saas-growthpartners",
+      "name": "Growth Partners",
+      "platform": "Slack",
+      "description": "Founders and growth operators scaling their products.",
+      "url": "https://growthpartners.com",
+      "categories": [
+        "Growth",
+        "SaaS Builders"
+      ],
+      "member_count": 5121,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "saas-lunadio",
+      "name": "Lunadio",
+      "platform": "Discord",
+      "description": "SaaS founders mastermind and brain-trust.",
+      "url": "https://lunadio.com",
+      "categories": [
+        "SaaS Founders",
+        "Mastermind"
+      ],
+      "member_count": 30553,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "saas-growthmarketingpros",
+      "name": "Growth Marketing Pros",
+      "platform": "Slack",
+      "description": "Growth hackers and marketers sharing strategies.",
+      "url": "https://growthmarketingpros.com/",
+      "categories": [
+        "Growth Marketing",
+        "SaaS"
+      ],
+      "member_count": 14212,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "saas-thesaascorner",
+      "name": "The SaaS Corner",
+      "platform": "Discord",
+      "description": "Supportive hub for early-stage software company founders.",
+      "url": "https://discord.gg/saascorner",
+      "categories": [
+        "SaaS Founders",
+        "Early Stage"
+      ],
+      "member_count": 16405,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "saas-startupsauce",
+      "name": "StartupSauce",
+      "platform": "Private",
+      "description": "Private community for SaaS founders outside major tech hubs.",
+      "url": "https://startupsauce.com/",
+      "categories": [
+        "Startups",
+        "SaaS Founders"
+      ],
+      "member_count": 25839,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "saas-gtmsecrets",
+      "name": "GTM Secrets",
+      "platform": "Newsletter/Community",
+      "description": "Go-to-market strategies for B2B SaaS.",
+      "url": "https://gtmsecrets.com",
+      "categories": [
+        "Go-to-Market",
+        "Sales"
+      ],
+      "member_count": 26921,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "saas-b2bsalesprof",
+      "name": "B2B Sales Professionals Group",
+      "platform": "LinkedIn",
+      "description": "Large network of B2B sales professionals sharing outreach tactics.",
+      "url": "https://linkedin.com/groups/b2bsales",
+      "categories": [
+        "Sales",
+        "B2B"
+      ],
+      "member_count": 35810,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "saas-microsaashq",
+      "name": "Micro SaaS HQ",
+      "platform": "Newsletter/Community",
+      "description": "Insights and community for Micro SaaS builders and solopreneurs.",
+      "url": "https://microsaashq.com/",
+      "categories": [
+        "Micro SaaS",
+        "Solopreneurs"
+      ],
+      "member_count": 11690,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "indie-indiehackers",
+      "name": "Indie Hackers",
+      "platform": "Forum",
+      "description": "Learn from the founders of profitable online businesses.",
+      "url": "https://www.indiehackers.com/",
+      "categories": [
+        "Indie Hackers",
+        "Bootstrapping"
+      ],
+      "member_count": 45231,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "indie-starterstory",
+      "name": "Starter Story",
+      "platform": "Web",
+      "description": "Read case studies of successful founders and join their community.",
+      "url": "https://www.starterstory.com/",
+      "categories": [
+        "Case Studies",
+        "Entrepreneurs"
+      ],
+      "member_count": 35064,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "indie-smallbets",
+      "name": "Small Bets",
+      "platform": "Discord",
+      "description": "Learn how to build a portfolio of small bets with Daniel Vassallo.",
+      "url": "https://smallbets.co/",
+      "categories": [
+        "Indie Hackers",
+        "Solopreneurs",
+        "Creators"
+      ],
+      "member_count": 11508,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "indie-ramenclub",
+      "name": "Ramen Club",
+      "platform": "Slack/Discord",
+      "description": "Community, tools, and resources to reach ramen profitability and beyond.",
+      "url": "https://ramenclub.so/",
+      "categories": [
+        "Indie Hackers",
+        "Bootstrappers"
+      ],
+      "member_count": 12578,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "indie-makerlog",
+      "name": "Makerlog",
+      "platform": "Web",
+      "description": "The productive community for makers and indie hackers to build in public.",
+      "url": "https://getmakerlog.com/",
+      "categories": [
+        "Makers",
+        "Build In Public"
+      ],
+      "member_count": 2790,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "indie-wip",
+      "name": "WIP (Work In Progress)",
+      "platform": "Telegram/Web",
+      "description": "To-do list for makers to share progress and get feedback.",
+      "url": "https://wip.co/",
+      "categories": [
+        "Makers",
+        "Build In Public"
+      ],
+      "member_count": 2728,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "indie-solofounders",
+      "name": "SoloFounders",
+      "platform": "Telegram",
+      "description": "Community tailored for solopreneurs building businesses from scratch.",
+      "url": "https://t.me/solofounders",
+      "categories": [
+        "Solopreneurs",
+        "Indie Hackers"
+      ],
+      "member_count": 21440,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "indie-earlystage",
+      "name": "Early Stage Founders",
+      "platform": "Discord",
+      "description": "A supportive environment for newly minted founders.",
+      "url": "https://discord.gg/earlystagefounders",
+      "categories": [
+        "Founders",
+        "Early Stage"
+      ],
+      "member_count": 8326,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "indie-womenmake",
+      "name": "Women Make",
+      "platform": "Community",
+      "description": "Supportive community for women founders, makers, and creators.",
+      "url": "https://womenmake.com/",
+      "categories": [
+        "Women in Tech",
+        "Makers"
+      ],
+      "member_count": 8554,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "indie-latammakers",
+      "name": "LATAM Makers",
+      "platform": "Discord",
+      "description": "Community uniting indie hackers and makers across Latin America.",
+      "url": "https://latammakers.com/",
+      "categories": [
+        "Makers",
+        "Latin America"
+      ],
+      "member_count": 14923,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "indie-100doc",
+      "name": "100DaysOfNoCode",
+      "platform": "Community",
+      "description": "Learn to build apps without code and join a vibrant maker community.",
+      "url": "https://100daysofnocode.com/",
+      "categories": [
+        "No-Code",
+        "Makers"
+      ],
+      "member_count": 41103,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "indie-buildsell30",
+      "name": "Build Sell 30",
+      "platform": "Community",
+      "description": "Challenge to build and sell a micro-startup in 30 days.",
+      "url": "https://buildsell30.com/",
+      "categories": [
+        "Micro-Acquisitions",
+        "Building"
+      ],
+      "member_count": 20114,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "marketing-superpath",
+      "name": "Superpath",
+      "platform": "Slack",
+      "description": "The leading community for content marketers.",
+      "url": "https://superpath.co/",
+      "categories": [
+        "Content Marketing",
+        "Growth"
+      ],
+      "member_count": 21298,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "marketing-demandgen",
+      "name": "The SEO Community",
+      "platform": "Slack",
+      "description": "SEO professionals sharing tactics and strategies.",
+      "url": "https://theseocommunity.com",
+      "categories": [
+        "SEO",
+        "Marketing"
+      ],
+      "member_count": 30941,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "marketing-revgenius",
+      "name": "RevGenius",
+      "platform": "Slack",
+      "description": "Community for sales, marketing, and revops professionals.",
+      "url": "https://www.revgenius.com/",
+      "categories": [
+        "Sales",
+        "Marketing",
+        "B2B"
+      ],
+      "member_count": 7361,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "marketing-onlinegeniuses",
+      "name": "Online Geniuses",
+      "platform": "Slack",
+      "description": "One of the largest Slack communities for digital marketers.",
+      "url": "https://onlinegeniuses.com/",
+      "categories": [
+        "Digital Marketing",
+        "SEO",
+        "Growth"
+      ],
+      "member_count": 9645,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "marketing-dmc",
+      "name": "DMC | Digital Marketing Community",
+      "platform": "Facebook/Web",
+      "description": "Active hub for digital marketers sharing latest trends and jobs.",
+      "url": "https://digitalmarketingcommunity.com/",
+      "categories": [
+        "Digital Marketing",
+        "Networking"
+      ],
+      "member_count": 48299,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "marketing-serialmarketers",
+      "name": "Serial Marketers",
+      "platform": "Slack",
+      "description": "Agency professionals, brand marketers, and martech founders.",
+      "url": "https://serialmarketers.net/",
+      "categories": [
+        "Marketing Agencies",
+        "Networking"
+      ],
+      "member_count": 47055,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "marketing-linkedingrowth",
+      "name": "LinkedIn Growth Hub",
+      "platform": "LinkedIn",
+      "description": "Strategies for organic B2B growth and personal branding on LinkedIn.",
+      "url": "https://linkedin.com/groups/growthhub",
+      "categories": [
+        "B2B",
+        "Social Media"
+      ],
+      "member_count": 16368,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "marketing-outreachbuilders",
+      "name": "Outreach Builders",
+      "platform": "Slack",
+      "description": "Cold email, outbound sales, and lead generation professionals.",
+      "url": "https://outreachbuilders.com/",
+      "categories": [
+        "Outbound",
+        "Sales"
+      ],
+      "member_count": 47790,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "marketing-furlough",
+      "name": "Furlough Community",
+      "platform": "Discord",
+      "description": "An ecosystem of marketers, entrepreneurs, and freelancers collaborating.",
+      "url": "https://furlough.com/",
+      "categories": [
+        "Marketing",
+        "Freelancers"
+      ],
+      "member_count": 7875,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
+    },
+    {
+      "id": "marketing-blkns",
+      "name": "Black Marketers (BLKNS Community)",
+      "platform": "Slack",
+      "description": "Network of elite black professionals in the marketing space.",
+      "url": "https://blkns.com/",
+      "categories": [
+        "Networking",
+        "Diversity"
+      ],
+      "member_count": 12730,
+      "language": "en",
+      "use_cases": [
+        "Promote SaaS",
+        "Networking",
+        "Get Feedback"
+      ]
     }
   ],
   "metadata": {

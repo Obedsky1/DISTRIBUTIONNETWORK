@@ -3,6 +3,8 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import AuthProvider from '@/components/AuthProvider';
 import AuthModal from '@/components/auth/AuthModal';
+import MobileWarningBanner from '@/components/MobileWarningBanner';
+import { AppSidebarLayout } from '@/components/AppSidebarLayout';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -28,8 +30,11 @@ export default function RootLayout({
         <html lang="en" className="dark">
             <body className={`${inter.className} bg-[#0a0a0f] text-white min-h-screen`}>
                 <AuthProvider>
-                    {children}
+                    <AppSidebarLayout>
+                        {children}
+                    </AppSidebarLayout>
                     <AuthModal />
+                    <MobileWarningBanner />
                 </AuthProvider>
             </body>
         </html>

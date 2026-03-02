@@ -19,6 +19,12 @@ export interface DirectorySubmission {
     directory_url: string; // For easy referencing
     status: SubmissionStatus;
     submission_url?: string;
+    live_url?: string;
+    target_domain?: string;
+    backlink_status?: 'found' | 'not_found' | 'checking' | 'error';
+    backlink_rel?: string | null;
+    backlink_anchor?: string | null;
+    backlink_last_checked?: Date | null;
     submission_date?: Date;
     approval_date?: Date;
     notes?: string;
