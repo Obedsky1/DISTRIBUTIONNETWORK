@@ -7,10 +7,11 @@ import { motion } from 'framer-motion';
 import {
     ArrowLeft, Rocket, Loader2, Search, Sparkles, Copy,
     CheckCircle2, BarChart2, MessageSquare, Target, ExternalLink,
-    TrendingUp, Clock, Zap, ChevronRight, Twitter
+    TrendingUp, Clock, Zap, ChevronRight, Twitter, Globe, Info, Image as ImageIcon, Copy as CopyIcon
 } from 'lucide-react';
 import { Campaign } from '@/types';
 import { PageGuide } from '@/components/PageGuide';
+import { authorizedFetch } from '@/lib/api-client';
 
 type Tab = 'targets' | 'analytics' | 'listening';
 
@@ -54,7 +55,7 @@ export default function CampaignWorkspace() {
 
     useEffect(() => {
         if (!user) { setLoading(false); return; }
-        fetch(`/api/campaigns/${id}`)
+        authorizedFetch(`/api/campaigns/${id}`)
             .then(r => r.json())
             .then(d => { if (d.success) setCampaign(d.data); else setError(d.error || 'Not found'); })
             .catch(e => setError(e.message))
@@ -71,7 +72,7 @@ export default function CampaignWorkspace() {
                 t.id === targetId ? { ...t, status: 'pending' as const, completedAt: null, submissionUrl: null } : t
             );
             try {
-                const res = await fetch(`/api/campaigns/${campaign.id}`, {
+                const res = await authorizedFetch(`/api/campaigns/${campaign.id}`, {
                     method: 'PATCH', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ targets: newTargets }),
                 });
@@ -94,7 +95,7 @@ export default function CampaignWorkspace() {
             t.id === targetId ? { ...t, status: 'completed' as const, completedAt: new Date(), submissionUrl } : t
         );
         try {
-            const res = await fetch(`/api/campaigns/${campaign.id}`, {
+            const res = await authorizedFetch(`/api/campaigns/${campaign.id}`, {
                 method: 'PATCH', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ targets: newTargets }),
             });
@@ -111,7 +112,7 @@ export default function CampaignWorkspace() {
         setUpdating(true);
         const newIndex = campaign.currentBatchIndex + 1;
         try {
-            const res = await fetch(`/api/campaigns/${campaign.id}`, {
+            const res = await authorizedFetch(`/api/campaigns/${campaign.id}`, {
                 method: 'PATCH', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ currentBatchIndex: newIndex }),
             });
@@ -124,7 +125,7 @@ export default function CampaignWorkspace() {
         setIsListening(true);
         setListenResults([]);
         try {
-            const res = await fetch('/api/social-listening', {
+            const res = await authorizedFetch('/api/social-listening', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ keyword: listenKeyword }),
             });
@@ -140,7 +141,7 @@ export default function CampaignWorkspace() {
         if (generatingReplyFor) return;
         setGeneratingReplyFor(postId);
         try {
-            const res = await fetch('/api/social-listening', {
+            const res = await authorizedFetch('/api/social-listening', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     generateReplyForId: postId,
@@ -263,6 +264,60 @@ export default function CampaignWorkspace() {
             </div>
 
             <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+                {/* ── Startup Info Quick View ── */}
+                {user?.startup && (
+                    <div className="mb-8 p-6 bg-white/5 border border-white/10 rounded-2xl flex flex-col md:flex-row gap-6 items-start">
+                        <div className="w-20 h-20 rounded-2xl bg-indigo-500/20 flex items-center justify-center flex-shrink-0 border border-indigo-500/20 overflow-hidden">
+                            {user.startup.logoUrl ? (
+                                <img src={user.startup.logoUrl} alt="Logo" className="w-full h-full object-contain p-2" />
+                            ) : (
+                                <Rocket className="w-8 h-8 text-indigo-400" />
+                            )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                                <h2 className="text-xl font-bold text-white truncate">{user.startup.name || 'My Startup'}</h2>
+                                {user.startup.websiteUrl && (
+                                    <a href={user.startup.websiteUrl} target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:text-indigo-300">
+                                        <Globe className="w-4 h-4" />
+                                    </a>
+                                )}
+                            </div>
+                            <p className="text-sm text-white/50 line-clamp-2 max-w-2xl">{user.startup.description || 'No description added to startup profile yet.'}</p>
+
+                            <div className="flex flex-wrap gap-4 mt-4">
+                                <button
+                                    onClick={() => copyToClipboard(user.startup?.name || '', 'startup-name')}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-medium text-white/70 transition-all border border-white/10"
+                                >
+                                    {copiedId === 'startup-name' ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> : <CopyIcon className="w-3.5 h-3.5" />}
+                                    Copy Name
+                                </button>
+                                <button
+                                    onClick={() => copyToClipboard(user.startup?.description || '', 'startup-desc')}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-medium text-white/70 transition-all border border-white/10"
+                                >
+                                    {copiedId === 'startup-desc' ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> : <CopyIcon className="w-3.5 h-3.5" />}
+                                    Copy Description
+                                </button>
+                                {user.startup.logoUrl && (
+                                    <button
+                                        onClick={() => copyToClipboard(user.startup?.logoUrl || '', 'startup-logo')}
+                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-medium text-white/70 transition-all border border-white/10"
+                                    >
+                                        {copiedId === 'startup-logo' ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> : <ImageIcon className="w-3.5 h-3.5" />}
+                                        Copy Logo URL
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                        {user.startup.bannerUrl && (
+                            <div className="hidden lg:block w-48 h-28 rounded-xl border border-white/10 overflow-hidden bg-black/40">
+                                <img src={user.startup.bannerUrl} alt="Banner" className="w-full h-full object-cover opacity-60 hover:opacity-100 transition-opacity cursor-pointer" onClick={() => copyToClipboard(user.startup?.bannerUrl || '', 'startup-banner')} />
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 {/* ══ TARGETS TAB ═══════════════════════════════════════════════════════ */}
                 {tab === 'targets' && (

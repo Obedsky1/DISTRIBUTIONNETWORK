@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { adminDb } from '@/lib/firebase/admin';
+import { getAuthUserId } from '@/lib/api-auth';
 import { Campaign, CampaignType, CampaignStatus } from '@/types';
 
 export async function GET(req: Request) {
@@ -10,6 +11,11 @@ export async function GET(req: Request) {
 
         if (!userId) {
             return NextResponse.json({ error: 'Missing userId parameter' }, { status: 400 });
+        }
+
+        const authUserId = await getAuthUserId(req);
+        if (authUserId !== userId) {
+            return NextResponse.json({ error: 'Unauthorized: Access Denied' }, { status: 401 });
         }
 
         let campaigns: Campaign[] = [];
@@ -52,6 +58,11 @@ export async function POST(req: Request) {
 
         if (!userId || !type || !name) {
             return NextResponse.json({ success: false, error: 'Missing required fields: userId, type, name' }, { status: 400 });
+        }
+
+        const authUserId = await getAuthUserId(req);
+        if (authUserId !== userId) {
+            return NextResponse.json({ error: 'Unauthorized: Access Denied' }, { status: 401 });
         }
 
         const newCampaign: Campaign = {

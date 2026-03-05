@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { adminDb } from '@/lib/firebase/admin';
+import { getAuthUserId } from '@/lib/api-auth';
 import { LaunchProject } from '@/types/distribution';
 
 export async function GET(req: Request) {
@@ -10,6 +11,11 @@ export async function GET(req: Request) {
 
         if (!userId) {
             return NextResponse.json({ error: 'Missing userId parameter' }, { status: 400 });
+        }
+
+        const authUserId = await getAuthUserId(req);
+        if (authUserId !== userId) {
+            return NextResponse.json({ error: 'Unauthorized: Access Denied' }, { status: 401 });
         }
 
         let projects: LaunchProject[] = [];
@@ -41,6 +47,11 @@ export async function POST(req: Request) {
 
         if (!user_id || !name || !goal_type) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+        }
+
+        const authUserId = await getAuthUserId(req);
+        if (authUserId !== user_id) {
+            return NextResponse.json({ error: 'Unauthorized: Access Denied' }, { status: 401 });
         }
 
         const newProject: LaunchProject = {

@@ -214,7 +214,7 @@ export default function DiscoverPage() {
     const totalChannels = communities.length + directories.length;
 
     return (
-        <main className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-black">
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-black Discover_grid_container">
 
             {/* Header */}
             <header className="sticky top-0 z-50 glass-dark backdrop-blur-xl border-b border-white/10 md:hidden">
@@ -288,7 +288,7 @@ export default function DiscoverPage() {
             </header>
 
             {/* Stats band */}
-            <div className="max-w-7xl mx-auto px-4 pt-5">
+            <div className="max-w-7xl mx-auto px-4 pt-5 stats_grid">
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                     {[
                         { icon: '👥', label: 'Social Communities', val: communities.length, color: 'text-emerald-400' },
@@ -314,7 +314,7 @@ export default function DiscoverPage() {
                     <span className="text-white/40">Loading {totalChannels > 0 ? totalChannels : '…'} channels</span>
                 </div>
             ) : (
-                <div className="max-w-7xl mx-auto px-4 pb-12">
+                <div className="max-w-7xl mx-auto px-4 pb-12 Discover_grid_container">
                     {/* Section header */}
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2">
@@ -356,6 +356,6 @@ export default function DiscoverPage() {
                     { title: 'Go to Workspaces', description: 'Once you have saved enough channels, use the shortcuts at the top to visit your Distribution Workspace' },
                 ]}
             />
-        </main>
+        </div>
     );
 }

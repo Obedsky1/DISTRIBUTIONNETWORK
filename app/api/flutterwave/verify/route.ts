@@ -79,10 +79,14 @@ export async function POST(request: NextRequest) {
 
     try {
         const userRef = adminDb.collection('users').doc(userId);
+        const premiumUntil = new Date();
+        premiumUntil.setDate(premiumUntil.getDate() + 30);
+
         await userRef.update({
             isPremium: true,
             subscriptionPlan: planId,
             premiumSince: new Date(),
+            premiumUntil: premiumUntil,
             updatedAt: new Date(),
             lastPaymentTransactionId: transaction_id
         });
@@ -94,6 +98,7 @@ export async function POST(request: NextRequest) {
             plan: planId,
             status: 'active',
             startDate: new Date(),
+            endDate: premiumUntil,
             paymentMethod: 'flutterwave',
             transactionId: transaction_id,
             amount: transactionData.amount,

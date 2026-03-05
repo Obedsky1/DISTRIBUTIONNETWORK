@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { analyzeSEO, generateKeywords, generateMetaTags } from '@/lib/ai/seo-analyzer';
+import { getAuthUserId } from '@/lib/api-auth';
 import { z } from 'zod';
 
 const seoAnalysisSchema = z.object({
@@ -19,6 +20,11 @@ export async function POST(request: NextRequest) {
 
         // Validate input
         const validatedData = seoAnalysisSchema.parse(body);
+
+        const authUserId = await getAuthUserId(request);
+        if (!authUserId) {
+            return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+        }
 
         // TODO: Check user subscription and usage limits
 

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { adminDb } from '@/lib/firebase/admin';
+import { getAuthUserId } from '@/lib/api-auth';
 import { Campaign } from '@/types';
 
 export async function GET(
@@ -13,6 +14,11 @@ export async function GET(
             return NextResponse.json({ success: false, error: 'Firebase not configured' }, { status: 500 });
         }
 
+        const authUserId = await getAuthUserId(req);
+        if (!authUserId) {
+            return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+        }
+
         const docRef = await adminDb.collection('campaigns').doc(id).get();
 
         if (!docRef.exists) {
@@ -20,8 +26,14 @@ export async function GET(
         }
 
         const data = docRef.data() as Campaign;
-        if (data.createdAt && data.createdAt.toDate) data.createdAt = data.createdAt.toDate();
-        if (data.updatedAt && data.updatedAt.toDate) data.updatedAt = data.updatedAt.toDate();
+
+        // Ownership check
+        if (data.userId !== authUserId) {
+            return NextResponse.json({ success: false, error: 'Forbidden: Access Denied' }, { status: 403 });
+        }
+
+        if (data.createdAt && (data.createdAt as any).toDate) data.createdAt = (data.createdAt as any).toDate();
+        if (data.updatedAt && (data.updatedAt as any).toDate) data.updatedAt = (data.updatedAt as any).toDate();
 
         return NextResponse.json({ success: true, data });
     } catch (error) {
@@ -40,6 +52,20 @@ export async function PATCH(
 
         if (!adminDb) {
             return NextResponse.json({ success: false, error: 'Firebase not configured' }, { status: 500 });
+        }
+
+        const authUserId = await getAuthUserId(req);
+        if (!authUserId) {
+            return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+        }
+
+        const docRef = await adminDb.collection('campaigns').doc(id).get();
+        if (!docRef.exists) {
+            return NextResponse.json({ success: false, error: 'Campaign not found' }, { status: 404 });
+        }
+
+        if (docRef.data()?.userId !== authUserId) {
+            return NextResponse.json({ success: false, error: 'Forbidden: Access Denied' }, { status: 403 });
         }
 
         const updateData = {
@@ -65,6 +91,20 @@ export async function DELETE(
 
         if (!adminDb) {
             return NextResponse.json({ success: false, error: 'Firebase not configured' }, { status: 500 });
+        }
+
+        const authUserId = await getAuthUserId(req);
+        if (!authUserId) {
+            return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+        }
+
+        const docRef = await adminDb.collection('campaigns').doc(id).get();
+        if (!docRef.exists) {
+            return NextResponse.json({ success: false, error: 'Campaign not found' }, { status: 404 });
+        }
+
+        if (docRef.data()?.userId !== authUserId) {
+            return NextResponse.json({ success: false, error: 'Forbidden: Access Denied' }, { status: 403 });
         }
 
         await adminDb.collection('campaigns').doc(id).delete();

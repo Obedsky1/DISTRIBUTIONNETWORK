@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getDocument, setDocument, queryDocuments } from '@/lib/firebase/firestore';
+import { getAuthUserId } from '@/lib/api-auth';
 import { LaunchProject, SubmissionVersion, ActivityLog } from '@/types/distribution';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -19,10 +20,19 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 
-        // Fetch project details for context
+        const authUserId = await getAuthUserId(req);
+        if (!authUserId) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        // Fetch project details for context and ownership check
         const project = await getDocument<LaunchProject>('launch_projects', project_id);
         if (!project) {
             return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+        }
+
+        if (project.user_id !== authUserId) {
+            return NextResponse.json({ error: 'Forbidden: You do not own this project' }, { status: 403 });
         }
 
         const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });

@@ -4,12 +4,13 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
     Settings, LogOut, ExternalLink, User,
-    Mail, Grid, Navigation2, Target, Home, Edit3, Loader2, Check
+    Mail, Grid, Navigation2, Target, Home, Edit3, Loader2, Check, X, Save, Clock, Type, Image as ImageIcon, Activity, Globe, Search, Copy, Sparkles, Crown, Zap
 } from 'lucide-react';
 import { useAuthStore } from '@/lib/store/auth-store';
 import { updateDocument } from '@/lib/firebase/firestore';
 import { signOut } from '@/lib/firebase/auth';
 import { PageGuide } from '@/components/PageGuide';
+import Link from 'next/link'; // Added Link import
 
 export default function AccountPage() {
     const { user, loading, openAuthModal } = useAuthStore();
@@ -124,6 +125,39 @@ export default function AccountPage() {
 
                     {/* LEFT COLUMN: Profile Info */}
                     <div className="md:col-span-1 space-y-6">
+                        {/* Premium Status Widget */}
+                        <div className="bg-gradient-to-br from-indigo-900/40 via-purple-900/40 to-black border border-indigo-500/30 rounded-3xl p-6 shadow-xl relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+                                <Crown className="w-20 h-20 text-indigo-400 rotate-12" />
+                            </div>
+                            <div className="relative z-10">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <div className="p-2 bg-indigo-500/20 rounded-xl">
+                                        <Crown className="w-5 h-5 text-indigo-400" />
+                                    </div>
+                                    <h3 className="text-white font-bold">Subscription Info</h3>
+                                </div>
+
+                                <p className="text-white/60 text-sm mb-4">Current Plan:</p>
+                                <div className="flex items-baseline gap-2 mb-6">
+                                    <span className={`text-2xl font-black ${user?.isPremium ? 'text-indigo-400' : 'text-white'}`}>
+                                        {user?.isPremium ? 'PRO PLAN' : 'FREE PLAN'}
+                                    </span>
+                                    {user?.isPremium && <span className="text-[10px] font-bold bg-indigo-500 text-white px-2 py-0.5 rounded-full uppercase tracking-wider">Active</span>}
+                                </div>
+
+                                {!user?.isPremium ? (
+                                    <Link href="/premium" className="flex items-center justify-center gap-2 w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-indigo-500/20">
+                                        <Zap className="w-4 h-4" /> Upgrade to Pro
+                                    </Link>
+                                ) : (
+                                    <button className="w-full py-3 bg-white/5 border border-white/10 text-white/50 text-sm font-bold rounded-xl cursor-not-allowed">
+                                        Managed via Stripe
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
                         <div className="bg-[#13141c] border border-white/10 rounded-3xl p-6 shadow-2xl relative overflow-hidden flex flex-col items-center text-center">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-[40px] -z-10 rounded-full" />
 

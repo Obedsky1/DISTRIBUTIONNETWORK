@@ -14,6 +14,7 @@ export default function AuthModal() {
     const [name, setName] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [verificationSent, setVerificationSent] = useState(false);
 
     if (!authModalOpen) return null;
 
@@ -25,11 +26,12 @@ export default function AuthModal() {
         try {
             if (isLogin) {
                 await signIn(email, password);
+                closeAuthModal();
             } else {
                 if (!name) throw new Error("Name is required");
                 await signUp(email, password, name);
+                setVerificationSent(true);
             }
-            closeAuthModal();
         } catch (err: any) {
             if (err.message?.includes('auth/operation-not-allowed')) {
                 setError('Authentication method is currently disabled. Please contact support.');
@@ -216,6 +218,28 @@ export default function AuthModal() {
                                 </span>
                             </button>
                         </div>
+
+                        {verificationSent && (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="absolute inset-0 z-30 bg-gray-950 flex flex-col items-center justify-center p-10 text-center"
+                            >
+                                <div className="w-20 h-20 rounded-full bg-emerald-500/20 flex items-center justify-center mb-6 border border-emerald-500/20">
+                                    <Mail className="w-10 h-10 text-emerald-400" />
+                                </div>
+                                <h3 className="text-2xl font-black text-white mb-3">Check your email</h3>
+                                <p className="text-white/50 text-sm leading-relaxed mb-8">
+                                    We've sent a verification link to <span className="text-white font-bold">{email}</span>. Please verify your email to continue.
+                                </p>
+                                <button
+                                    onClick={closeAuthModal}
+                                    className="w-full py-4 rounded-2xl bg-white text-gray-900 font-bold text-sm shadow-xl transition-all active:scale-95"
+                                >
+                                    Got it
+                                </button>
+                            </motion.div>
+                        )}
                     </div>
                 </motion.div>
             </div>

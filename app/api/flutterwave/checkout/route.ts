@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createFlutterwavePaymentLink, FlutterwavePlanId } from '@/lib/flutterwave/config';
+import { getAuthUserId } from '@/lib/api-auth';
 
 export async function POST(request: NextRequest) {
     try {
@@ -10,6 +11,11 @@ export async function POST(request: NextRequest) {
                 { error: 'Missing required fields' },
                 { status: 400 }
             );
+        }
+
+        const authUserId = await getAuthUserId(request);
+        if (authUserId !== userId) {
+            return NextResponse.json({ error: 'Unauthorized: Access Denied' }, { status: 401 });
         }
 
         if (planId === 'FREE') {

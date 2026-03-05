@@ -1,11 +1,33 @@
 import { NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { setDocument, queryDocuments } from '@/lib/firebase/firestore';
-import { SubmissionVersion, ActivityLog } from '@/types/distribution';
+import { adminDb } from '@/lib/firebase/admin';
+import { getAuthUserId } from '@/lib/api-auth';
+import { DirectorySubmission, SubmissionVersion, ActivityLog } from '@/types/distribution';
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {
     try {
         const { id } = params;
+
+        const authUserId = await getAuthUserId(req);
+        if (!authUserId) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        // Verify ownership
+        if (adminDb) {
+            const subDoc = await adminDb.collection('directory_submissions').doc(id).get();
+            if (!subDoc.exists) {
+                return NextResponse.json({ error: 'Submission not found' }, { status: 404 });
+            }
+            const submission = subDoc.data() as DirectorySubmission;
+
+            const projectDoc = await adminDb.collection('launch_projects').doc(submission.project_id).get();
+            if (!projectDoc.exists || projectDoc.data()?.user_id !== authUserId) {
+                return NextResponse.json({ error: 'Forbidden: Access Denied' }, { status: 403 });
+            }
+        }
+
         const versions = await queryDocuments<SubmissionVersion>(
             'submission_versions',
             [{ field: 'submission_id', operator: '==', value: id }],
@@ -24,6 +46,19 @@ export async function POST(req: Request, { params }: { params: { id: string } })
         const { id } = params;
         const body = await req.json();
         const { title, description, user_id, project_id, directory_name } = body;
+
+        const authUserId = await getAuthUserId(req);
+        if (authUserId !== user_id) {
+            return NextResponse.json({ error: 'Unauthorized: Access Denied' }, { status: 401 });
+        }
+
+        // Verify project ownership
+        if (adminDb) {
+            const projectDoc = await adminDb.collection('launch_projects').doc(project_id).get();
+            if (!projectDoc.exists || projectDoc.data()?.user_id !== authUserId) {
+                return NextResponse.json({ error: 'Forbidden: Access Denied' }, { status: 403 });
+            }
+        }
 
         if (!title || !description) {
             return NextResponse.json({ error: 'Missing title or description' }, { status: 400 });

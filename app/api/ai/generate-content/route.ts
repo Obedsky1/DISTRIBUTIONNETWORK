@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateContent, ContentType } from '@/lib/ai/content-generator';
+import { getAuthUserId } from '@/lib/api-auth';
 import { z } from 'zod';
 
 const contentGenerationSchema = z.object({
@@ -17,6 +18,12 @@ const contentGenerationSchema = z.object({
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
+        const { type, context, platform, topic } = body;
+
+        const authUserId = await getAuthUserId(request);
+        if (!authUserId) {
+            return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+        }
 
         // Validate input
         const validatedData = contentGenerationSchema.parse(body);

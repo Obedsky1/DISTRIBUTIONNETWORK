@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
     Search, ExternalLink, Plus, CheckCircle, Users, RotateCcw,
     ChevronRight, LayoutGrid, Kanban, TableProperties, Sparkles,
@@ -14,6 +15,7 @@ import { DropResult } from '@hello-pangea/dnd';
 import { useAuthStore } from '@/lib/store/auth-store';
 import { queryDocuments, setDocument, updateDocument } from '@/lib/firebase/firestore';
 import { PageGuide } from '@/components/PageGuide';
+import { authorizedFetch } from '@/lib/api-client';
 
 /* ─── Types ─── */
 interface Community {
@@ -173,6 +175,8 @@ function CommunityCard({ c, isAdded, onAdd }: { c: Community; isAdded: boolean; 
 /* ═══════════════════════ PAGE ═══════════════════════ */
 export default function CommunitiesPage() {
     const { user, openAuthModal } = useAuthStore();
+    const searchParams = useSearchParams();
+    const subId = searchParams.get('subId');
     const userId = user?.id || 'anonymous';
     const projectId = `default_project_${userId}`;
 
@@ -203,11 +207,29 @@ export default function CommunitiesPage() {
             .finally(() => setLoading(false));
 
         if (user) {
-            queryDocuments<DirectorySubmission>('community_submissions', [
+            // Check for existing data to skip questionnaire
+            queryDocuments<DirectorySubmission>('directory_submissions', [
                 { field: 'project_id', operator: '==', value: projectId }
-            ]).then(subs => setSubmissions(subs || [])).catch(console.error);
+            ]).then(subs => {
+                setSubmissions(subs || []);
+                if (subs && subs.length > 0) {
+                    setStep(3); // Assuming STEPS.length is 3 for CommunitiesPage
+                }
+            }).catch(err => {
+                console.error('Failed to fetch submissions:', err);
+            });
         }
     }, [user, projectId]);
+
+    useEffect(() => {
+        if (subId && submissions.length > 0) {
+            const sub = submissions.find(s => s.id === subId);
+            if (sub) {
+                setSelectedSubmission(sub);
+                setIsWorkspaceOpen(true);
+            }
+        }
+    }, [subId, submissions]);
 
     const isAdded = (name: string) => submissions.some(s => s.directory_name === name);
 

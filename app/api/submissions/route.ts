@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { adminDb } from '@/lib/firebase/admin';
+import { getAuthUserId } from '@/lib/api-auth';
 import { DirectorySubmission, ActivityLog } from '@/types/distribution';
 
 export async function GET(req: Request) {
@@ -10,6 +11,19 @@ export async function GET(req: Request) {
 
         if (!projectId) {
             return NextResponse.json({ error: 'Missing projectId parameter' }, { status: 400 });
+        }
+
+        const authUserId = await getAuthUserId(req);
+        if (!authUserId) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        // Verify project ownership
+        if (adminDb) {
+            const projectDoc = await adminDb.collection('launch_projects').doc(projectId).get();
+            if (!projectDoc.exists || projectDoc.data()?.user_id !== authUserId) {
+                return NextResponse.json({ error: 'Forbidden: You do not own this project' }, { status: 403 });
+            }
         }
 
         let submissions: DirectorySubmission[] = [];
@@ -41,6 +55,19 @@ export async function POST(req: Request) {
 
         if (!project_id || !directory_id || !directory_name) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+        }
+
+        const authUserId = await getAuthUserId(req);
+        if (authUserId !== user_id) {
+            return NextResponse.json({ error: 'Unauthorized: Access Denied' }, { status: 401 });
+        }
+
+        // Double check project ownership
+        if (adminDb) {
+            const projectDoc = await adminDb.collection('launch_projects').doc(project_id).get();
+            if (!projectDoc.exists || projectDoc.data()?.user_id !== authUserId) {
+                return NextResponse.json({ error: 'Forbidden: You do not own this project' }, { status: 403 });
+            }
         }
 
         const newSubmission: DirectorySubmission = {

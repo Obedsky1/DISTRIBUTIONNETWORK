@@ -7,10 +7,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Rocket, Search, Users, Brain, MessageSquare, Newspaper,
     Lock, ArrowRight, TrendingUp, Mail, Share2, CheckCircle2,
-    X, Plus, ChevronRight, Clock, Zap, ExternalLink
+    X, Plus, ChevronRight, Clock, Zap, ExternalLink, Save, Type, Image as ImageIcon, Activity, Loader2, Globe, Check, Copy, Sparkles
 } from 'lucide-react';
 import communitiesData from '@/data/communities.json';
+import directoriesData from '@/data/directories.json';
 import { PageGuide } from '@/components/PageGuide';
+import { authorizedFetch } from '@/lib/api-client';
 
 // ── Campaign type definitions ─────────────────────────────────────────────────
 const CAMPAIGN_TYPES = [
@@ -115,33 +117,145 @@ const CAMPAIGN_TYPES = [
     },
 ];
 
-// ── Smart pre-fill: pick communities matching campaign type ───────────────────
+// ── Campaign Card Deep Advance ───────────────────────────────────────────────
+function CampaignCard({ campaign, type, onClick }: { campaign: Campaign; type?: typeof CAMPAIGN_TYPES[0]; onClick: () => void }) {
+    const Icon = type?.icon || Zap;
+    const completed = campaign.targets?.filter((t: any) => t.status === 'completed').length || 0;
+    const total = campaign.targets?.length || 0;
+    const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+    // Estimate potential reach from targets if available, else a placeholder
+    const totalMembers = campaign.targets?.reduce((acc: number, t: any) => acc + (t.memberCount || 0), 0) || 0;
+    const reachText = totalMembers > 0
+        ? `${(totalMembers / 1000).toFixed(0)}k+ potential reach`
+        : `Targeting ${total} channels`;
+
+    return (
+        <button
+            onClick={onClick}
+            className="group relative flex flex-col p-5 bg-[#0f111a] border border-white/10 hover:border-indigo-500/30 rounded-[2rem] text-left transition-all hover:shadow-[0_0_40px_-15px_rgba(99,102,241,0.2)] overflow-hidden"
+        >
+            {/* Background Glow */}
+            <div className={`absolute -right-4 -top-4 w-24 h-24 bg-gradient-to-br ${type?.color || 'from-indigo-500 to-blue-500'} opacity-[0.03] blur-2xl group-hover:opacity-[0.08] transition-opacity`} />
+
+            <div className="flex items-center justify-between mb-4">
+                <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${type?.color || 'from-slate-500 to-slate-600'} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-500`}>
+                    <Icon className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex flex-col items-end">
+                    <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-lg border ${pct === 100 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+                        pct > 0 ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' :
+                            'bg-white/5 text-white/30 border-white/10'
+                        }`}>
+                        {pct === 100 ? 'Completed' : pct > 0 ? 'In Progress' : 'Just Started'}
+                    </span>
+                    <span className="text-[10px] text-white/20 font-medium mt-1 uppercase tracking-tighter italic">
+                        ROI Promise: {type?.id === 'seo' ? 'Backlink Growth' : type?.id === 'betatesters' ? 'User Intake' : 'Traffic Blitz'}
+                    </span>
+                </div>
+            </div>
+
+            <div className="flex-1 min-w-0 mb-4">
+                <h3 className="text-white font-bold text-lg mb-1 truncate group-hover:text-indigo-300 transition-colors leading-tight">
+                    {campaign.name}
+                </h3>
+                <p className="text-white/40 text-xs flex items-center gap-1.5 font-medium">
+                    <Users className="w-3 h-3" /> {reachText}
+                </p>
+            </div>
+
+            <div className="space-y-2 mt-auto">
+                <div className="flex items-center justify-between text-[11px] font-bold">
+                    <span className="text-white/30 uppercase tracking-wider">{completed}/{total} Channels</span>
+                    <span className="text-indigo-400">{pct}%</span>
+                </div>
+                <div className="h-2 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                    <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${pct}%` }}
+                        className={`h-full bg-gradient-to-r ${type?.color || 'from-indigo-500 to-blue-500'} rounded-full`}
+                    />
+                </div>
+            </div>
+
+            <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
+                <span className="text-[10px] font-bold text-indigo-400 group-hover:translate-x-1 transition-transform flex items-center gap-1">
+                    {pct === 100 ? 'View Results' : 'Resume Execution'} <ArrowRight className="w-3 h-3" />
+                </span>
+                <ChevronRight className="w-4 h-4 text-white/10 group-hover:text-white/40 transition-colors" />
+            </div>
+        </button>
+    );
+}
+
 function getSuggestedTargets(campaignId: string) {
     const type = CAMPAIGN_TYPES.find(c => c.id === campaignId);
     if (!type) return [];
 
     const allCommunities: any[] = (communitiesData as any).communities || [];
-    const matched = allCommunities.filter(c =>
-        c.categories?.some((cat: string) =>
-            type.communityKeywords.some(kw =>
-                cat.toLowerCase().includes(kw.toLowerCase()) || kw.toLowerCase().includes(cat.toLowerCase())
-            )
-        )
-    );
+    const allDirectories: any[] = (directoriesData as any).directories || [];
 
-    // Return top 15 sorted by member count desc
-    return matched
-        .sort((a, b) => (b.member_count || 0) - (a.member_count || 0))
-        .slice(0, 15)
-        .map(c => ({
-            id: c.id,
-            name: c.name,
-            url: c.url || c.invite_link || '',
-            kind: 'community' as const,
-            category: c.categories?.[0] || '',
-            platform: c.platform,
-            memberCount: c.member_count,
-        }));
+    const scoredTargets = [
+        ...allCommunities.map(c => {
+            let score = 0;
+            const cats = c.categories || [];
+
+            // Keyword matching
+            if (cats.some((cat: string) => type.communityKeywords.some(kw => cat.toLowerCase().includes(kw.toLowerCase())))) {
+                score += 5;
+            }
+
+            // Platform/Goal matching
+            if (type.id === 'seo' && c.platform === 'reddit') score -= 1; // Reddit is less ideal for direct SEO
+            if (type.id === 'betatesters' && (c.name.includes('Indie Hackers') || c.name.includes('Product Hunt'))) score += 10;
+            if (type.id === 'social_media_blitz' && ['twitter', 'reddit'].includes(c.platform)) score += 5;
+
+            // Size scoring
+            score += Math.min((c.member_count || 0) / 10000, 5);
+
+            return {
+                id: c.id,
+                name: c.name,
+                url: c.url || c.invite_link || '',
+                kind: 'community' as const,
+                category: cats[0] || '',
+                platform: c.platform,
+                memberCount: c.member_count,
+                score
+            };
+        }),
+        ...allDirectories.map(d => {
+            let score = 0;
+
+            // SEO Goal - Directories are king
+            if (type.id === 'seo') score += 10;
+            if (type.id === 'aiseo' && d.category?.toLowerCase().includes('ai')) score += 12;
+
+            // Domain Authority
+            score += (d.domain_authority || 0) / 10;
+
+            // Category match
+            if (type.communityKeywords.some(kw => d.category?.toLowerCase().includes(kw.toLowerCase()))) {
+                score += 5;
+            }
+
+            return {
+                id: d.url,
+                name: d.name,
+                url: d.url,
+                kind: 'directory' as const,
+                category: d.category || '',
+                platform: 'Web',
+                memberCount: (d.domain_authority || 0) * 1000, // Synthetic reach for directories
+                score
+            };
+        })
+    ];
+
+    return scoredTargets
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 20)
+        .map(({ score, ...rest }) => rest);
 }
 
 interface Campaign {
@@ -175,14 +289,14 @@ export default function CampaignPage() {
     // Fetch existing campaigns
     useEffect(() => {
         if (!user) { setLoadingCampaigns(false); return; }
-        fetch(`/api/campaigns?userId=${user.id}`)
+        authorizedFetch(`/api/campaigns?userId=${user.id}`)
             .then(r => r.json())
             .then(d => { if (d.success) setCampaigns(d.data || []); })
             .catch(() => { })
             .finally(() => setLoadingCampaigns(false));
     }, [user]);
 
-    const FREE_CAMPAIGN_LIMIT = 1;
+    const FREE_CAMPAIGN_LIMIT = 5;
     const hasReachedFreeLimit = !isPremium && campaigns.length >= FREE_CAMPAIGN_LIMIT;
 
     const openModal = (type: typeof CAMPAIGN_TYPES[0]) => {
@@ -226,7 +340,7 @@ export default function CampaignPage() {
             .map(t => ({ id: t.id, name: t.name, url: t.url, kind: t.kind || 'community', status: 'pending' }));
 
         try {
-            const res = await fetch('/api/campaigns', {
+            const res = await authorizedFetch('/api/campaigns', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ userId: user.id, type: selectedType.id, name: campaignName, config: {}, targets }),
@@ -254,7 +368,7 @@ export default function CampaignPage() {
     const activeTargets = targetSource === 'suggested' ? suggestedTargets : pipelineItems;
 
     return (
-        <main className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-black py-4 md:py-8 px-4 sm:px-6">
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-black py-4 md:py-8 px-4 sm:px-6 Campaign_grid_container">
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
                 <div className="flex items-center gap-3 mb-8">
@@ -279,32 +393,19 @@ export default function CampaignPage() {
                         <h2 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
                             <Clock className="w-4 h-4 text-indigo-400" /> Your Active Campaigns
                         </h2>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                            {campaigns.slice(0, 6).map(c => {
-                                const type = CAMPAIGN_TYPES.find(t => t.id === c.type);
-                                const Icon = type?.icon || Zap;
-                                const completed = c.targets?.filter((t: any) => t.status === 'completed').length || 0;
-                                const total = c.targets?.length || 0;
-                                return (
-                                    <button
-                                        key={c.id}
-                                        onClick={() => router.push(`/campaign/${c.id}`)}
-                                        className="flex items-center gap-4 p-4 bg-white/5 border border-white/10 hover:border-white/20 rounded-2xl text-left group transition-all"
-                                    >
-                                        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${type?.color || 'from-slate-500 to-slate-600'} flex items-center justify-center flex-shrink-0`}>
-                                            <Icon className="w-5 h-5 text-white" />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-white font-semibold text-sm truncate group-hover:text-indigo-300 transition-colors">{c.name}</p>
-                                            <p className="text-white/40 text-xs mt-0.5">{completed}/{total} targets done</p>
-                                        </div>
-                                        <ChevronRight className="w-4 h-4 text-white/20 group-hover:text-white/60 transition-colors" />
-                                    </button>
-                                );
-                            })}
-                            {campaigns.length > 6 && (
-                                <div className="flex items-center justify-center p-4 bg-white/5 border border-white/10 rounded-2xl text-white/40 text-sm">
-                                    +{campaigns.length - 6} more
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                            {campaigns.slice(0, 8).map(c => (
+                                <CampaignCard
+                                    key={c.id}
+                                    campaign={c}
+                                    type={CAMPAIGN_TYPES.find(t => t.id === c.type)}
+                                    onClick={() => router.push(`/campaign/${c.id}`)}
+                                />
+                            ))}
+                            {campaigns.length > 8 && (
+                                <div className="flex flex-col items-center justify-center p-8 bg-white/5 border border-dashed border-white/10 rounded-[2rem] text-white/40 text-sm italic">
+                                    <Sparkles className="w-6 h-6 mb-2 text-indigo-500/40" />
+                                    +{campaigns.length - 8} more campaigns
                                 </div>
                             )}
                         </div>
@@ -325,13 +426,13 @@ export default function CampaignPage() {
                         <div className="flex-1">
                             {hasReachedFreeLimit ? (
                                 <>
-                                    <p className="text-red-300 font-bold text-sm">Campaign limit reached (1/1)</p>
-                                    <p className="text-red-400/60 text-xs mt-0.5">Upgrade to Pro for unlimited campaigns, all campaign types, and advanced analytics.</p>
+                                    <p className="text-red-300 font-bold text-sm">Campaign limit reached ({FREE_CAMPAIGN_LIMIT}/{FREE_CAMPAIGN_LIMIT})</p>
+                                    <p className="text-red-400/60 text-xs mt-0.5">Upgrade to Pro for unlimited campaigns, all campaign types, and advanced AI tools.</p>
                                 </>
                             ) : (
                                 <>
-                                    <p className="text-amber-300 font-semibold text-sm">Free plan: 1 campaign with full analytics included.</p>
-                                    <p className="text-amber-400/60 text-xs mt-0.5">Upgrade for unlimited campaigns and all campaign types.</p>
+                                    <p className="text-amber-300 font-semibold text-sm">Free plan: Up to {FREE_CAMPAIGN_LIMIT} campaigns with full analytics included.</p>
+                                    <p className="text-amber-400/60 text-xs mt-0.5">Upgrade for unlimited campaigns and premium distribution types.</p>
                                 </>
                             )}
                         </div>
@@ -373,7 +474,11 @@ export default function CampaignPage() {
                                                 {existingCount} running
                                             </span>
                                         )}
-                                        {isLocked && <Lock className="w-4 h-4 text-white/30" />}
+                                        {isLocked && (
+                                            <div className="p-1.5 bg-amber-500/10 rounded-lg border border-amber-500/20">
+                                                <Lock className="w-3.5 h-3.5 text-amber-500" />
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
@@ -381,17 +486,22 @@ export default function CampaignPage() {
                                 <p className="text-white/50 text-sm leading-relaxed mb-4">{type.description}</p>
 
                                 <div className="flex items-center justify-between pt-4 border-t border-white/5">
-                                    <span className={`text-xs font-semibold ${isLocked ? 'text-amber-400'
+                                    <span className={`text-xs font-semibold ${isLocked ? 'text-amber-400 flex items-center gap-1.5'
                                         : hasReachedFreeLimit ? 'text-red-400'
                                             : 'text-indigo-400'
                                         }`}>
-                                        {isLocked ? 'Pro required'
-                                            : hasReachedFreeLimit ? 'Upgrade to add more'
-                                                : existingCount > 0 ? `Distribute ${existingCount + 1}`
+                                        {isLocked ? <><Lock className="w-3 h-3" /> Pro Template</>
+                                            : hasReachedFreeLimit ? 'Limit reached'
+                                                : existingCount > 0 ? `Resume Distribution`
                                                     : 'Distribute'}
                                     </span>
                                     {!isLocked && !hasReachedFreeLimit && (
                                         <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
+                                    )}
+                                    {isLocked && (
+                                        <span className="text-[10px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-lg border border-amber-500/20 font-bold uppercase tracking-widest">
+                                            Upgrade
+                                        </span>
                                     )}
                                 </div>
                             </motion.div>
@@ -543,6 +653,6 @@ export default function CampaignPage() {
                     { title: 'Create Campaign', description: 'Click Distribute to generate your campaign workspace where you can track submissions and execute.' },
                 ]}
             />
-        </main>
+        </div>
     );
 }

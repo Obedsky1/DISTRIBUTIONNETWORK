@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Check, Sparkles, Zap, Crown } from 'lucide-react';
+import { Check, Sparkles, Zap, Crown, Users, Search } from 'lucide-react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/auth-store';
@@ -80,6 +80,7 @@ export default function PricingCards() {
             id: 'PRO',
             name: 'Pro Distribute',
             price: '9.99',
+            originalPrice: '99.99',
             icon: Zap,
             color: 'from-indigo-500 to-blue-500',
             buttonText: 'Start distributing',
@@ -146,9 +147,17 @@ export default function PricingCards() {
                             <h3 className="text-2xl font-bold mb-2 text-white">{plan.name}</h3>
 
                             {/* Price */}
-                            <div className="mb-6 flex items-baseline gap-1">
-                                <span className="text-4xl font-bold text-white">${plan.price}</span>
-                                <span className="text-white/50 font-medium">/month</span>
+                            <div className="mb-6">
+                                <div className="flex items-baseline gap-1">
+                                    <span className="text-4xl font-bold text-white">${plan.price}</span>
+                                    <span className="text-white/50 font-medium">/month</span>
+                                </div>
+                                {(plan as any).originalPrice && (
+                                    <div className="mt-1 flex items-center gap-2">
+                                        <span className="text-sm text-white/30 line-through">${(plan as any).originalPrice}</span>
+                                        <span className="text-[10px] font-bold bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full uppercase tracking-wider">Early Bird</span>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Features */}
@@ -180,6 +189,41 @@ export default function PricingCards() {
                     </motion.div>
                 );
             })}
+
+            {/* Motivational Footer Section */}
+            <div className="md:col-span-3 mt-12 p-8 md:p-12 bg-white/5 border border-white/10 rounded-[3rem] relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform">
+                    <Crown className="w-32 h-32 text-indigo-400" />
+                </div>
+                <div className="relative z-10">
+                    <h4 className="text-xl md:text-2xl font-black mb-6 bg-gradient-to-r from-emerald-400 to-indigo-400 bg-clip-text text-transparent">
+                        There is no more room for excuses.
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div className="space-y-2">
+                            <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center mb-4">
+                                <Users className="w-5 h-5 text-indigo-400" />
+                            </div>
+                            <p className="text-white font-bold leading-tight">No excuse for not getting your first 100 paying users.</p>
+                            <p className="text-white/30 text-xs">Distribution is solved.</p>
+                        </div>
+                        <div className="space-y-2">
+                            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-4">
+                                <Search className="w-5 h-5 text-emerald-400" />
+                            </div>
+                            <p className="text-white font-bold leading-tight">No excuse for not getting to #1 in Google search.</p>
+                            <p className="text-white/30 text-xs">SEO dominance is here.</p>
+                        </div>
+                        <div className="space-y-2">
+                            <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center mb-4">
+                                <Sparkles className="w-5 h-5 text-purple-400" />
+                            </div>
+                            <p className="text-white font-bold leading-tight">No excuse for ChatGPT not recommending you to its 800 million users.</p>
+                            <p className="text-white/30 text-xs">AI awareness is automated.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

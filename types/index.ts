@@ -49,6 +49,8 @@ export interface User {
     savedCommunities: string[];
     submittedCommunities: string[];
     isPremium: boolean;
+    premiumSince?: any;
+    premiumUntil?: any;
     premiumExpiresAt?: Date;
     preferences: {
         platforms: Platform[];

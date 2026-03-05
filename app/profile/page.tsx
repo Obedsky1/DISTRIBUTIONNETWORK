@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Save, User, Globe, Briefcase, FileText, ImageIcon,
@@ -9,7 +9,7 @@ import {
     UploadCloud, X, Loader2, Link as LinkIcon, Image as ImageIcon2, Settings
 } from 'lucide-react';
 import { useAuthStore } from '@/lib/store/auth-store';
-import { updateDocument } from '@/lib/firebase/firestore';
+import { updateDocument, queryDocuments, deleteDocument } from '@/lib/firebase/firestore';
 import { signOut } from '@/lib/firebase/auth';
 import { storage } from '@/lib/firebase/config';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -18,8 +18,12 @@ import { PageGuide } from '@/components/PageGuide';
 export default function ProfilePage() {
     const { user, loading, openAuthModal } = useAuthStore();
     const router = useRouter();
+    const searchParams = useSearchParams();
 
     const [activeTab, setActiveTab] = useState<'copy' | 'assets' | 'pipeline'>('copy');
+    const [showCopyCenter, setShowCopyCenter] = useState(false);
+    const [pipelineItems, setPipelineItems] = useState<any[]>([]);
+    const [loadingPipeline, setLoadingPipeline] = useState(false);
 
     const [saving, setSaving] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
@@ -66,7 +70,45 @@ export default function ProfilePage() {
                 otherAssets: Array.isArray(user.startup.otherAssets) ? user.startup.otherAssets : []
             });
         }
-    }, [user, loading, router, openAuthModal]);
+
+        // Handle tab deep-linking
+        const tab = searchParams.get('tab');
+        if (tab === 'pipeline' || tab === 'copy' || tab === 'assets') {
+            setActiveTab(tab as any);
+        }
+    }, [user, loading, router, openAuthModal, searchParams]);
+
+    useEffect(() => {
+        if (activeTab === 'pipeline' && user) {
+            const fetchPipeline = async () => {
+                setLoadingPipeline(true);
+                try {
+                    const projectId = `default_project_${user.id}`;
+                    const [dirSubs, commSubs] = await Promise.all([
+                        queryDocuments<any>('directory_submissions', [{ field: 'project_id', operator: '==', value: projectId }]),
+                        queryDocuments<any>('community_submissions', [{ field: 'project_id', operator: '==', value: projectId }])
+                    ]);
+
+                    const all = [
+                        ...(dirSubs || []).map(s => ({ ...s, kind: 'directory' as const })),
+                        ...(commSubs || []).map(s => ({ ...s, kind: 'community' as const })),
+                        ...(user.distroPipeline || []).map(s => ({ ...s, isLegacy: true }))
+                    ].sort((a, b) => {
+                        const timeA = a.created_at?.seconds || 0;
+                        const timeB = b.created_at?.seconds || 0;
+                        return timeB - timeA;
+                    });
+
+                    setPipelineItems(all);
+                } catch (err) {
+                    console.error('Error fetching pipeline:', err);
+                } finally {
+                    setLoadingPipeline(false);
+                }
+            };
+            fetchPipeline();
+        }
+    }, [activeTab, user]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -504,63 +546,134 @@ export default function ProfilePage() {
                                     <h2 className="text-xl font-bold">Distribution Pipeline</h2>
                                     <p className="text-white/40 text-[10px] uppercase tracking-wider mt-0.5">Channels you've queued</p>
                                 </div>
-                            </div>
-
-                            {!user.distroPipeline || user.distroPipeline.length === 0 ? (
-                                <div className="text-center py-16 px-4 rounded-2xl bg-white/5 border border-white/10 flex flex-col items-center">
-                                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
-                                        <Sparkles className="w-8 h-8 text-white/20" />
-                                    </div>
-                                    <p className="text-white/60 text-sm mb-6">Your pipeline is empty.</p>
+                                <div className="ml-auto flex items-center gap-2">
                                     <button
-                                        onClick={() => router.push('/discover')}
-                                        className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-all shadow-lg shadow-indigo-500/25"
+                                        onClick={() => setShowCopyCenter(!showCopyCenter)}
+                                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all border ${showCopyCenter
+                                            ? 'bg-indigo-500/20 border-indigo-500/50 text-indigo-300'
+                                            : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10 hover:text-white'}`}
                                     >
-                                        Discover Channels
+                                        <FileText className="w-3.5 h-3.5" />
+                                        {showCopyCenter ? 'Hide Copy Center' : 'Quick Copy Material'}
                                     </button>
                                 </div>
-                            ) : (
-                                <div className="space-y-3">
-                                    {user.distroPipeline.map((item) => {
-                                        const isDir = item.kind === 'directory';
-                                        return (
-                                            <div key={item.id} className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors group">
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center gap-2 mb-1">
-                                                        <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider ${isDir ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-purple-500/20 text-purple-300 border border-purple-500/30'}`}>
-                                                            {isDir ? 'Directory' : 'Community'}
-                                                        </span>
-                                                        <h3 className="text-sm font-bold text-white truncate">{item.name}</h3>
-                                                    </div>
-                                                    <p className="text-xs text-white/40">{item.category}</p>
-                                                </div>
+                            </div>
 
-                                                <div className="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
-                                                    <a
-                                                        href={item.url}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-white/10 hover:bg-indigo-600 text-white text-xs font-semibold transition-all"
-                                                    >
-                                                        Open <ExternalLink className="w-3.5 h-3.5" />
-                                                    </a>
-                                                    <button
-                                                        onClick={async () => {
-                                                            const newPipeline = user.distroPipeline!.filter(p => p.id !== item.id);
-                                                            await updateDocument('users', user.id, { distroPipeline: newPipeline });
-                                                            useAuthStore.setState({ user: { ...user, distroPipeline: newPipeline } });
-                                                        }}
-                                                        className="flex items-center justify-center p-2 rounded-xl bg-white/5 hover:bg-red-500/20 text-white/40 hover:text-red-400 transition-all"
-                                                        title="Remove from pipeline"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
-                                                </div>
+                            <div className={`grid grid-cols-1 ${showCopyCenter ? 'lg:grid-cols-2' : ''} gap-8 transition-all duration-500`}>
+                                {/* PIPELINE LIST */}
+                                <div className="space-y-6">
+                                    {loadingPipeline ? (
+                                        <div className="flex flex-col items-center justify-center py-20 gap-4">
+                                            <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+                                            <p className="text-white/30 text-xs">Loading target channels...</p>
+                                        </div>
+                                    ) : pipelineItems.length === 0 ? (
+                                        <div className="text-center py-16 px-4 rounded-2xl bg-white/5 border border-white/10 flex flex-col items-center">
+                                            <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
+                                                <Sparkles className="w-8 h-8 text-white/20" />
                                             </div>
-                                        );
-                                    })}
+                                            <p className="text-white/60 text-sm mb-6">Your pipeline is empty.</p>
+                                            <button
+                                                onClick={() => router.push('/discover')}
+                                                className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-all shadow-lg shadow-indigo-500/25"
+                                            >
+                                                Discover Channels
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-3">
+                                            {pipelineItems.map((item) => {
+                                                const isDir = item.kind === 'directory';
+                                                return (
+                                                    <div key={item.id} className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors group">
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider ${isDir ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-purple-500/20 text-purple-300 border border-purple-500/30'}`}>
+                                                                    {isDir ? 'Directory' : 'Community'}
+                                                                </span>
+                                                                <h3 className="text-sm font-bold text-white truncate">{item.directory_name || item.name}</h3>
+                                                            </div>
+                                                            <p className="text-xs text-white/40">{item.status || item.category || 'Planned'}</p>
+                                                        </div>
+
+                                                        <div className="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+                                                            <a
+                                                                href={item.directory_url || item.url}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-white/10 hover:bg-indigo-600 text-white text-xs font-semibold transition-all"
+                                                            >
+                                                                Open <ExternalLink className="w-3.5 h-3.5" />
+                                                            </a>
+                                                            <button
+                                                                onClick={async () => {
+                                                                    if (item.isLegacy) {
+                                                                        // Legacy item removal
+                                                                        const newLegacy = user.distroPipeline!.filter(p => p.id !== item.id);
+                                                                        await updateDocument('users', user.id, { distroPipeline: newLegacy });
+                                                                        useAuthStore.setState({ user: { ...user, distroPipeline: newLegacy } });
+                                                                        setPipelineItems(prev => prev.filter(p => p.id !== item.id));
+                                                                    } else {
+                                                                        const collection = isDir ? 'directory_submissions' : 'community_submissions';
+                                                                        await deleteDocument(collection, item.id);
+                                                                        setPipelineItems(prev => prev.filter(p => p.id !== item.id));
+                                                                    }
+                                                                }}
+                                                                className="flex items-center justify-center p-2 rounded-xl bg-white/5 hover:bg-red-500/20 text-white/40 hover:text-red-400 transition-all"
+                                                                title="Remove from pipeline"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
                                 </div>
-                            )}
+
+                                {/* QUICK COPY SIDE PANEL */}
+                                {showCopyCenter && (
+                                    <div className="space-y-6 lg:border-l lg:border-white/10 lg:pl-8 animate-in slide-in-from-right-4 duration-500">
+                                        <div className="flex items-center gap-2 mb-4">
+                                            <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center">
+                                                <FileText className="w-4 h-4 text-indigo-400" />
+                                            </div>
+                                            <h3 className="text-sm font-bold text-white uppercase tracking-wider">Quick Copy Center</h3>
+                                        </div>
+
+                                        <div className="space-y-5">
+                                            {[
+                                                { label: 'Tagline', value: formData.tagline, id: 'q-tag' },
+                                                { label: 'Short Pitch', value: formData.shortDescription, id: 'q-pitch' },
+                                                { label: 'Long Description', value: formData.description, id: 'q-desc' },
+                                                { label: 'Keywords', value: formData.keywords, id: 'q-keys' },
+                                                { label: 'Website', value: formData.websiteUrl, id: 'q-url' },
+                                            ].map((f) => (
+                                                <div key={f.id} className="group p-4 rounded-xl bg-white/5 border border-white/5 hover:border-white/10 transition-all">
+                                                    <div className="flex items-center justify-between mb-2">
+                                                        <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">{f.label}</span>
+                                                        <button
+                                                            onClick={() => handleCopy(f.value, f.id)}
+                                                            className="text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-1.5"
+                                                        >
+                                                            {copiedStates[f.id] ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                                                            <span className="text-[10px] font-bold">{copiedStates[f.id] ? 'COPIED' : 'COPY'}</span>
+                                                        </button>
+                                                    </div>
+                                                    <p className="text-xs text-white/70 line-clamp-3 leading-relaxed">{f.value || <span className="italic text-white/20">No content set...</span>}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <div className="p-4 rounded-xl bg-indigo-500/5 border border-indigo-500/10">
+                                            <p className="text-[10px] text-indigo-300/60 leading-relaxed italic">
+                                                💡 Tip: Keep this side panel open while submitting your startup to directories for a much faster workflow.
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     )}
                 </div>

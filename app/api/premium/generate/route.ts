@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateContent, ContentType } from '@/lib/ai/content-generator';
 import { getDocument, updateDocument } from '@/lib/firebase/firestore';
+import { getAuthUserId } from '@/lib/api-auth';
 import { User } from '@/types';
 
 export async function POST(request: NextRequest) {
@@ -8,7 +9,6 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         const { userId, type, prompt, platform, context, tone, length } = body;
 
-        // Validate required fields
         if (!userId || !type || !prompt) {
             return NextResponse.json(
                 {
@@ -16,6 +16,17 @@ export async function POST(request: NextRequest) {
                     error: 'userId, type, and prompt are required',
                 },
                 { status: 400 }
+            );
+        }
+
+        const authUserId = await getAuthUserId(request);
+        if (authUserId !== userId) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: 'Unauthorized: Access Denied',
+                },
+                { status: 401 }
             );
         }
 

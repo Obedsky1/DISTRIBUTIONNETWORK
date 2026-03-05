@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, ExternalLink, Save, Clock, Type, Image as ImageIcon, Activity, Loader2, Globe, Search, Check } from 'lucide-react';
+import { X, ExternalLink, Save, Clock, Type, Image as ImageIcon, Activity, Loader2, Globe, Search, Check, Copy, Sparkles } from 'lucide-react';
 import { DirectorySubmission, SubmissionVersion, ActivityLog, SubmissionStatus, ProjectAsset } from '@/types/distribution';
 import { updateDocument, setDocument, queryDocuments, deleteDocument } from '@/lib/firebase/firestore';
 import { uploadAsset } from '@/lib/firebase/storage';
@@ -120,37 +120,6 @@ export function WorkspaceModal({ isOpen, onClose, submission, userId }: Workspac
         }
     };
 
-    const verifyBacklink = async () => {
-        if (!liveUrl || !targetDomain) {
-            alert('Please provide both the Live URL and your Target Domain to verify.');
-            return;
-        }
-
-        setBacklinkStatus('checking');
-
-        try {
-            const res = await fetch('/api/backlinks/verify', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ liveUrl, targetDomain })
-            });
-            const data = await res.json();
-
-            if (res.ok && data.success) {
-                const { found, rel, anchor } = data.result;
-                setBacklinkStatus(found ? 'found' : 'not_found');
-                setBacklinkRel(rel || null);
-                setBacklinkAnchor(anchor || null);
-                alert(found ? 'Backlink confirmed!' : 'Backlink not found.');
-            } else {
-                setBacklinkStatus('error');
-                alert(data.error || 'Verification failed');
-            }
-        } catch {
-            setBacklinkStatus('error');
-            alert('Verification request failed');
-        }
-    };
 
     const saveNewVersion = async () => {
         try {
@@ -285,73 +254,26 @@ export function WorkspaceModal({ isOpen, onClose, submission, userId }: Workspac
                                 />
                             </div>
 
-                            {/* Backlink Tracking Section */}
-                            <div className="pt-4 border-t border-white/10 mt-6 space-y-4">
-                                <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
-                                    <Globe className="w-4 h-4 text-indigo-400" />
-                                    Advanced Tracking & Backlink Setup
-                                </h3>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-xs font-semibold text-white/50 uppercase tracking-widest mb-2">Live Published URL</label>
-                                        <input
-                                            type="url"
-                                            className="w-full bg-[#1a1a24] border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500/50 placeholder-white/20"
-                                            placeholder="https://..."
-                                            value={liveUrl}
-                                            onChange={(e) => setLiveUrl(e.target.value)}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-semibold text-white/50 uppercase tracking-widest mb-2">Your Target Domain</label>
-                                        <input
-                                            type="text"
-                                            className="w-full bg-[#1a1a24] border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500/50 placeholder-white/20"
-                                            placeholder="your-startup.com"
-                                            value={targetDomain}
-                                            onChange={(e) => setTargetDomain(e.target.value)}
-                                        />
+                            {/* Guidance to Backlink Tracker */}
+                            {liveUrl && (
+                                <div className="pt-4 border-t border-white/10 mt-6">
+                                    <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-4 flex items-start gap-3">
+                                        <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
+                                            <Globe className="w-4 h-4 text-indigo-400" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-bold text-white leading-snug">Track this backlink!</p>
+                                            <p className="text-xs text-white/50 mt-1 mb-2">Monitor visibility, DoFollow/NoFollow type, and SEO health centrally.</p>
+                                            <a
+                                                href="/backlinks"
+                                                className="text-xs text-indigo-400 hover:text-indigo-300 font-bold flex items-center gap-1 transition-colors"
+                                            >
+                                                Go to Backlink Tracker <ExternalLink className="w-3 h-3" />
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-4 bg-white/5 border border-white/10 p-4 rounded-xl">
-                                    <button
-                                        onClick={verifyBacklink}
-                                        disabled={backlinkStatus === 'checking' || !liveUrl || !targetDomain}
-                                        className="flex items-center gap-2 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 font-semibold py-2 px-4 rounded-lg transition-all text-sm border border-indigo-500/30 disabled:opacity-50"
-                                    >
-                                        {backlinkStatus === 'checking' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
-                                        {backlinkStatus === 'checking' ? 'Validating...' : 'Verify Backlink'}
-                                    </button>
-
-                                    <div className="flex-1 flex gap-2 justify-end">
-                                        {backlinkStatus === 'found' && (
-                                            <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-xs font-bold rounded-full border border-emerald-500/30 flex items-center gap-1">
-                                                <Check className="w-3 h-3" /> Backlink Found
-                                            </span>
-                                        )}
-                                        {backlinkStatus === 'not_found' && (
-                                            <span className="px-3 py-1 bg-red-500/20 text-red-400 text-xs font-bold rounded-full border border-red-500/30 flex items-center gap-1">
-                                                <X className="w-3 h-3" /> Not Found
-                                            </span>
-                                        )}
-                                        {backlinkStatus === 'error' && (
-                                            <span className="px-3 py-1 bg-orange-500/20 text-orange-400 text-xs font-bold rounded-full border border-orange-500/30">
-                                                Error Checking
-                                            </span>
-                                        )}
-                                        {backlinkRel && backlinkStatus === 'found' && (
-                                            <span className="px-3 py-1 bg-blue-500/20 text-blue-400 text-xs font-bold rounded-full border border-blue-500/30 uppercase tracking-wider">
-                                                {backlinkRel}
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-                                {backlinkAnchor && backlinkStatus === 'found' && (
-                                    <p className="text-xs text-white/50 px-1 pt-1">
-                                        Anchor: <span className="text-white/80">"{backlinkAnchor}"</span>
-                                    </p>
-                                )}
-                            </div>
+                            )}
 
                             <button onClick={saveSubmissionInfo} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-6 rounded-xl transition-all w-full justify-center">
                                 <Save className="w-4 h-4" /> Save Details
@@ -360,7 +282,7 @@ export function WorkspaceModal({ isOpen, onClose, submission, userId }: Workspac
                     )}
 
                     {activeTab === 'copy' && (
-                        <div className="space-y-6 flex flex-col h-full">
+                        <div className="space-y-6 flex flex-col h-full bg-[#0d0d14]">
                             <div className="flex justify-between items-center bg-[#1a1a24] p-3 rounded-xl border border-white/10">
                                 <span className="text-sm font-medium">Versioned Copy Editor</span>
                             </div>
@@ -408,6 +330,40 @@ export function WorkspaceModal({ isOpen, onClose, submission, userId }: Workspac
                                     </div>
                                 </div>
                             )}
+
+                            {/* Startup Profile Reference Section */}
+                            {user?.startup && (
+                                <div className="mt-8 pt-8 border-t border-white/10 space-y-4">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <Sparkles className="w-4 h-4 text-indigo-400" />
+                                        <h3 className="text-sm font-bold text-white">Startup Profile Reference</h3>
+                                    </div>
+                                    <p className="text-xs text-white/40 mb-4">Quickly copy your core profile data for this directory.</p>
+
+                                    <div className="space-y-4">
+                                        {[
+                                            { label: 'Startup Name', value: user.startup.name, id: 'st-name' },
+                                            { label: 'Tagline', value: user.startup.tagline, id: 'st-tagline' },
+                                            { label: 'Short Pitch', value: user.startup.shortDescription, id: 'st-short' },
+                                            { label: 'Full Description', value: user.startup.description, id: 'st-desc' },
+                                            { label: 'Website URL', value: user.startup.websiteUrl, id: 'st-url' },
+                                        ].map((item) => item.value && (
+                                            <div key={item.id} className="group bg-white/5 border border-white/10 rounded-xl p-3 hover:bg-white/10 transition-all">
+                                                <div className="flex justify-between items-center mb-1">
+                                                    <span className="text-[10px] font-bold text-white/40 uppercase tracking-wider">{item.label}</span>
+                                                    <button
+                                                        onClick={() => { navigator.clipboard.writeText(item.value || ''); alert(`${item.label} copied!`); }}
+                                                        className="text-indigo-400 hover:text-indigo-300 transition-colors"
+                                                    >
+                                                        <Copy className="w-3.5 h-3.5" />
+                                                    </button>
+                                                </div>
+                                                <p className="text-sm text-white/80 line-clamp-2">{item.value}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
 
@@ -443,9 +399,14 @@ export function WorkspaceModal({ isOpen, onClose, submission, userId }: Workspac
                                         <img src={user.startup.logoUrl} className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500" alt="Primary Logo" title="Primary Logo" />
                                         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
                                             <span className="text-xs font-bold text-white mb-1">Primary Logo</span>
-                                            <a href={user.startup.logoUrl} target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 backdrop-blur-md rounded-lg text-white hover:bg-white/20">
-                                                <ExternalLink className="w-4 h-4" />
-                                            </a>
+                                            <div className="flex gap-2">
+                                                <a href={user.startup.logoUrl} target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 backdrop-blur-md rounded-lg text-white hover:bg-white/20">
+                                                    <ExternalLink className="w-4 h-4" />
+                                                </a>
+                                                <button onClick={() => { navigator.clipboard.writeText(user.startup?.logoUrl || ''); alert('Logo URL Copied!'); }} className="p-2 bg-white/10 backdrop-blur-md rounded-lg text-white hover:bg-white/20">
+                                                    <Copy className="w-4 h-4" />
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 )}
@@ -454,33 +415,49 @@ export function WorkspaceModal({ isOpen, onClose, submission, userId }: Workspac
                                         <img src={user.startup.bannerUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Hero Banner" title="Hero Banner" />
                                         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
                                             <span className="text-xs font-bold text-white mb-1">Hero Banner</span>
-                                            <a href={user.startup.bannerUrl} target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 backdrop-blur-md rounded-lg text-white hover:bg-white/20">
-                                                <ExternalLink className="w-4 h-4" />
-                                            </a>
+                                            <div className="flex gap-2">
+                                                <a href={user.startup.bannerUrl} target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 backdrop-blur-md rounded-lg text-white hover:bg-white/20">
+                                                    <ExternalLink className="w-4 h-4" />
+                                                </a>
+                                                <button onClick={() => { navigator.clipboard.writeText(user.startup?.bannerUrl || ''); alert('Banner URL Copied!'); }} className="p-2 bg-white/10 backdrop-blur-md rounded-lg text-white hover:bg-white/20">
+                                                    <Copy className="w-4 h-4" />
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 )}
-                                {user?.startup?.otherAssets?.map((assetUrl, idx) => (
+                                {Array.isArray(user?.startup?.otherAssets) && user?.startup?.otherAssets.map((assetUrl, idx) => (
                                     <div key={`profile-asset-${idx}`} className="group relative aspect-video bg-white/5 rounded-xl border border-white/10 overflow-hidden flex items-center justify-center">
                                         <img src={assetUrl} className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500" alt={`Product Asset ${idx}`} title={`Product Asset ${idx}`} />
                                         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
-                                            <span className="text-xs font-bold text-white mb-1">Product Asset</span>
-                                            <a href={assetUrl} target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 backdrop-blur-md rounded-lg text-white hover:bg-white/20">
-                                                <ExternalLink className="w-4 h-4" />
-                                            </a>
+                                            <span className="text-[10px] font-bold text-white/60 mb-1 uppercase">Product Asset</span>
+                                            <div className="flex gap-2">
+                                                <a href={assetUrl} target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 backdrop-blur-md rounded-lg text-white hover:bg-white/20">
+                                                    <ExternalLink className="w-4 h-4" />
+                                                </a>
+                                                <button onClick={() => { navigator.clipboard.writeText(assetUrl || ''); alert('Asset URL Copied!'); }} className="p-2 bg-white/10 backdrop-blur-md rounded-lg text-white hover:bg-white/20">
+                                                    <Copy className="w-4 h-4" />
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
                                 {assets.map(asset => (
                                     <div key={asset.id} className="group relative aspect-video bg-white/5 rounded-xl border border-white/10 overflow-hidden">
                                         <img src={asset.file_url} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Project asset" />
-                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                            <a href={asset.file_url} target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 backdrop-blur-md rounded-lg text-white hover:bg-white/20">
-                                                <ExternalLink className="w-4 h-4" />
-                                            </a>
-                                            <button onClick={() => removeAsset(asset)} className="p-2 bg-red-500/20 backdrop-blur-md rounded-lg text-red-300 hover:bg-red-500/30">
-                                                <X className="w-4 h-4" />
-                                            </button>
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                                            <span className="text-[10px] font-bold text-white/40 mb-1 uppercase tracking-wider">Submission Asset</span>
+                                            <div className="flex gap-2">
+                                                <a href={asset.file_url} target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 backdrop-blur-md rounded-lg text-white hover:bg-white/20">
+                                                    <ExternalLink className="w-4 h-4" />
+                                                </a>
+                                                <button onClick={() => { navigator.clipboard.writeText(asset.file_url || ''); alert('Asset URL Copied!'); }} className="p-2 bg-white/10 backdrop-blur-md rounded-lg text-white hover:bg-white/20">
+                                                    <Copy className="w-4 h-4" />
+                                                </button>
+                                                <button onClick={() => removeAsset(asset)} className="p-2 bg-red-500/20 backdrop-blur-md rounded-lg text-red-300 hover:bg-red-500/30">
+                                                    <X className="w-4 h-4" />
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 ))}

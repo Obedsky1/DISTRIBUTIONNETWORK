@@ -7,6 +7,7 @@ import {
     GoogleAuthProvider,
     signInWithPopup,
     updateProfile,
+    sendEmailVerification,
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from './config';
@@ -24,6 +25,9 @@ export async function signUp(email: string, password: string, displayName: strin
 
         // Update profile
         await updateProfile(firebaseUser, { displayName });
+
+        // Send email verification
+        await sendEmailVerification(firebaseUser);
 
         // Create user document in Firestore
         const newUser: Omit<User, 'id'> = {

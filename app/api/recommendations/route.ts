@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getRecommendations } from '@/lib/ai/recommendations';
 import { getDocument } from '@/lib/firebase/firestore';
+import { getAuthUserId } from '@/lib/api-auth';
 import { User } from '@/types';
 
 export async function GET(request: NextRequest) {
@@ -16,6 +17,17 @@ export async function GET(request: NextRequest) {
                     error: 'User ID is required',
                 },
                 { status: 400 }
+            );
+        }
+
+        const authUserId = await getAuthUserId(request);
+        if (authUserId !== userId) {
+            return NextResponse.json(
+                {
+                    success: false,
+                    error: 'Unauthorized: Access Denied',
+                },
+                { status: 401 }
             );
         }
 

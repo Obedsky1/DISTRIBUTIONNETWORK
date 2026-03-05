@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { adminDb } from '@/lib/firebase/admin';
+import { getAuthUserId } from '@/lib/api-auth';
 import { DirectorySubmission, ActivityLog } from '@/types/distribution';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -8,6 +9,26 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
         const { id } = params;
         const body = await req.json();
         const { status, submission_url, notes, user_id, action_type } = body;
+
+        const authUserId = await getAuthUserId(req);
+        if (!authUserId) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        // Verify ownership
+        if (adminDb) {
+            const subDoc = await adminDb.collection('directory_submissions').doc(id).get();
+            if (!subDoc.exists) {
+                return NextResponse.json({ error: 'Submission not found' }, { status: 404 });
+            }
+            const submission = subDoc.data() as DirectorySubmission;
+
+            // Check if user owns the project associated with this submission
+            const projectDoc = await adminDb.collection('launch_projects').doc(submission.project_id).get();
+            if (!projectDoc.exists || projectDoc.data()?.user_id !== authUserId) {
+                return NextResponse.json({ error: 'Forbidden: Access Denied' }, { status: 403 });
+            }
+        }
 
         const updateData: Partial<DirectorySubmission> = {
             updated_at: new Date()

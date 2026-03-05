@@ -1,138 +1,100 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
-import { ExternalLink, Plus, CheckCircle, ListTodo, X, TrendingUp, Sparkles, ArrowRight, RotateCcw, ChevronRight, LayoutGrid, Kanban, TableProperties } from 'lucide-react';
+import { useState, useEffect, useMemo, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import {
+    Search, Filter, Globe, BarChart2, CheckCircle, Plus,
+    ArrowRight, Loader2, MessageSquare, ExternalLink, RefreshCw, X, Sparkles,
+    RotateCcw, ChevronRight, LayoutGrid, Kanban, TableProperties
+} from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useAuthStore } from '@/lib/store/auth-store';
+import { queryDocuments, setDocument, updateDocument } from '@/lib/firebase/firestore';
+import { PageGuide } from '@/components/PageGuide';
 import { PipelineBoard } from '@/components/directories/PipelineBoard';
 import { TableView } from '@/components/directories/TableView';
 import { WorkspaceModal } from '@/components/directories/WorkspaceModal';
 import { DirectorySubmission } from '@/types/distribution';
 import { DropResult } from '@hello-pangea/dnd';
-import { useAuthStore } from '@/lib/store/auth-store';
-import { queryDocuments, setDocument, updateDocument } from '@/lib/firebase/firestore';
-import { PageGuide } from '@/components/PageGuide';
 
 /* ─── Types ─── */
 interface Directory {
-    name: string; description: string; category: string;
-    url: string; submission_url?: string; pricing?: string; domain_authority?: number;
+    id?: string;
+    name: string;
+    url: string;
+    description: string;
+    category: string;
+    pricing: 'Free' | 'Paid' | 'Freemium';
+    domain_authority: number;
+    monthly_visits?: string;
 }
+
 interface EnrichedDirectory extends Directory {
-    difficulty: 'Easy' | 'Medium' | 'Hard';
-    impact: 'High' | 'Medium' | 'Low';
-}
-type Answers = { product?: string; goal?: string; budget?: string };
-
-/* ─── Enrichment ─── */
-function enrich(d: Directory): EnrichedDirectory {
-    const da = d.domain_authority ?? 50;
-    const paid = d.pricing === 'Paid' || d.pricing === 'Revenue Share';
-    return {
-        ...d,
-        impact: da >= 75 ? 'High' : da >= 50 ? 'Medium' : 'Low',
-        difficulty: paid && da >= 70 ? 'Hard' : paid || da >= 70 ? 'Medium' : 'Easy',
-    };
+    matchScore: number;
+    reasons: string[];
 }
 
-/* ─── Onboarding questions ─── */
-const STEPS = [
-    {
-        id: 'product',
-        question: "What are you distributing?",
-        subtitle: "We'll tailor the best directories for you",
-        options: [
-            { value: 'ai-saas', label: 'AI / SaaS Tool', icon: '🤖', desc: 'Software, AI, or web app' },
-            { value: 'dev-tool', label: 'Dev Tool', icon: '🛠️', desc: 'API, SDK, or developer product' },
-            { value: 'agency', label: 'Agency / Service', icon: '🏢', desc: 'Consulting or freelance service' },
-            { value: 'community', label: 'Community', icon: '👥', desc: 'Forum, group, or network' },
-            { value: 'content', label: 'Blog / Content', icon: '✍️', desc: 'Newsletter, blog, or media' },
-            { value: 'marketplace', label: 'Marketplace', icon: '🛒', desc: 'Platform connecting buyers & sellers' },
-            { value: 'beta', label: 'Beta / Pre-Distribute', icon: '🧪', desc: 'Early access, seeking first testers' },
-        ],
-    },
-    {
-        id: 'goal',
-        question: "What's your primary goal?",
-        subtitle: "We'll prioritise for the highest return",
-        options: [
-            { value: 'visibility', label: 'Distribute Visibility', icon: '🚀', desc: 'Get discovered fast' },
-            { value: 'seo', label: 'SEO Backlinks', icon: '🔍', desc: 'Boost search rankings' },
-            { value: 'users', label: 'Get First Users', icon: '🎯', desc: 'Drive sign-ups or leads' },
-            { value: 'community-growth', label: 'Community Growth', icon: '💬', desc: 'Build an engaged audience' },
-            { value: 'investors', label: 'Find Investors', icon: '💰', desc: 'Reach VCs and angels' },
-        ],
-    },
-    {
-        id: 'budget',
-        question: "What's your submission budget?",
-        subtitle: "We'll filter out what doesn't fit",
-        options: [
-            { value: 'free', label: 'Free only', icon: '🆓', desc: 'No spend, max reach' },
-            { value: 'small', label: 'Small budget', icon: '💳', desc: 'Up to ~$50 per listing' },
-            { value: 'any', label: 'Any budget', icon: '💎', desc: 'Include premium platforms' },
-        ],
-    },
-];
-
-/* ─── Scoring logic ─── */
-function scoreDir(dir: EnrichedDirectory, answers: Answers): number {
-    let score = 0;
-    const { product, goal, budget } = answers;
-
-    if (product === 'ai-saas' && ['AI Tools', 'AI Hubs', 'Software Reviews', 'Product Launch', 'Product Distribute'].includes(dir.category)) score += 3;
-    if (product === 'dev-tool' && ['Design & Dev', 'Cloud Marketplaces', 'AI Tools', 'Software Reviews'].includes(dir.category)) score += 3;
-    if (product === 'agency' && ['Startup Networks', 'Directories', 'Solopreneur Hubs'].includes(dir.category)) score += 3;
-    if (product === 'community' && ['Communities', 'Reddit', 'Solopreneur Hubs'].includes(dir.category)) score += 3;
-    if (product === 'content' && ['SEO Guest Posts', 'AI Hubs', 'Directories'].includes(dir.category)) score += 3;
-    if (product === 'marketplace' && ['Marketplaces', 'Cloud Marketplaces', 'Startup Networks'].includes(dir.category)) score += 3;
-    if (product === 'beta' && ['Beta Tester', 'Product Launch', 'Product Distribute', 'Communities', 'Reddit', 'Solopreneur Hubs'].includes(dir.category)) score += 3;
-    if (product === 'beta' && dir.name.toLowerCase().includes('beta')) score += 2;
-
-    if (goal === 'visibility' && dir.impact === 'High') score += 2;
-    if (goal === 'seo' && dir.category === 'SEO Guest Posts') score += 3;
-    if (goal === 'seo' && (dir.domain_authority ?? 0) >= 70) score += 1;
-    if (goal === 'users' && dir.difficulty === 'Easy' && dir.impact === 'High') score += 2;
-    if (goal === 'community-growth' && ['Communities', 'Reddit', 'Solopreneur Hubs'].includes(dir.category)) score += 2;
-    if (goal === 'investors' && ['Startup Networks', 'Marketplaces'].includes(dir.category)) score += 3;
-
-    if (budget === 'free' && dir.pricing !== 'Free') score -= 10;
-    if (budget === 'small' && dir.pricing === 'Paid' && (dir.domain_authority ?? 0) < 60) score -= 2;
-    if (budget === 'any') score += 0.5;
-
-    score += (dir.domain_authority ?? 0) / 50;
-    return score;
+interface Answers {
+    product?: string;
+    goal?: 'seo' | 'users' | 'both';
+    budget?: 'free' | 'paid' | 'both';
 }
 
-/* ─── Styles ─── */
-const DIFF_STYLE: Record<string, string> = { Easy: 'bg-green-500/15 text-green-300 border-green-500/25', Medium: 'bg-yellow-500/15 text-yellow-300 border-yellow-500/25', Hard: 'bg-red-500/15 text-red-300 border-red-500/25' };
-const IMPACT_STYLE: Record<string, string> = { High: 'bg-violet-500/15 text-violet-300 border-violet-500/25', Medium: 'bg-blue-500/15 text-blue-300 border-blue-500/25', Low: 'bg-gray-500/15 text-gray-400 border-gray-500/25' };
-const PRICING_STYLE: Record<string, string> = { Free: 'bg-green-500/15 text-green-300', Paid: 'bg-indigo-500/15 text-indigo-300', 'Free/Paid': 'bg-blue-500/15 text-blue-300', 'Revenue Share': 'bg-orange-500/15 text-orange-300' };
-const DA_COLOR = (da: number) => da >= 80 ? 'text-green-400' : da >= 60 ? 'text-blue-400' : da >= 40 ? 'text-yellow-400' : 'text-gray-500';
-
-/* ─── Directory Card ─── */
-function DirCard({ dir, isSubmitted, onToggle }: { dir: EnrichedDirectory; isSubmitted: boolean; onToggle: () => void }) {
+/* ─── Components ─── */
+function DirectoryCard({ d, isSubmitted, onAdd }: { d: EnrichedDirectory; isSubmitted: boolean; onAdd: () => void }) {
     return (
-        <div className={`relative rounded-2xl border p-4 flex flex-col gap-2.5 transition-all hover:bg-white/5 group ${isSubmitted ? 'border-indigo-500/40 bg-indigo-500/5' : 'border-white/8 bg-white/2'}`}>
-            <div className="flex items-start gap-2">
-                <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-sm text-white truncate group-hover:text-indigo-300 transition-colors">{dir.name}</h3>
-                    <p className="text-[11px] text-white/35 line-clamp-2 mt-0.5 leading-relaxed">{dir.description}</p>
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-5 hover:border-white/20 transition-all flex flex-col gap-4 group">
+            <div className="flex justify-between items-start">
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 font-bold border border-indigo-500/20">
+                        {d.name[0]}
+                    </div>
+                    <div>
+                        <h3 className="text-white font-bold text-sm group-hover:text-indigo-400 transition-colors line-clamp-1">{d.name}</h3>
+                        <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-[10px] text-white/40 uppercase tracking-wider font-medium">{d.pricing}</span>
+                            <span className="text-white/20 text-[10px]">•</span>
+                            <span className="text-[10px] text-indigo-400/80 font-bold">DA {d.domain_authority}</span>
+                        </div>
+                    </div>
                 </div>
-                <span className={`flex items-center gap-0.5 flex-shrink-0 text-[11px] font-bold ${DA_COLOR(dir.domain_authority ?? 0)}`}>
-                    <TrendingUp className="w-3 h-3" />{dir.domain_authority ?? '–'}
-                </span>
+                <div className="flex flex-col items-end">
+                    <div className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${d.matchScore > 80 ? 'bg-emerald-500/10 text-emerald-400' :
+                        d.matchScore > 50 ? 'bg-indigo-500/10 text-indigo-400' : 'bg-white/5 text-white/30'
+                        }`}>
+                        {d.matchScore}% Match
+                    </div>
+                </div>
             </div>
-            <div className="flex flex-wrap gap-1">
-                <span className={`text-[9px] px-2 py-0.5 rounded-full border font-semibold ${DIFF_STYLE[dir.difficulty]}`}>⚡ {dir.difficulty}</span>
-                <span className={`text-[9px] px-2 py-0.5 rounded-full border font-semibold ${IMPACT_STYLE[dir.impact]}`}>🎯 {dir.impact}</span>
-                {dir.pricing && <span className={`text-[9px] px-2 py-0.5 rounded-full font-medium ${PRICING_STYLE[dir.pricing] || 'bg-gray-700/50 text-gray-400'}`}>{dir.pricing}</span>}
+
+            <p className="text-xs text-white/50 line-clamp-2 leading-relaxed h-8">
+                {d.description}
+            </p>
+
+            <div className="flex flex-wrap gap-1.5 mt-auto">
+                <span className="px-2 py-0.5 rounded-md bg-white/5 text-[10px] text-white/40 border border-white/5">{d.category}</span>
+                {d.reasons.slice(0, 1).map(r => (
+                    <span key={r} className="px-2 py-0.5 rounded-md bg-indigo-500/5 text-[10px] text-indigo-400/60 border border-indigo-500/10 italic">
+                        {r}
+                    </span>
+                ))}
             </div>
-            <div className="flex gap-2 mt-auto pt-2">
+
+            <div className="flex gap-2 pt-1">
+                <a
+                    href={d.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white/70 hover:text-white text-xs font-bold transition-all"
+                >
+                    <ExternalLink className="w-3.5 h-3.5" /> Visit Site
+                </a>
                 <button
-                    onClick={onToggle}
+                    onClick={onAdd}
                     disabled={isSubmitted}
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-xl text-[11px] font-semibold border transition-all ${isSubmitted
-                        ? 'bg-indigo-500/20 border-indigo-500/30 text-indigo-300 opacity-60 cursor-not-allowed'
-                        : 'bg-indigo-500/10 border-indigo-500/20 text-indigo-300 hover:bg-indigo-500/22'
+                    className={`px-4 py-2.5 rounded-xl text-xs font-bold border transition-all flex items-center gap-2 ${isSubmitted
+                        ? 'bg-emerald-500/20 border-emerald-500/30 text-emerald-400 cursor-default'
+                        : 'bg-indigo-500 border-indigo-400 hover:bg-indigo-600 text-white shadow-lg shadow-indigo-500/20'
                         }`}
                 >
                     {isSubmitted ? <><CheckCircle className="w-3.5 h-3.5" />In Pipeline</> : <><Plus className="w-3.5 h-3.5" />Add to Pipeline</>}
@@ -142,29 +104,72 @@ function DirCard({ dir, isSubmitted, onToggle }: { dir: EnrichedDirectory; isSub
     );
 }
 
+/* ─── Onboarding Questions ─── */
+const STEPS = [
+    {
+        id: 'product',
+        question: 'What are you launching?',
+        subtitle: "We'll surface the most relevant directories for your project type",
+        options: [
+            { value: 'saas', label: 'Web App / SaaS', icon: '💻', desc: 'Software, cloud apps, platforms' },
+            { value: 'ai', label: 'AI Tool', icon: '🤖', desc: 'LLMs, GPTs, AI agents' },
+            { value: 'mobile', label: 'Mobile App', icon: '📱', desc: 'iOS, Android, cross-platform' },
+            { value: 'dev', label: 'Developer Tools', icon: '🛠️', desc: 'APIs, SDKs, open source' },
+            { value: 'marketing', label: 'Marketing & SEO', icon: '📈', desc: 'SEO tools, growth hacking' },
+            { value: 'ecommerce', label: 'E-commerce', icon: '🛒', desc: 'Shopify, DTC, marketplaces' },
+            { value: 'health', label: 'Health & Wellness', icon: '💪', desc: 'Fitness, mental health' },
+            { value: 'finance', label: 'Finance & Web3', icon: '💰', desc: 'Fintech, crypto, investing' },
+        ],
+    },
+    {
+        id: 'goal',
+        question: "What's your main goal?",
+        subtitle: 'Should we prioritize SEO/Backlinks or getting early users?',
+        options: [
+            { value: 'seo', label: 'Boost SEO', icon: '🎯', desc: 'Prioritize high DA backlinks' },
+            { value: 'users', label: 'Get Early Users', icon: '👥', desc: 'Focus on high-traffic directories' },
+            { value: 'both', label: 'Both', icon: '⚡', desc: 'Balance SEO and user growth' },
+        ],
+    },
+    {
+        id: 'budget',
+        question: "What's your budget?",
+        subtitle: 'Many directories are free, some have one-time listing fees',
+        options: [
+            { value: 'free', label: 'Free only', icon: '🎁', desc: 'Show only 100% free directories' },
+            { value: 'paid', label: 'Paid & Free', icon: '💎', desc: 'Include premium directories for faster growth' },
+        ],
+    },
+];
 
 export default function DirectoriesPage() {
     const { user, openAuthModal } = useAuthStore();
+    const searchParams = useSearchParams();
+    const subId = searchParams.get('subId');
     const userId = user?.id || 'anonymous';
     const projectId = `default_project_${userId}`;
-    const [directories, setDirectories] = useState<EnrichedDirectory[]>([]);
+
+    const [directories, setDirectories] = useState<Directory[]>([]);
     const [loading, setLoading] = useState(true);
     const [step, setStep] = useState(0);
     const [answers, setAnswers] = useState<Answers>({});
+    const [search, setSearch] = useState('');
+    const [pricingFilter, setPricingFilter] = useState('All');
+    const [showAll, setShowAll] = useState(false);
 
     // Distribution Workspace States
     const [viewMode, setViewMode] = useState<'grid' | 'pipeline' | 'table'>('grid');
     const [submissions, setSubmissions] = useState<DirectorySubmission[]>([]);
     const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false);
     const [selectedSubmission, setSelectedSubmission] = useState<DirectorySubmission | null>(null);
-    const [showAll, setShowAll] = useState(false);
 
     useEffect(() => {
         // Fetch Directories (Public data)
         fetch('/api/directories?limit=1000')
             .then(r => r.json())
-            .then(data => setDirectories((data.directories || []).map(enrich)))
-            .catch(() => { });
+            .then(data => setDirectories(data.directories || []))
+            .catch(console.error)
+            .finally(() => setLoading(false));
 
         // Fetch Submissions (User data)
         if (user) {
@@ -172,261 +177,295 @@ export default function DirectoriesPage() {
                 { field: 'project_id', operator: '==', value: projectId }
             ]).then(subs => {
                 setSubmissions(subs || []);
+                if (subs && subs.length > 0) {
+                    setStep(STEPS.length); // Skip onboarding if they have data
+                }
             }).catch(err => {
                 console.error('Failed to fetch submissions:', err);
-            }).finally(() => setLoading(false));
-        } else {
-            setLoading(false);
+            });
+
+            // Auto open workspace if deep linked
+            if (subId) {
+                setIsWorkspaceOpen(true);
+            }
         }
-    }, [user, projectId]);
+    }, [user, projectId, subId]);
 
-    const isSubmitted = (name: string) => submissions.some(s => s.directory_name === name);
+    /* ─── Scoring & Filtering Logic ─── */
+    const { primary, allSorted } = useMemo(() => {
+        if (step < STEPS.length || !directories.length) return { primary: [], allSorted: [] };
 
-    const addToPipeline = async (dir: EnrichedDirectory) => {
-        if (!user) {
-            openAuthModal();
-            return;
+        const scored = directories.map(d => {
+            let score = 50;
+            const reasons: string[] = [];
+
+            if (answers.goal === 'seo' && d.domain_authority > 40) { score += 30; reasons.push('High Domain Authority'); }
+            if (answers.goal === 'users' && d.monthly_visits && parseInt(d.monthly_visits) > 10000) { score += 30; reasons.push('High Traffic Source'); }
+            if (answers.budget === 'free' && d.pricing === 'Free') { score += 20; reasons.push('100% Free'); }
+            if (d.category.toLowerCase().includes(answers.product?.toLowerCase() || '')) { score += 15; reasons.push('Niche Match'); }
+
+            return { ...d, matchScore: Math.min(score, 100), reasons };
+        }).sort((a, b) => b.matchScore - a.matchScore);
+
+        return { primary: scored.filter(d => d.matchScore > 70).slice(0, 20), allSorted: scored };
+    }, [directories, answers, step]);
+
+    const displayed = useMemo(() => {
+        let pool = showAll ? allSorted : primary;
+        if (pricingFilter !== 'All') pool = pool.filter(d => d.pricing === pricingFilter);
+        if (search.trim()) {
+            const q = search.toLowerCase();
+            pool = pool.filter(d =>
+                d.name.toLowerCase().includes(q) ||
+                d.description.toLowerCase().includes(q) ||
+                d.category.toLowerCase().includes(q)
+            );
         }
-        if (isSubmitted(dir.name)) return;
+        return pool;
+    }, [primary, allSorted, showAll, search, pricingFilter]);
 
-        const newSubmission: DirectorySubmission = {
-            id: `sub_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+    const answer = (key: string, value: string) => {
+        const next = { ...answers, [key]: value };
+        setAnswers(next);
+        if (step < STEPS.length - 1) setStep(s => s + 1);
+        else setStep(STEPS.length);
+    };
+
+    const reset = () => { setAnswers({}); setStep(0); setShowAll(false); setPricingFilter('All'); };
+
+    const addToPipeline = async (d: Directory) => {
+        if (!user) { openAuthModal(); return; }
+        if (submissions.some(s => s.directory_name === d.name)) return;
+
+        const sub: DirectorySubmission = {
+            id: `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
             project_id: projectId,
-            directory_id: dir.url,
-            directory_name: dir.name,
-            directory_url: dir.url || '',
+            directory_name: d.name,
+            directory_url: d.url,
             status: 'not_started',
             created_at: new Date(),
             updated_at: new Date()
         };
 
+        setSubmissions(prev => [sub, ...prev]);
         try {
-            await setDocument('directory_submissions', newSubmission.id, newSubmission);
-            setSubmissions(prev => [newSubmission, ...prev]);
-        } catch (err: any) {
-            console.error('Failed to add to pipeline:', err);
-            if (err.message && err.message.includes('Missing or insufficient permissions')) {
-                alert('Firebase Error: Insufficient permissions to write to directory_submissions. Please update your Firestore Security Rules in the Firebase Console (Build -> Firestore Database -> Rules) to allow reads/writes.');
-            }
+            await setDocument('directory_submissions', sub.id, sub as any);
+        } catch (err) {
+            console.error('Failed to save submission:', err);
         }
     };
 
     const handleDragEnd = async (result: DropResult) => {
         if (!result.destination) return;
-
         const { source, destination, draggableId } = result;
         if (source.droppableId === destination.droppableId) return;
 
-        // Optimistic UI update
-        const updatedSubs = submissions.map(sub =>
-            sub.id === draggableId ? { ...sub, status: destination.droppableId as any } : sub
-        );
-        setSubmissions(updatedSubs);
-
-        // Backend update
+        const updated = submissions.map(s => s.id === draggableId ? { ...s, status: destination.droppableId as any } : s);
+        setSubmissions(updated);
         try {
-            await updateDocument('directory_submissions', draggableId, {
-                status: destination.droppableId as any
-            });
-        } catch (err: any) {
-            console.error('Failed to update status:', err);
-            if (err.message?.includes('Missing or insufficient permissions')) {
-                alert('Firebase Error: Could not save status change. Please update your Firestore Security Rules.');
-            }
+            await updateDocument('directory_submissions', draggableId, { status: destination.droppableId as any });
+        } catch {
             // Revert on error
-            setSubmissions(submissions);
+            if (user) queryDocuments<DirectorySubmission>('directory_submissions', [{ field: 'project_id', operator: '==', value: projectId }]).then(s => setSubmissions(s || []));
         }
     };
 
-    const openWorkspace = (sub: DirectorySubmission) => {
-        setSelectedSubmission(sub);
-        setIsWorkspaceOpen(true);
-    };
-
+    const openWorkspace = (sub: DirectorySubmission) => { setSelectedSubmission(sub); setIsWorkspaceOpen(true); };
     const closeWorkspace = () => {
-        setIsWorkspaceOpen(false);
-        setSelectedSubmission(null);
-        // Refresh submissions from client-side firestore
-        if (user) {
-            queryDocuments<DirectorySubmission>('directory_submissions', [
-                { field: 'project_id', operator: '==', value: projectId }
-            ]).then(subs => {
-                setSubmissions(subs || []);
-            });
-        }
+        setIsWorkspaceOpen(false); setSelectedSubmission(null);
+        if (user) queryDocuments<DirectorySubmission>('directory_submissions', [{ field: 'project_id', operator: '==', value: projectId }]).then(s => setSubmissions(s || []));
     };
 
-    /* ── Scoring logic ── */
-    const { primary, suggestions, allSorted } = useMemo(() => {
-        if (step < 3 || !directories.length) return { primary: [], suggestions: [], allSorted: [] };
-        const scored = directories.map(d => ({ d, score: scoreDir(d, answers) })).filter(x => x.score > -5).sort((a, b) => b.score - a.score);
-        const allSorted = scored.map(x => x.d);
-        const threshold = Math.max(scored[0]?.score * 0.35, 1);
-        const primary = scored.filter(x => x.score >= threshold).slice(0, 15).map(x => x.d);
-        const primSet = new Set(primary.map(d => d.name));
-        const fill = allSorted.filter(d => !primSet.has(d.name));
-        while (primary.length < 6 && fill.length) primary.push(fill.shift()!);
-        const primSet2 = new Set(primary.map(d => d.name));
-        const suggestions = allSorted.filter(d => !primSet2.has(d.name)).slice(0, 9);
-        return { primary, suggestions, allSorted };
-    }, [directories, answers, step]);
-
-    const answer = (key: string, value: string) => {
-        const newAnswers = { ...answers, [key]: value };
-        if (key === 'product' && value === 'beta') { setAnswers({ product: 'beta', goal: 'users', budget: 'free' }); setStep(3); return; }
-        setAnswers(newAnswers);
-        if (step < 2) setStep(s => s + 1); else setStep(3);
-    };
-
-    const reset = () => { setAnswers({}); setStep(0); setShowAll(false); };
-    const currentStep = STEPS[step];
-
-    // ── Onboarding ──
-    if (step < 3) {
-        const progress = ((step) / STEPS.length) * 100;
+    /* ─── ONBOARDING ─── */
+    if (step < STEPS.length) {
+        const cur = STEPS[step];
+        const progress = (step / STEPS.length) * 100;
         return (
-            <div className="min-h-screen bg-[#080810] text-white flex flex-col pt-6" style={{ fontFamily: 'Inter, sans-serif' }}>
+            <div className="min-h-screen bg-[#080810] text-white flex flex-col" style={{ fontFamily: 'Inter, sans-serif' }}>
                 <div className="h-0.5 bg-white/8">
-                    <div className="h-full bg-gradient-to-r from-indigo-500 to-blue-500 transition-all duration-500" style={{ width: `${progress}%` }} />
+                    <div className="h-full bg-gradient-to-r from-indigo-500 to-violet-400 transition-all duration-500" style={{ width: `${progress}%` }} />
+                </div>
+                <div className="flex items-center justify-between px-6 py-4 border-b border-white/8">
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center">🌐</div>
+                        <span className="font-black tracking-tight">Directory Matcher</span>
+                    </div>
+                    <div className="flex gap-3 text-xs text-white/30">
+                        <a href="/dashboard/communities" className="hover:text-white transition-colors">Communities</a>
+                        <a href="/discover" className="hover:text-white transition-colors">Discover</a>
+                        <a href="/" className="hover:text-white transition-colors">← Home</a>
+                    </div>
                 </div>
                 <div className="flex-1 flex items-center justify-center px-4 py-12">
                     <div className="w-full max-w-2xl">
-                        <div className="flex items-center gap-2 mb-8">
-                            {STEPS.map((s, i) => (
+                        <div className="flex items-center gap-2 mb-10">
+                            {STEPS.map((_, i) => (
                                 <div key={i} className="flex items-center gap-2">
-                                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border ${i < step ? 'bg-indigo-600 border-indigo-600' : i === step ? 'border-indigo-500 text-indigo-400' : 'border-white/15 text-white/25'}`}>
+                                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold border transition-all
+                                        ${i < step ? 'bg-indigo-600 border-indigo-600 text-white' : i === step ? 'border-indigo-500 text-indigo-400' : 'border-white/15 text-white/25'}`}>
                                         {i < step ? '✓' : i + 1}
                                     </div>
-                                    {i < STEPS.length - 1 && <div className={`flex-1 h-px w-8 ${i < step ? 'bg-indigo-500' : 'bg-white/10'}`} />}
+                                    {i < STEPS.length - 1 && <div className={`h-px w-12 ${i < step ? 'bg-indigo-500' : 'bg-white/10'}`} />}
                                 </div>
                             ))}
                         </div>
                         <div className="mb-8">
-                            <h1 className="text-2xl sm:text-3xl font-black mb-2 tracking-tight">{currentStep.question}</h1>
-                            <p className="text-white/40 text-sm">{currentStep.subtitle}</p>
+                            <h1 className="text-2xl sm:text-3xl font-black mb-2 tracking-tight">{cur.question}</h1>
+                            <p className="text-white/40 text-sm">{cur.subtitle}</p>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                            {currentStep.options.map(opt => (
-                                <button key={opt.value} onClick={() => answer(currentStep.id, opt.value)} className="flex flex-col items-start gap-2 p-4 rounded-2xl border border-white/8 bg-white/3 hover:border-indigo-500/40 text-left transition-all group">
+                            {cur.options.map(opt => (
+                                <button key={opt.value} onClick={() => answer(cur.id, opt.value)}
+                                    className="flex flex-col items-start gap-2 p-4 rounded-2xl border border-white/8 bg-white/3 hover:border-indigo-500/50 hover:bg-indigo-500/5 text-left transition-all group">
                                     <span className="text-2xl">{opt.icon}</span>
                                     <div>
-                                        <p className="text-sm font-bold group-hover:text-indigo-300">{opt.label}</p>
+                                        <p className="text-sm font-bold group-hover:text-indigo-300 transition-colors">{opt.label}</p>
                                         <p className="text-[11px] text-white/35 mt-0.5">{opt.desc}</p>
                                     </div>
                                 </button>
                             ))}
                         </div>
+                        {step > 0 && (
+                            <button onClick={() => setStep(s => s - 1)} className="mt-6 text-xs text-white/30 hover:text-white transition-colors">← Back</button>
+                        )}
                     </div>
                 </div>
             </div>
         );
     }
 
+    /* ─── MAIN WORKSPACE ─── */
     return (
-        <div className="min-h-screen bg-[#080810] text-white pt-6" style={{ fontFamily: 'Inter, sans-serif' }}>
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        <div className="min-h-screen bg-[#080810] text-white" style={{ fontFamily: 'Inter, sans-serif' }}>
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5">
 
-                {/* Header & View Toggles */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-6">
+                {/* Header */}
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-5">
                     <div>
-                        <h1 className="text-2xl sm:text-3xl font-black tracking-tight mb-2">Distribution Workplace</h1>
-                        <p className="text-white/40 text-xs sm:text-sm">Manage, track, and optimize your directory submissions.</p>
+                        <div className="flex items-center gap-2.5 mb-1">
+                            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-lg">🌐</div>
+                            <h1 className="text-2xl sm:text-3xl font-black tracking-tight">Distribution Workspace</h1>
+                        </div>
+                        <p className="text-white/35 text-xs sm:text-sm ml-11">
+                            Track and manage your {directories.length} curated directory submissions.
+                        </p>
                     </div>
-
-                    <div className="flex items-center gap-1 sm:gap-2 bg-[#1a1a24] p-1.5 rounded-xl border border-white/10 self-start md:self-auto w-full md:w-auto overflow-x-auto overflow-y-hidden scrollbar-hide">
-                        <button
-                            onClick={() => setViewMode('grid')}
-                            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${viewMode === 'grid' ? 'bg-white/10 text-white shadow-sm' : 'text-white/40 hover:text-white/80'}`}
-                        >
-                            <LayoutGrid className="w-4 h-4" /> Discover
-                        </button>
-                        <button
-                            onClick={() => setViewMode('pipeline')}
-                            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${viewMode === 'pipeline' ? 'bg-white/10 text-white shadow-sm' : 'text-white/40 hover:text-white/80'}`}
-                        >
-                            <Kanban className="w-4 h-4" /> Pipeline
-                        </button>
-                        <button
-                            onClick={() => setViewMode('table')}
-                            className={`flex whitespace-nowrap items-center gap-1.5 sm:gap-2 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all ${viewMode === 'table' ? 'bg-white/10 text-white shadow-sm' : 'text-white/40 hover:text-white/80'}`}
-                        >
-                            <TableProperties className="w-4 h-4" /> List
-                        </button>
+                    <div className="flex items-center gap-1 bg-[#1a1a24] p-1.5 rounded-xl border border-white/10 self-start md:self-auto">
+                        {[
+                            { id: 'grid', icon: <Globe className="w-4 h-4" />, label: 'Discover' },
+                            { id: 'pipeline', icon: <Kanban className="w-4 h-4" />, label: 'Pipeline' },
+                            { id: 'table', icon: <TableProperties className="w-4 h-4" />, label: 'List' },
+                        ].map(v => (
+                            <button key={v.id} onClick={() => setViewMode(v.id as any)}
+                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${viewMode === v.id ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/80'}`}>
+                                {v.icon} {v.label}
+                            </button>
+                        ))}
                     </div>
                 </div>
 
-                {/* Content based on View Mode */}
-                <div className="flex-1">
-                    {viewMode === 'grid' && (
-                        <div className="space-y-6">
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
-                                <h2 className="text-base sm:text-lg font-bold flex items-center gap-2">
-                                    <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-400" /> Curated Directories
-                                </h2>
-                                <button onClick={reset} className="text-[11px] sm:text-xs text-white/40 hover:text-white transition-colors flex items-center gap-1.5 self-start sm:self-auto">
-                                    <RotateCcw className="w-3.5 h-3.5" /> Retake Questionnaire
-                                </button>
+                {/* Stats */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {[
+                        { label: 'Curated', val: directories.length, icon: '📂', color: 'text-indigo-400' },
+                        { label: 'In Pipeline', val: submissions.length, icon: '🚀', color: 'text-violet-400' },
+                        { label: 'Submitted', val: submissions.filter(s => s.status === 'submitted').length, icon: '📩', color: 'text-blue-400' },
+                        { label: 'Approved', val: submissions.filter(s => s.status === 'approved' || s.status === 'live').length, icon: '✅', color: 'text-emerald-400' },
+                    ].map(s => (
+                        <div key={s.label} className="rounded-xl border border-white/8 bg-white/[0.02] p-3 flex items-center gap-3">
+                            <span className="text-xl">{s.icon}</span>
+                            <div>
+                                <p className={`text-xl font-black ${s.color}`}>{s.val}</p>
+                                <p className="text-[10px] text-white/35">{s.label}</p>
                             </div>
+                        </div>
+                    ))}
+                </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                                {(showAll ? allSorted : primary).map((dir, i) => (
-                                    <DirCard
-                                        key={dir.name + i}
-                                        dir={dir}
-                                        isSubmitted={isSubmitted(dir.name)}
-                                        onToggle={() => addToPipeline(dir)}
+                {/* Grid View */}
+                {viewMode === 'grid' && (
+                    <div className="space-y-4">
+                        {/* Controls */}
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            <div className="relative flex-1">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                                <input type="text" value={search} onChange={e => setSearch(e.target.value)}
+                                    placeholder="Search directories, categories, tags…"
+                                    className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm placeholder-white/25 focus:outline-none focus:ring-2 focus:ring-indigo-500/50" />
+                            </div>
+                            <button onClick={reset} className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-white/10 text-white/40 hover:text-white text-sm transition-colors whitespace-nowrap">
+                                <RotateCcw className="w-3.5 h-3.5" /> Re-match
+                            </button>
+                        </div>
+
+                        {/* Pricing Toggles */}
+                        <div className="flex gap-2">
+                            {['All', 'Free', 'Paid', 'Freemium'].map(p => (
+                                <button key={p} onClick={() => setPricingFilter(p)}
+                                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${pricingFilter === p
+                                        ? 'bg-indigo-500/20 border-indigo-500/40 text-indigo-300'
+                                        : 'border-white/10 text-white/40 hover:text-white hover:border-white/20'
+                                        }`}>
+                                    {p}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Section label */}
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <Sparkles className="w-4 h-4 text-indigo-400" />
+                                <h2 className="text-sm font-bold text-white/80">
+                                    {showAll ? 'All Directories' : 'Top Recommendations'} — {displayed.length} shown
+                                </h2>
+                            </div>
+                        </div>
+
+                        {loading ? (
+                            <div className="text-center py-20 text-white/30 text-sm animate-pulse">Scanning directories…</div>
+                        ) : displayed.length === 0 ? (
+                            <div className="text-center py-16 text-white/30 text-sm">
+                                No directories found matching these filters.
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {displayed.map(d => (
+                                    <DirectoryCard
+                                        key={d.url}
+                                        d={d as EnrichedDirectory}
+                                        isSubmitted={submissions.some(s => s.directory_url === d.url)}
+                                        onAdd={() => addToPipeline(d)}
                                     />
                                 ))}
                             </div>
+                        )}
 
-                            {!showAll && primary.length > 0 && (
-                                <button
-                                    onClick={() => setShowAll(true)}
-                                    className="w-full py-3 rounded-xl border border-white/10 text-white/50 text-sm font-medium hover:bg-white/5 hover:text-white transition-all flex justify-center items-center gap-2"
-                                >
-                                    View All {allSorted.length} Directories <ChevronRight className="w-4 h-4" />
-                                </button>
-                            )}
-                        </div>
-                    )}
+                        {!showAll && allSorted.length > primary.length && !search && (
+                            <button onClick={() => setShowAll(true)}
+                                className="w-full py-3 rounded-xl border border-white/10 text-white/40 text-sm font-medium hover:bg-white/5 hover:text-white transition-all flex justify-center items-center gap-2">
+                                View All {allSorted.length} Directories <ChevronRight className="w-4 h-4" />
+                            </button>
+                        )}
+                    </div>
+                )}
 
-                    {viewMode === 'pipeline' && (
-                        <div className="h-full">
-                            <PipelineBoard
-                                submissions={submissions}
-                                onDragEnd={handleDragEnd}
-                                onOpenWorkspace={openWorkspace}
-                            />
-                        </div>
-                    )}
+                {viewMode === 'pipeline' && (
+                    <PipelineBoard submissions={submissions} onDragEnd={handleDragEnd} onOpenWorkspace={openWorkspace} />
+                )}
 
-                    {viewMode === 'table' && (
-                        <div>
-                            <TableView
-                                submissions={submissions}
-                                onOpenWorkspace={openWorkspace}
-                            />
-                        </div>
-                    )}
-                </div>
-
+                {viewMode === 'table' && (
+                    <TableView submissions={submissions} onOpenWorkspace={openWorkspace} />
+                )}
             </main>
 
-            {/* Workspace Modal */}
-            <WorkspaceModal
-                isOpen={isWorkspaceOpen}
-                onClose={closeWorkspace}
-                submission={selectedSubmission}
-                userId={userId}
-            />
+            <WorkspaceModal isOpen={isWorkspaceOpen} onClose={closeWorkspace} submission={selectedSubmission} userId={userId} />
 
             <PageGuide
-                title="Directories"
+                title="Distribution Workspace"
                 steps={[
-                    { title: 'Questionnaire', description: 'If you havent already, answer the 3 quick questions. We will use this to sort the directory targets by the highest ROI for your startup.' },
-                    { title: 'Grid View', description: 'Browse the top directory targets and click Add to Pipeline for the ones you want to submit to.' },
-                    { title: 'Pipeline View', description: 'Switch to Pipeline to see your kanban board. Drag and drop targets as you submit to them to track your progress.' },
-                    { title: 'Workspace Modal', description: 'Click any target in your Pipeline to open a popup workspace. We generate submission copy for you automatically!' },
+                    { title: 'Launch Pipeline', description: 'Curated directories to submit your startup. Adding them to the pipeline helps you track progress.' },
+                    { title: 'Match Score', description: 'How well each directory fits your project based on your questionnaire answers.' },
+                    { title: 'Open Workspace', description: 'Access the full management suite to track submissions, generate AI copy, and more.' },
                 ]}
             />
         </div>
