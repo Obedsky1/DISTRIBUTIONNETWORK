@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
     Search, ExternalLink, Plus, CheckCircle, Users, RotateCcw,
@@ -174,6 +174,14 @@ function CommunityCard({ c, isAdded, onAdd }: { c: Community; isAdded: boolean; 
 
 /* ═══════════════════════ PAGE ═══════════════════════ */
 export default function CommunitiesPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-[#080810] flex items-center justify-center text-white/50">Loading workspace...</div>}>
+            <CommunitiesContent />
+        </Suspense>
+    );
+}
+
+function CommunitiesContent() {
     const { user, openAuthModal } = useAuthStore();
     const searchParams = useSearchParams();
     const subId = searchParams.get('subId');

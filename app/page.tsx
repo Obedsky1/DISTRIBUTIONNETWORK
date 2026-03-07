@@ -82,7 +82,7 @@ const TESTIMONIALS = [
         gradient: 'from-blue-400 to-indigo-500',
         name: 'Marc Klein',
         handle: '@marcklein_dev',
-        text: 'Just used DistroHub to submit to 40+ directories in 2 hours. Got 3 sign-ups the same day 🔥 This tool is a game changer for solo founders.',
+        text: 'Just used DistriBurst to submit to 40+ directories in 2 hours. Got 3 sign-ups the same day 🔥 This tool is a game changer for solo founders.',
         likes: 142,
         reposts: 38,
         date: 'Mar 12, 2025',
@@ -133,7 +133,7 @@ export default function HomePage() {
                             <div className="w-2.5 h-2.5 bg-slate-900 rounded-full" />
                         </div>
                         <span className="font-bold text-xl tracking-tight">
-                            Distro<span className="text-blue-500">Hub</span>
+                            Distri<span className="text-blue-500">Burst</span>
                         </span>
                     </a>
 
@@ -177,12 +177,12 @@ export default function HomePage() {
                     </div>
 
                     <h1 className="text-[48px] md:text-[72px] font-black tracking-[-0.03em] text-slate-900 leading-[1.05] mb-6">
-                        Distribute your product<br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-indigo-600">to thousands of people.</span>
+                        Promote everywhere,<br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-indigo-600">all at once.</span>
                     </h1>
 
                     <p className="text-lg md:text-xl text-slate-500 max-w-2xl mx-auto mb-10 leading-relaxed">
-                        DistroHub is the distribution engine for startup founders. Submit to 850+ directories, discover communities, run drip campaigns, and track every backlink — from one dashboard.
+                        Submit to 800+ directories and communities from one dashboard.
                     </p>
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-10">
@@ -394,9 +394,9 @@ export default function HomePage() {
                         <div className="w-2 h-2 bg-slate-500 rounded-full" />
                         <div className="w-2 h-2 bg-slate-500 rounded-full" />
                     </div>
-                    <span className="font-bold text-white">Distro<span className="text-blue-500">Hub</span></span>
+                    <span className="font-bold text-white">Distri<span className="text-blue-500">Burst</span></span>
                 </div>
-                <p className="text-slate-600 text-xs">© 2025 DistroHub. Built for founders who ship.</p>
+                <p className="text-slate-600 text-xs">© 2025 DistriBurst. Built for founders who ship.</p>
             </footer>
 
             {/* Marquee keyframe */}

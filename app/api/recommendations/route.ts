@@ -4,6 +4,8 @@ import { getDocument } from '@/lib/firebase/firestore';
 import { getAuthUserId } from '@/lib/api-auth';
 import { User } from '@/types';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);

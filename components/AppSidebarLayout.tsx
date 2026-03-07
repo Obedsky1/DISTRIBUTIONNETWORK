@@ -3,11 +3,41 @@
 import { usePathname } from 'next/navigation';
 import { Sidebar } from './Sidebar';
 
+// SEO route prefixes — these pages are public and must NOT show the app sidebar
+const SEO_ROUTES = [
+    '/platform/',
+    '/platforms',
+    '/submit-to-',
+    '/startup-directories',
+    '/startup-communities',
+    '/startup-telegram-groups',
+    '/startup-discord-groups',
+    '/startup-slack-groups',
+    '/best/',
+    '/compare/',
+    '/for/',
+    '/promote/',
+    '/locations/',
+    '/tag/',
+    '/alternatives/',
+    '/free-startup-directories',
+    '/glossary',
+    '/about',
+    '/contact',
+    '/privacy',
+    '/terms',
+];
+
+function isSEORoute(pathname: string): boolean {
+    return SEO_ROUTES.some((prefix) => pathname.startsWith(prefix));
+}
+
 export function AppSidebarLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const isHomePage = pathname === '/';
 
-    if (isHomePage) {
+    // SEO pages and homepage: render children without sidebar
+    if (isHomePage || isSEORoute(pathname)) {
         return <>{children}</>;
     }
 

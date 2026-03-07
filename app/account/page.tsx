@@ -258,7 +258,7 @@ export default function AccountPage() {
                         <div className="bg-[#13141c] border border-white/10 rounded-3xl p-6 shadow-2xl flex items-center justify-between">
                             <div>
                                 <h3 className="font-bold text-sm mb-1">Need help or support?</h3>
-                                <p className="text-xs text-white/50">Contact us at support@distrohub.example or read our documentation.</p>
+                                <p className="text-xs text-white/50">Contact us at support@distriburst.com or read our documentation.</p>
                             </div>
                             <button className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-semibold transition-all border border-white/10 whitespace-nowrap">
                                 Get Support

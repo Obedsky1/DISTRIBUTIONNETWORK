@@ -14,8 +14,17 @@ import { signOut } from '@/lib/firebase/auth';
 import { storage } from '@/lib/firebase/config';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { PageGuide } from '@/components/PageGuide';
+import { Suspense } from 'react';
 
 export default function ProfilePage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center">Loading profile...</div>}>
+            <ProfileContent />
+        </Suspense>
+    );
+}
+
+function ProfileContent() {
     const { user, loading, openAuthModal } = useAuthStore();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -298,7 +307,7 @@ export default function ProfilePage() {
                                             </button>
                                         </label>
                                         <input
-                                            type="text" name="name" value={formData.name} onChange={handleChange} placeholder="DistroHub"
+                                            type="text" name="name" value={formData.name} onChange={handleChange} placeholder="DistriBurst" contentEditable={true} suppressHydrationWarning={true}
                                             className="w-full bg-[#0a0a0f] border border-white/10 rounded-xl py-3 px-4 text-sm text-white focus:outline-none focus:border-indigo-500/50 focus:bg-white/5 transition-all"
                                         />
                                     </div>

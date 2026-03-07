@@ -16,9 +16,9 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-    title: 'Community For Me - Find Communities to Grow Your Business',
-    description: 'Find the perfect communities to promote your SaaS, land clients, hire talent, or build your personal brand. Made for builders, founders, freelancers, and agencies.',
-    keywords: ['community', 'saas marketing', 'find clients', 'hire developers', 'build audience', 'discord', 'reddit', 'telegram', 'founders', 'freelancers'],
+    title: 'DistriBurst - Promote everywhere, all at once.',
+    description: 'Submit to 800+ directories and communities from one dashboard. DistriBurst is the distribution engine for startup founders.',
+    keywords: ['distriburst', 'startup marketing', 'distribution platform', 'saas marketing', 'find clients', 'hire developers', 'build audience', 'discord', 'reddit', 'telegram', 'founders', 'freelancers'],
 };
 
 export default function RootLayout({

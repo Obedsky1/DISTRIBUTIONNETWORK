@@ -143,6 +143,14 @@ const STEPS = [
 ];
 
 export default function DirectoriesPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-[#080810] flex items-center justify-center text-white/50">Loading workspace...</div>}>
+            <DirectoriesContent />
+        </Suspense>
+    );
+}
+
+function DirectoriesContent() {
     const { user, openAuthModal } = useAuthStore();
     const searchParams = useSearchParams();
     const subId = searchParams.get('subId');
@@ -241,6 +249,7 @@ export default function DirectoriesPage() {
             id: `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
             project_id: projectId,
             directory_name: d.name,
+            directory_id: d.id || '',
             directory_url: d.url,
             status: 'not_started',
             created_at: new Date(),
