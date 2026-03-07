@@ -20,9 +20,6 @@ const nextConfig = {
     // Tell webpack NOT to bundle these heavy server-only packages.
     // They will be resolved at runtime by Node.js instead, dramatically speeding up compilation.
     serverExternalPackages: [
-        'discord.js',
-        'puppeteer',
-        'puppeteer-core',
         'firebase-admin',
         'firebase-admin/app',
         'firebase-admin/firestore',

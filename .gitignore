@@ -5,6 +5,10 @@ node_modules/
 
 # Testing
 coverage/
+run-*.ts
+run-*.js
+test*.ts
+test*.js
 
 # Next.js
 .next/
@@ -24,6 +28,9 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+env_*.txt
+env_*.csv
+env_vars.txt
 
 # Vercel
 .vercel
