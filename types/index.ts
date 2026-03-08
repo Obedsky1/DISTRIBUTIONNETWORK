@@ -17,16 +17,43 @@ export type ContentType = 'comment' | 'story' | 'post' | 'caption' | 'bio' | 're
 export interface Community {
     id: string;
     name: string;
+    slug?: string;
     platform: Platform;
+    platformType?: string;
     description: string;
+    shortDescription?: string;
+    longDescription?: string;
     category: string[];
+    niche?: string;
+    audience?: string;
+    whyJoin?: string;
+    whoShouldUseIt?: string;
+    stageFit?: string;
+    pricingType?: string;
+    selfPromoPolicy?: string;
+    postingRules?: string;
+    moderationStyle?: string;
+    whatWorksBest?: string;
+    founderStrategy?: string;
+    useCases: string[];
+    pros?: string[];
+    cons?: string[];
     tags: string[];
+    relatedCommunitySlugs?: string[];
+    alternatives?: { name: string; url: string; description?: string }[];
+    faq?: { question: string; answer: string }[];
+    externalUrl?: string;
     memberCount: number;
     activityLevel: ActivityLevel;
     url: string;
     imageUrl?: string;
-    embedding: number[];
-    lastIndexed: Date;
+    embedding?: number[];
+    lastIndexed?: Date | any;
+    lastReviewedAt?: Date | any;
+    qualityScore?: number;
+    indexable?: boolean;
+    canonicalSlug?: string;
+    duplicateClusterKey?: string;
     metadata: {
         inviteCode?: string;
         subreddit?: string;
@@ -34,8 +61,8 @@ export interface Community {
         verified?: boolean;
         [key: string]: any;
     };
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt: Date | any;
+    updatedAt: Date | any;
 }
 
 export interface User {

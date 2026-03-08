@@ -2,12 +2,16 @@
 
 import { useState } from 'react';
 import { signIn, signUp, signInWithGoogle } from '@/lib/firebase/auth';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Mail, Lock, User, Chrome } from 'lucide-react';
+import { Suspense } from 'react';
 
-export default function AuthPage() {
+function AuthContent() {
     const router = useRouter();
-    const [isLogin, setIsLogin] = useState(true);
+    const searchParams = useSearchParams();
+    const mode = searchParams.get('mode');
+
+    const [isLogin, setIsLogin] = useState(mode !== 'signup');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -167,5 +171,17 @@ export default function AuthPage() {
                 </div>
             </div>
         </main>
+    );
+}
+
+export default function AuthPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+                <div className="text-white">Loading...</div>
+            </div>
+        }>
+            <AuthContent />
+        </Suspense>
     );
 }

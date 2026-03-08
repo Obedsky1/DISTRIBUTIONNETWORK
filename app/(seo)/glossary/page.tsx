@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
-import Link from 'next/link';
 import { SITE_URL, ISR_REVALIDATE } from '@/lib/pseo/constants';
 import Breadcrumb from '@/components/pseo/Breadcrumb';
+import { WebPageSchema, FAQSchema } from '@/components/pseo/StructuredData';
 
 export const revalidate = ISR_REVALIDATE;
 
@@ -23,6 +23,17 @@ const GLOSSARY_TERMS = [
 export default function GlossaryPage() {
     return (
         <div className="max-w-4xl mx-auto py-12 px-4">
+            <WebPageSchema title="Startup & SEO Glossary" description="Master the language of startup distribution and SEO." url="/glossary" />
+            <FAQSchema faqs={[
+                {
+                    question: "What is the DistriBurst Glossary?",
+                    answer: "Our glossary provides clear definitions for essential terms in startup distribution, growth marketing, and SEO to help founders navigate the platform landscape."
+                },
+                {
+                    question: "Why is SEO important for startup distribution?",
+                    answer: "SEO terms like Domain Authority and Backlinks are crucial for understanding how listing your product on directories can improve your search rankings and organic traffic."
+                }
+            ]} />
             <Breadcrumb items={[{ label: 'Glossary', href: '/glossary' }]} />
 
             <h1 className="text-4xl font-bold text-white mb-6">Glossary of Terms</h1>
@@ -32,14 +43,14 @@ export default function GlossaryPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {GLOSSARY_TERMS.map((t) => (
-                    <Link
+                    <a
                         key={t.slug}
                         href={`/glossary/${t.slug}`}
-                        className="glass rounded-xl p-6 border border-white/5 hover:border-purple-500/30 transition-all group"
+                        className="glass rounded-xl p-6 border border-white/5 hover:border-purple-500/30 transition-all group relative z-10"
                     >
                         <h2 className="text-xl font-bold text-white group-hover:text-purple-400 mb-2">{t.term}</h2>
                         <p className="text-sm text-gray-400 line-clamp-2">{t.description}</p>
-                    </Link>
+                    </a>
                 ))}
             </div>
         </div>

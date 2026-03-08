@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getAllPlatforms, getPlatformsByCategory, getPlatformsByType } from '@/lib/pseo/platforms';
 import { rankPlatforms, SCORE_LABELS } from '@/lib/pseo/scoring';
-import { WebPageSchema, ItemListSchema } from '@/components/pseo/StructuredData';
+import { WebPageSchema, ItemListSchema, FAQSchema } from '@/components/pseo/StructuredData';
 import Breadcrumb from '@/components/pseo/Breadcrumb';
 import PlatformCard from '@/components/pseo/PlatformCard';
 import { SITE_URL, ISR_REVALIDATE } from '@/lib/pseo/constants';
@@ -14,7 +14,9 @@ export async function generateStaticParams() {
     const platforms = await getAllPlatforms();
     const categories = new Set<string>();
     platforms.forEach((p) => {
-        if (p.category) categories.add(p.category.toLowerCase().replace(/\s+/g, '-'));
+        if (p.category && typeof p.category === 'string') {
+            categories.add(p.category.toLowerCase().replace(/\s+/g, '-'));
+        }
     });
     // Also add type-based categories
     categories.add('startup-directories');
@@ -64,6 +66,16 @@ export default async function BestCategoryPage({ params }: { params: { category:
         <>
             <WebPageSchema title={`Best ${label}`} description={`Top ${label} ranked and scored.`} url={`/best/${params.category}`} />
             <ItemListSchema items={ranked.slice(0, 20).map((r, i) => ({ name: r.platform.name, url: `/platform/${r.platform.slug}`, position: i + 1 }))} name={`Best ${label}`} />
+            <FAQSchema faqs={[
+                {
+                    question: `What are the best ${label} for startups?`,
+                    answer: `The top ranked ${label} include ${ranked.slice(0, 3).map(r => r.platform.name).join(', ')}. These platforms are selected based on domain authority, ease of submission, and impact on SEO.`
+                },
+                {
+                    question: `How do you rank these ${label}?`,
+                    answer: `Platforms are scored using our proprietary algorithm that considers factors like Moz Domain Authority (DA), typical approval time, pricing, and the quality of backlinks provided.`
+                }
+            ]} />
 
             <Breadcrumb items={[
                 { label: 'Best Of', href: '/best/startup-directories' },

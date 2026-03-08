@@ -1,5 +1,4 @@
 import { Metadata } from 'next';
-import Link from 'next/link';
 import { getAllPlatforms } from '@/lib/pseo/platforms';
 import { WebPageSchema, ItemListSchema } from '@/components/pseo/StructuredData';
 import PlatformCard from '@/components/pseo/PlatformCard';
@@ -68,12 +67,12 @@ export default async function PlatformsHubPage() {
                 </div>
 
                 <div className="flex flex-wrap justify-center gap-4">
-                    <Link href="/startup-directories" className="px-6 py-3 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium hover:opacity-90 transition-opacity">
+                    <a href="/startup-directories" className="px-6 py-3 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium hover:opacity-90 transition-opacity relative z-10">
                         Browse Directories
-                    </Link>
-                    <Link href="/startup-communities" className="px-6 py-3 rounded-lg glass text-gray-300 hover:text-white border border-white/10 hover:border-purple-500/30 transition-all">
+                    </a>
+                    <a href="/startup-communities" className="px-6 py-3 rounded-lg glass text-gray-300 hover:text-white border border-white/10 hover:border-purple-500/30 transition-all relative z-10">
                         Browse Communities
-                    </Link>
+                    </a>
                 </div>
             </section>
 
@@ -81,6 +80,7 @@ export default async function PlatformsHubPage() {
             <section className="py-12">
                 <h2 className="text-2xl font-bold text-white mb-6">Browse by Category</h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {/* Category shortcuts loop */}
                     {[
                         { label: '📂 Startup Directories', href: '/startup-directories' },
                         { label: '👥 Communities', href: '/startup-communities' },
@@ -91,9 +91,9 @@ export default async function PlatformsHubPage() {
                         { label: '🏆 Best Communities', href: '/best/saas-communities' },
                         { label: '💰 Free Directories', href: '/free-startup-directories' },
                     ].map((item) => (
-                        <Link key={item.href} href={item.href} className="p-4 rounded-xl glass border border-white/5 hover:border-purple-500/20 transition-all text-center">
+                        <a key={item.href} href={item.href} className="p-4 rounded-xl glass border border-white/5 hover:border-purple-500/20 transition-all text-center relative z-10">
                             <span className="text-sm text-gray-300">{item.label}</span>
-                        </Link>
+                        </a>
                     ))}
                 </div>
             </section>
@@ -102,7 +102,7 @@ export default async function PlatformsHubPage() {
             <section className="py-12">
                 <div className="flex items-center justify-between mb-6">
                     <h2 className="text-2xl font-bold text-white">Top Startup Directories</h2>
-                    <Link href="/startup-directories" className="text-sm text-purple-400 hover:text-purple-300">View all →</Link>
+                    <a href="/startup-directories" className="text-sm text-purple-400 hover:text-purple-300 relative z-10">View all →</a>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {topDirectories.map((p) => (<PlatformCard key={p.slug} platform={p} />))}
@@ -113,7 +113,7 @@ export default async function PlatformsHubPage() {
             <section className="py-12">
                 <div className="flex items-center justify-between mb-6">
                     <h2 className="text-2xl font-bold text-white">Top Communities & Groups</h2>
-                    <Link href="/startup-communities" className="text-sm text-purple-400 hover:text-purple-300">View all →</Link>
+                    <a href="/startup-communities" className="text-sm text-purple-400 hover:text-purple-300 relative z-10">View all →</a>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {topCommunities.map((p) => (<PlatformCard key={p.slug} platform={p} />))}
@@ -125,10 +125,10 @@ export default async function PlatformsHubPage() {
                 <h2 className="text-2xl font-bold text-white mb-6">Find Platforms For You</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {PERSONAS.map((persona) => (
-                        <Link key={persona.slug} href={`/for/${persona.slug}`} className="glass rounded-xl p-6 border border-white/5 hover:border-purple-500/20 transition-all">
+                        <a key={persona.slug} href={`/for/${persona.slug}`} className="glass rounded-xl p-6 border border-white/5 hover:border-purple-500/20 transition-all relative z-10">
                             <h3 className="text-lg font-semibold text-white mb-2">{persona.label}</h3>
                             <p className="text-sm text-gray-400">{persona.description}</p>
-                        </Link>
+                        </a>
                     ))}
                 </div>
             </section>
@@ -138,10 +138,10 @@ export default async function PlatformsHubPage() {
                 <h2 className="text-2xl font-bold text-white mb-6">Distribute Your Product</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {USE_CASES.map((uc) => (
-                        <Link key={uc.slug} href={`/promote/${uc.slug}`} className="glass rounded-xl p-6 border border-white/5 hover:border-cyan-500/20 transition-all">
+                        <a key={uc.slug} href={`/promote/${uc.slug}`} className="glass rounded-xl p-6 border border-white/5 hover:border-cyan-500/20 transition-all relative z-10">
                             <h3 className="text-lg font-semibold text-white mb-2">{uc.label}</h3>
                             <p className="text-sm text-gray-400">{uc.description}</p>
-                        </Link>
+                        </a>
                     ))}
                 </div>
             </section>

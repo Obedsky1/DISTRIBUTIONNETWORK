@@ -20,6 +20,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
             lastModified: new Date(),
         },
         {
+            url: `${SITE_URL}/sitemaps/communities`,
+            lastModified: new Date(),
+        },
+        {
             url: `${SITE_URL}/sitemaps/glossary`,
             lastModified: new Date(),
         },

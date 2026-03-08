@@ -9,7 +9,7 @@ import { SITE_URL, ITEMS_PER_PAGE, ISR_REVALIDATE } from '@/lib/pseo/constants';
 export const revalidate = ISR_REVALIDATE;
 
 export const metadata: Metadata = {
-    title: 'Best Startup Telegram Groups to Join | Community For Me',
+    title: 'Best Startup Telegram Groups to Join | DistriBurst',
     description: 'Join the best Telegram groups for startups, SaaS founders, and indie hackers. Curated list of active Telegram communities.',
     alternates: { canonical: `${SITE_URL}/startup-telegram-groups` },
 };

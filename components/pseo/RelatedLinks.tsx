@@ -1,4 +1,4 @@
-import Link from 'next/link';
+// ─── Related Links Component ───
 import { InternalLinks } from '@/types/platform';
 
 interface RelatedLinksProps {
@@ -27,12 +27,12 @@ export default function RelatedLinks({ links }: RelatedLinksProps) {
                     <ul className="space-y-1.5">
                         {links.relatedPlatforms.map((p) => (
                             <li key={p.slug}>
-                                <Link
+                                <a
                                     href={`/platform/${p.slug}`}
-                                    className="text-sm text-gray-400 hover:text-purple-300 transition-colors flex items-center gap-1"
+                                    className="text-sm text-gray-400 hover:text-purple-300 transition-colors flex items-center gap-1 relative z-10"
                                 >
                                     <span className="text-gray-600">→</span> {p.name}
-                                </Link>
+                                </a>
                             </li>
                         ))}
                     </ul>
@@ -45,12 +45,12 @@ export default function RelatedLinks({ links }: RelatedLinksProps) {
                     <ul className="space-y-1.5">
                         {links.relatedCommunities.map((p) => (
                             <li key={p.slug}>
-                                <Link
+                                <a
                                     href={`/platform/${p.slug}`}
-                                    className="text-sm text-gray-400 hover:text-blue-300 transition-colors flex items-center gap-1"
+                                    className="text-sm text-gray-400 hover:text-blue-300 transition-colors flex items-center gap-1 relative z-10"
                                 >
                                     <span className="text-gray-600">→</span> {p.name}
-                                </Link>
+                                </a>
                             </li>
                         ))}
                     </ul>
@@ -63,12 +63,12 @@ export default function RelatedLinks({ links }: RelatedLinksProps) {
                     <ul className="space-y-1.5">
                         {links.alternativeDirectories.map((p) => (
                             <li key={p.slug}>
-                                <Link
+                                <a
                                     href={`/platform/${p.slug}`}
-                                    className="text-sm text-gray-400 hover:text-emerald-300 transition-colors flex items-center gap-1"
+                                    className="text-sm text-gray-400 hover:text-emerald-300 transition-colors flex items-center gap-1 relative z-10"
                                 >
                                     <span className="text-gray-600">→</span> {p.name}
-                                </Link>
+                                </a>
                             </li>
                         ))}
                     </ul>
@@ -78,12 +78,12 @@ export default function RelatedLinks({ links }: RelatedLinksProps) {
             {links.categoryPage && (
                 <div>
                     <h4 className="text-sm font-medium text-yellow-300 mb-2">Browse Category</h4>
-                    <Link
+                    <a
                         href={links.categoryPage}
-                        className="text-sm text-gray-400 hover:text-yellow-300 transition-colors flex items-center gap-1"
+                        className="text-sm text-gray-400 hover:text-yellow-300 transition-colors flex items-center gap-1 relative z-10"
                     >
                         <span className="text-gray-600">→</span> View all in this category
-                    </Link>
+                    </a>
                 </div>
             )}
 
@@ -93,12 +93,12 @@ export default function RelatedLinks({ links }: RelatedLinksProps) {
                     <ul className="space-y-1.5">
                         {links.comparisonPages.map((c) => (
                             <li key={c.slug}>
-                                <Link
+                                <a
                                     href={`/compare/${c.slug}`}
-                                    className="text-sm text-gray-400 hover:text-pink-300 transition-colors flex items-center gap-1"
+                                    className="text-sm text-gray-400 hover:text-pink-300 transition-colors flex items-center gap-1 relative z-10"
                                 >
                                     <span className="text-gray-600">→</span> {c.label}
-                                </Link>
+                                </a>
                             </li>
                         ))}
                     </ul>
@@ -111,12 +111,12 @@ export default function RelatedLinks({ links }: RelatedLinksProps) {
                     <ul className="space-y-1.5">
                         {links.personaPages.map((p) => (
                             <li key={p.slug}>
-                                <Link
+                                <a
                                     href={`/for/${p.slug}`}
-                                    className="text-sm text-gray-400 hover:text-orange-300 transition-colors flex items-center gap-1"
+                                    className="text-sm text-gray-400 hover:text-orange-300 transition-colors flex items-center gap-1 relative z-10"
                                 >
                                     <span className="text-gray-600">→</span> {p.label}
-                                </Link>
+                                </a>
                             </li>
                         ))}
                     </ul>
@@ -129,12 +129,12 @@ export default function RelatedLinks({ links }: RelatedLinksProps) {
                     <ul className="space-y-1.5">
                         {links.useCasePages.map((u) => (
                             <li key={u.slug}>
-                                <Link
+                                <a
                                     href={`/promote/${u.slug}`}
-                                    className="text-sm text-gray-400 hover:text-cyan-300 transition-colors flex items-center gap-1"
+                                    className="text-sm text-gray-400 hover:text-cyan-300 transition-colors flex items-center gap-1 relative z-10"
                                 >
                                     <span className="text-gray-600">→</span> {u.label}
-                                </Link>
+                                </a>
                             </li>
                         ))}
                     </ul>

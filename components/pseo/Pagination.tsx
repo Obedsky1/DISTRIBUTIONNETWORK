@@ -1,4 +1,4 @@
-import Link from 'next/link';
+// ─── Pagination Component ───
 
 interface PaginationProps {
     currentPage: number;
@@ -31,12 +31,12 @@ export default function Pagination({ currentPage, totalPages, basePath }: Pagina
     return (
         <nav aria-label="Pagination" className="flex items-center justify-center gap-2 mt-10">
             {currentPage > 1 && (
-                <Link
+                <a
                     href={getPageLink(currentPage - 1)}
-                    className="px-3 py-2 rounded-lg glass text-sm text-gray-300 hover:text-white hover:border-purple-500/40 transition-all duration-200"
+                    className="px-3 py-2 rounded-lg glass text-sm text-gray-300 hover:text-white hover:border-purple-500/40 transition-all duration-200 relative z-10"
                 >
                     ← Previous
-                </Link>
+                </a>
             )}
 
             <div className="flex items-center gap-1">
@@ -44,27 +44,27 @@ export default function Pagination({ currentPage, totalPages, basePath }: Pagina
                     page === 'ellipsis' ? (
                         <span key={`ellipsis-${i}`} className="px-2 text-gray-600">...</span>
                     ) : (
-                        <Link
+                        <a
                             key={page}
                             href={getPageLink(page)}
-                            className={`w-10 h-10 rounded-lg flex items-center justify-center text-sm transition-all duration-200 ${page === currentPage
-                                    ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold'
-                                    : 'glass text-gray-400 hover:text-white hover:border-purple-500/40'
+                            className={`w-10 h-10 rounded-lg flex items-center justify-center text-sm transition-all duration-200 relative z-10 ${page === currentPage
+                                ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold'
+                                : 'glass text-gray-400 hover:text-white hover:border-purple-500/40'
                                 }`}
                         >
                             {page}
-                        </Link>
+                        </a>
                     )
                 )}
             </div>
 
             {currentPage < totalPages && (
-                <Link
+                <a
                     href={getPageLink(currentPage + 1)}
-                    className="px-3 py-2 rounded-lg glass text-sm text-gray-300 hover:text-white hover:border-purple-500/40 transition-all duration-200"
+                    className="px-3 py-2 rounded-lg glass text-sm text-gray-300 hover:text-white hover:border-purple-500/40 transition-all duration-200 relative z-10"
                 >
                     Next →
-                </Link>
+                </a>
             )}
         </nav>
     );

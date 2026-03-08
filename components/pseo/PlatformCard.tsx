@@ -26,9 +26,9 @@ export default function PlatformCard({ platform, rank, showScore, score }: Platf
     };
 
     return (
-        <Link
+        <a
             href={`/platform/${platform.slug}`}
-            className="group block glass rounded-xl p-5 hover:border-purple-500/40 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10 hover:-translate-y-0.5"
+            className="group block glass rounded-xl p-5 hover:border-purple-500/40 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10 hover:-translate-y-0.5 relative z-10"
         >
             <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
@@ -71,9 +71,11 @@ export default function PlatformCard({ platform, rank, showScore, score }: Platf
                 )}
             </div>
 
-            <p className="text-sm text-gray-400 line-clamp-2 mb-3">
-                {platform.description}
-            </p>
+            {platform.description && (
+                <p className="text-sm text-gray-400 line-clamp-2 mb-3">
+                    {platform.description}
+                </p>
+            )}
 
             <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-3">
@@ -104,6 +106,6 @@ export default function PlatformCard({ platform, rank, showScore, score }: Platf
                     ))}
                 </div>
             )}
-        </Link>
+        </a>
     );
 }

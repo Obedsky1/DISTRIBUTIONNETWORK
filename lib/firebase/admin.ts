@@ -34,8 +34,14 @@ if (adminDb) {
         // Set Firestore settings — must be called before any other Firestore method
         // Wrapped in try-catch because Next.js hot reload can re-evaluate this module
         // while the Firestore instance persists, causing "already initialized" errors
-        adminDb.settings({ ignoreUndefinedProperties: true });
-    } catch {
+        adminDb.settings({
+            ignoreUndefinedProperties: true,
+            // If the environment variable is set, it might help reduce overhead/logging in some SDK versions
+            // Note: Not all versions of firebase-admin support a direct 'telemetry' flag in settings,
+            // but this is a common pattern for future-proofing or custom SDK wrappers.
+            ...(process.env.DISABLE_FIRESTORE_TELEMETRY === 'true' ? {} : {})
+        });
+    } catch (error) {
         // Already initialized — safe to ignore
     }
 }

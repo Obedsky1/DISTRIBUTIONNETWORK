@@ -9,26 +9,34 @@ export async function GET() {
 
   const urls: string[] = [];
 
-  // Category pages
-  const categories = [
+  // Root listing pages
+  [
     'startup-directories',
     'startup-communities',
     'startup-telegram-groups',
     'startup-discord-groups',
     'startup-slack-groups',
-  ];
-
-  categories.forEach((cat) => {
+    'free-startup-directories'
+  ].forEach((path) => {
     urls.push(`
     <url>
-      <loc>${SITE_URL}/${cat}</loc>
+      <loc>${SITE_URL}/${path}</loc>
       <changefreq>weekly</changefreq>
       <priority>0.7</priority>
     </url>`);
   });
 
-  // Best pages
-  ['startup-directories', 'saas-communities', 'product-launch-platforms'].forEach((cat) => {
+  // Dynamic categories from platform data
+  const dynamicCategories = new Set<string>();
+  allPlatforms.forEach((p) => {
+    if (p.category && typeof p.category === 'string') {
+      dynamicCategories.add(p.category.toLowerCase().replace(/\s+/g, '-'));
+    }
+  });
+  // Add base "Best" categories
+  ['startup-directories', 'saas-communities', 'product-launch-platforms'].forEach(c => dynamicCategories.add(c));
+
+  Array.from(dynamicCategories).forEach((cat) => {
     urls.push(`
     <url>
       <loc>${SITE_URL}/best/${cat}</loc>
@@ -79,14 +87,6 @@ export async function GET() {
     </url>`);
     });
   });
-
-  // Free directories
-  urls.push(`
-    <url>
-      <loc>${SITE_URL}/free-startup-directories</loc>
-      <changefreq>weekly</changefreq>
-      <priority>0.7</priority>
-    </url>`);
 
   // Alternatives pages (DA >= 40)
   allPlatforms

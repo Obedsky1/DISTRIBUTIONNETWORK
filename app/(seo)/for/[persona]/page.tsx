@@ -1,11 +1,10 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getPlatformsByAudience } from '@/lib/pseo/platforms';
-import { WebPageSchema, ItemListSchema } from '@/components/pseo/StructuredData';
+import { WebPageSchema, ItemListSchema, FAQSchema } from '@/components/pseo/StructuredData';
 import Breadcrumb from '@/components/pseo/Breadcrumb';
 import PlatformCard from '@/components/pseo/PlatformCard';
 import { SITE_URL, PERSONAS, ISR_REVALIDATE } from '@/lib/pseo/constants';
-import Link from 'next/link';
 
 export const revalidate = ISR_REVALIDATE;
 
@@ -39,9 +38,19 @@ export default async function PersonaPage({ params }: { params: { persona: strin
         <>
             <WebPageSchema title={`Best Platforms for ${persona.label}`} description={persona.description} url={`/for/${persona.slug}`} />
             <ItemListSchema items={platforms.slice(0, 20).map((p, i) => ({ name: p.name, url: `/platform/${p.slug}`, position: i + 1 }))} name={`Best for ${persona.label}`} />
+            <FAQSchema faqs={[
+                {
+                    question: `Which platforms are best for ${persona.label}?`,
+                    answer: `For ${persona.label}, we recommend starting with ${platforms.slice(0, 3).map(p => p.name).join(', ')}. These platforms have been vetted for audience relevance and distribution impact.`
+                },
+                {
+                    question: `Why should ${persona.label} list their projects on these directories?`,
+                    answer: `Listing on curated directories helps ${persona.label} build initial traction, gain high-quality backlinks, and reach their target audience where they already hang out.`
+                }
+            ]} />
 
             <Breadcrumb items={[
-                { label: 'For You', href: '/for/startup-founders' },
+                { label: 'For You', href: '/startup-directories' },
                 { label: persona.label, href: `/for/${persona.slug}` },
             ]} />
 
@@ -81,16 +90,16 @@ export default async function PersonaPage({ params }: { params: { persona: strin
                 <h3 className="text-lg font-semibold text-white mb-4">Explore More</h3>
                 <div className="flex flex-wrap gap-3">
                     {PERSONAS.filter((p) => p.slug !== persona.slug).map((p) => (
-                        <Link key={p.slug} href={`/for/${p.slug}`} className="text-sm px-4 py-2 rounded-lg glass text-gray-400 hover:text-white hover:border-purple-500/30 transition-all">
+                        <a key={p.slug} href={`/for/${p.slug}`} className="text-sm px-4 py-2 rounded-lg glass text-gray-400 hover:text-white hover:border-purple-500/30 transition-all relative z-10">
                             For {p.label}
-                        </Link>
+                        </a>
                     ))}
-                    <Link href="/startup-directories" className="text-sm px-4 py-2 rounded-lg glass text-gray-400 hover:text-white hover:border-purple-500/30 transition-all">
+                    <a href="/startup-directories" className="text-sm px-4 py-2 rounded-lg glass text-gray-400 hover:text-white hover:border-purple-500/30 transition-all relative z-10">
                         All Directories
-                    </Link>
-                    <Link href="/startup-communities" className="text-sm px-4 py-2 rounded-lg glass text-gray-400 hover:text-white hover:border-purple-500/30 transition-all">
+                    </a>
+                    <a href="/startup-communities" className="text-sm px-4 py-2 rounded-lg glass text-gray-400 hover:text-white hover:border-purple-500/30 transition-all relative z-10">
                         All Communities
-                    </Link>
+                    </a>
                 </div>
             </div>
         </>

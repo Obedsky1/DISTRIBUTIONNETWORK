@@ -2,9 +2,61 @@
   "communities": [
     {
       "id": "reddit-saas",
+      "slug": "reddit-saas",
       "name": "r/SaaS",
       "platform": "Reddit",
-      "description": "Primary hub for SaaS founders, operators, and marketers. Discuss product launches, marketing strategies, customer retention, and founder challenges. Weekly Feedback Thread for MVPs.",
+      "platformType": "Social Media / Forum",
+      "description": "Primary hub for SaaS founders, operators, and marketers. Discuss product launches, marketing strategies, customer retention, and founder challenges.",
+      "shortDescription": "The definitive subreddit for SaaS builders and marketers.",
+      "longDescription": "r/SaaS is the largest community on Reddit dedicated to Software as a Service. Whether you are a solo founder building your first MVP or a seasoned executive scaling a global platform, this community offers tactical advice, feedback, and networking opportunities that are hard to find elsewhere. It hosts weekly feedback threads, AMA sessions with successful founders, and deep dives into growth hacking tactics.",
+      "niche": "SaaS",
+      "audience": "SaaS Founders, Indie Hackers, Growth Marketers",
+      "whyJoin": "Founders join to get brutally honest feedback on their landing pages, find early adopters for their SaaS, and learn from others who have 'been there, done that'. It is a high-signal environment for anyone building in the software space.",
+      "whoShouldUseIt": "B2B and B2C SaaS founders, technical co-founders, and digital marketers focused on subscription products.",
+      "stageFit": "Idea to Scaling ($0 - $10M ARR)",
+      "activityLevel": "high",
+      "pricingType": "Free",
+      "selfPromoPolicy": "Strictly regulated. Use the weekly feedback thread for MVPs. Blatant spam is banned quickly.",
+      "postingRules": "No low-effort posts. No direct links to projects without context. Be helpful first.",
+      "moderationStyle": "Strict but fair",
+      "whatWorksBest": "Long-form experience reports, 'How I did X' posts, and specific questions about pricing or churn.",
+      "founderStrategy": "Engage with other people's posts for at least 2 weeks before sharing your own project. Provide value in comments to build reputation.",
+      "useCases": [
+        "Promote SaaS",
+        "Get Feedback",
+        "Find Customers",
+        "Learn Growth"
+      ],
+      "pros": [
+        "Very high engagement",
+        "Experienced members",
+        "Direct access to target audience"
+      ],
+      "cons": [
+        "Strict self-promotion rules",
+        "Can be critical/blunt"
+      ],
+      "tags": [
+        "saas",
+        "reddit",
+        "marketing",
+        "startups"
+      ],
+      "relatedCommunitySlugs": [
+        "reddit-microsaas",
+        "discord-indiehackers",
+        "reddit-startups"
+      ],
+      "faq": [
+        {
+          "question": "Can I post my SaaS link here?",
+          "answer": "Only in the weekly Feedback Thread or if it's part of a high-value case study."
+        },
+        {
+          "question": "Is it friendly to beginners?",
+          "answer": "Yes, as long as you read the rules and avoid basic questions that could be Googled."
+        }
+      ],
       "url": "https://www.reddit.com/r/SaaS/",
       "member_count": 185000,
       "categories": [
@@ -12,12 +64,7 @@
         "Product Launch",
         "Marketing"
       ],
-      "language": "en",
-      "use_cases": [
-        "Promote SaaS",
-        "Get Feedback",
-        "Find Customers"
-      ]
+      "language": "en"
     },
     {
       "id": "reddit-indiehackers",
@@ -287,9 +334,61 @@
     },
     {
       "id": "discord-indiehackers",
-      "name": "Indie Hackers",
+      "slug": "indie-hackers-discord",
+      "name": "Indie Hackers Discord",
       "platform": "Discord",
+      "platformType": "Real-time Chat",
       "description": "Official Discord for Indie Hackers community. Connect with founders, share progress, get feedback, and discuss AI SaaS and product updates.",
+      "shortDescription": "The real-time heartbeat of the Indie Hackers community.",
+      "longDescription": "The Indie Hackers Discord is the place where builders hang out 24/7. Unlike the forum, the Discord allows for rapid-fire feedback, co-working sessions, and casual networking. It features dedicated channels for #show-and-tell, #marketing, #code, and increasingly popular #ai-saas discussions.",
+      "niche": "Indie Hacking",
+      "audience": "Solopreneurs, Bootstrapped Founders, Makers",
+      "whyJoin": "To combat the loneliness of solo founding. It's great for quick sanity checks, finding accountability partners, and staying updated on the latest tools the community is using.",
+      "whoShouldUseIt": "Solo builders and small teams who want a real-time connection with other founders.",
+      "stageFit": "Idea to Early Traction",
+      "activityLevel": "high",
+      "pricingType": "Free",
+      "selfPromoPolicy": "Allowed in #show-and-tell and #projects channels. Avoid Dming members for promo.",
+      "postingRules": "Be respectful. No spam. Keep discussions in relevant channels.",
+      "moderationStyle": "Community-led with active moderators",
+      "whatWorksBest": "Asking for quick feedback on UI, sharing wins, and participating in co-working voice channels.",
+      "founderStrategy": "Introduce yourself in #introductions and be active in a few niche channels. Don't just dump links.",
+      "useCases": [
+        "Build Audience",
+        "Get Feedback",
+        "Networking",
+        "Co-working"
+      ],
+      "pros": [
+        "Extremely active",
+        "Supportive culture",
+        "Good for networking"
+      ],
+      "cons": [
+        "Can be overwhelming",
+        "Conversations can get buried"
+      ],
+      "tags": [
+        "indie-hackers",
+        "discord",
+        "bootstrapping",
+        "makers"
+      ],
+      "relatedCommunitySlugs": [
+        "reddit-indiehackers",
+        "discord-lunadio",
+        "reddit-saas"
+      ],
+      "faq": [
+        {
+          "question": "Are there voice channels?",
+          "answer": "Yes, there are co-working channels where people work together silently."
+        },
+        {
+          "question": "Is it only for tech founders?",
+          "answer": "Mostly, but service-based indie hackers are also welcome."
+        }
+      ],
       "url": "https://discord.gg/indiehackers",
       "invite_link": "https://discord.gg/indiehackers",
       "member_count": 45000,
@@ -298,12 +397,7 @@
         "SaaS Founders",
         "Product"
       ],
-      "language": "en",
-      "use_cases": [
-        "Build Audience",
-        "Get Feedback",
-        "Networking"
-      ]
+      "language": "en"
     },
     {
       "id": "discord-lunadio",
@@ -607,9 +701,56 @@
     },
     {
       "id": "telegram-solofounders",
-      "name": "Solo Founders",
+      "slug": "solo-founders-telegram",
+      "name": "Solo Founders Telegram",
       "platform": "Telegram",
+      "platformType": "Messenger Group",
       "description": "Community for solopreneurs, Indie Hackers, and Product Hunters. Share experiences and discuss growth hacks.",
+      "shortDescription": "Quick growth hacks and support for solopreneurs on Telegram.",
+      "longDescription": "Solo Founders on Telegram is a fast-paced group where entrepreneurs share what's working *now*. It's less structured than a forum or Discord, which makes it great for opportunistic networking and sharing time-sensitive growth hacks.",
+      "niche": "Solopreneurship",
+      "audience": "Individual Founders, Product Hunters, Growth Hackers",
+      "whyJoin": "For the raw, unedited advice from other solo founders. It's a great place to see what products are trending on Product Hunt and how others are launching.",
+      "whoShouldUseIt": "Founders who prefer mobile-first communication and want a tighter-knit group experience.",
+      "stageFit": "Idea to Launch",
+      "activityLevel": "medium",
+      "pricingType": "Free",
+      "selfPromoPolicy": "Moderate. Share your launch and ask for support, but don't spam daily.",
+      "postingRules": "Keep it relevant to solopreneurship. No unrelated crypto/trading spam.",
+      "moderationStyle": "Bot-assisted plus admin",
+      "whatWorksBest": "Sharing PH launch links, asking for growth hacking tips, and quick polls.",
+      "founderStrategy": "Be helpful in answering others' questions to gain trust before asking for support on your own launch.",
+      "useCases": [
+        "Networking",
+        "Build Audience",
+        "Growth Hacks",
+        "Product Hunt Support"
+      ],
+      "pros": [
+        "Mobile-first",
+        "Tight community",
+        "Quick responses"
+      ],
+      "cons": [
+        "Lacks thread organization",
+        "Fast-moving chat"
+      ],
+      "tags": [
+        "solopreneur",
+        "telegram",
+        "growth-hacking",
+        "product-hunt"
+      ],
+      "relatedCommunitySlugs": [
+        "discord-indiehackers",
+        "reddit-sideproject"
+      ],
+      "faq": [
+        {
+          "question": "Is there a lot of spam?",
+          "answer": "Admins use bots to keep most spam out, but like any Telegram group, stay vigilant."
+        }
+      ],
       "url": "https://t.me/solofounders",
       "invite_link": "https://t.me/solofounders",
       "member_count": 15000,
@@ -618,12 +759,7 @@
         "Indie Hackers",
         "Growth"
       ],
-      "language": "en",
-      "use_cases": [
-        "Networking",
-        "Build Audience",
-        "Growth Hacks"
-      ]
+      "language": "en"
     },
     {
       "id": "telegram-startups",

@@ -18,22 +18,59 @@ import {
 } from 'firebase/firestore';
 import { db } from './config';
 
+// ─── Request-scoped cache (resets per request in a typical Next.js server context) ───
+// Note: In long-running processes (like dev server), this might persist.
+// In a serverless environment (Lambda/Vercel), it resets per invocation.
+const queryCache = new Map<string, Promise<any>>();
+
+/**
+ * Standardized Firestore error handler
+ */
+function handleFirestoreError(error: any, operation: string, fallback: any = null) {
+    if (error.code === 'resource-exhausted' || error.code === 8 || error.message?.includes('Quota')) {
+        console.warn(`[Firestore Quota Exceeded] ${operation}. Returning fallback.`);
+        return fallback;
+    }
+    console.error(`[Firestore Error] ${operation}:`, error);
+    throw error;
+}
+
+/**
+ * Execute a query with caching/deduplication
+ */
+async function withCache<T>(key: string, fetcher: () => Promise<T>): Promise<T> {
+    const cached = queryCache.get(key);
+    if (cached) return cached;
+
+    const promise = fetcher();
+    queryCache.set(key, promise);
+
+    try {
+        return await promise;
+    } catch (error) {
+        queryCache.delete(key);
+        throw error;
+    }
+}
+
 /**
  * Generic function to get a document by ID
  */
 export async function getDocument<T>(collectionName: string, docId: string): Promise<T | null> {
-    try {
-        const docRef = doc(db, collectionName, docId);
-        const docSnap = await getDoc(docRef);
+    const cacheKey = `getDoc:${collectionName}:${docId}`;
+    return withCache(cacheKey, async () => {
+        try {
+            const docRef = doc(db, collectionName, docId);
+            const docSnap = await getDoc(docRef);
 
-        if (docSnap.exists()) {
-            return convertTimestamps({ id: docSnap.id, ...docSnap.data() }) as T;
+            if (docSnap.exists()) {
+                return convertTimestamps({ id: docSnap.id, ...docSnap.data() }) as T;
+            }
+            return null;
+        } catch (error) {
+            return handleFirestoreError(error, `getDocument(${collectionName}, ${docId})`);
         }
-        return null;
-    } catch (error) {
-        console.error(`Error getting document from ${collectionName}:`, error);
-        throw error;
-    }
+    });
 }
 
 /**
@@ -48,7 +85,10 @@ export async function setDocument<T>(
     try {
         const docRef = doc(db, collectionName, docId);
         await setDoc(docRef, { ...data, updatedAt: serverTimestamp() }, { merge });
-    } catch (error) {
+    } catch (error: any) {
+        if (error.code === 'resource-exhausted' || error.code === 8) {
+            console.warn(`Firestore Quota Exceeded during setDocument in ${collectionName}.`);
+        }
         console.error(`Error setting document in ${collectionName}:`, error);
         throw error;
     }
@@ -65,7 +105,10 @@ export async function updateDocument<T>(
     try {
         const docRef = doc(db, collectionName, docId);
         await updateDoc(docRef, { ...data, updatedAt: serverTimestamp() });
-    } catch (error) {
+    } catch (error: any) {
+        if (error.code === 'resource-exhausted' || error.code === 8) {
+            console.warn(`Firestore Quota Exceeded during updateDocument in ${collectionName}.`);
+        }
         console.error(`Error updating document in ${collectionName}:`, error);
         throw error;
     }
@@ -78,7 +121,10 @@ export async function deleteDocument(collectionName: string, docId: string): Pro
     try {
         const docRef = doc(db, collectionName, docId);
         await deleteDoc(docRef);
-    } catch (error) {
+    } catch (error: any) {
+        if (error.code === 'resource-exhausted' || error.code === 8) {
+            console.warn(`Firestore Quota Exceeded during deleteDocument from ${collectionName}.`);
+        }
         console.error(`Error deleting document from ${collectionName}:`, error);
         throw error;
     }
@@ -95,35 +141,66 @@ export async function queryDocuments<T>(
     limitCount?: number,
     startAfterDoc?: DocumentSnapshot
 ): Promise<T[]> {
+    const cacheKey = `query:${collectionName}:${JSON.stringify(filters)}:${orderByField}:${orderDirection}:${limitCount}`;
+    return withCache(cacheKey, async () => {
+        try {
+            let q = query(collection(db, collectionName));
+
+            // Apply filters
+            filters.forEach((filter) => {
+                q = query(q, where(filter.field, filter.operator, filter.value));
+            });
+
+            // Apply ordering
+            if (orderByField) {
+                q = query(q, orderBy(orderByField, orderDirection));
+            }
+
+            // Apply limit
+            if (limitCount) {
+                q = query(q, limit(limitCount));
+            }
+
+            // Apply pagination
+            if (startAfterDoc) {
+                q = query(q, startAfter(startAfterDoc));
+            }
+
+            const querySnapshot = await getDocs(q);
+            return querySnapshot.docs.map((doc) =>
+                convertTimestamps({ id: doc.id, ...doc.data() })
+            ) as T[];
+        } catch (error) {
+            return handleFirestoreError(error, `queryDocuments(${collectionName})`, []);
+        }
+    });
+}
+
+/**
+ * Get multiple documents by their IDs in a single query (batch fetch)
+ */
+export async function getDocumentsByIds<T>(collectionName: string, ids: string[]): Promise<T[]> {
+    if (!ids || ids.length === 0) return [];
+
+    // Firestore 'in' query supports up to 10 elements per query (or 30 in some versions, but 10 is safest)
+    const CHUNK_SIZE = 10;
+    const results: T[] = [];
+
     try {
-        let q = query(collection(db, collectionName));
-
-        // Apply filters
-        filters.forEach((filter) => {
-            q = query(q, where(filter.field, filter.operator, filter.value));
-        });
-
-        // Apply ordering
-        if (orderByField) {
-            q = query(q, orderBy(orderByField, orderDirection));
+        for (let i = 0; i < ids.length; i += CHUNK_SIZE) {
+            const chunk = ids.slice(i, i + CHUNK_SIZE);
+            const q = query(collection(db, collectionName), where('__name__', 'in', chunk));
+            const snapshot = await getDocs(q);
+            snapshot.docs.forEach(doc => {
+                results.push(convertTimestamps({ id: doc.id, ...doc.data() }) as T);
+            });
         }
-
-        // Apply limit
-        if (limitCount) {
-            q = query(q, limit(limitCount));
+        return results;
+    } catch (error: any) {
+        if (error.code === 'resource-exhausted' || error.code === 8) {
+            console.warn(`Firestore Quota Exceeded during getDocumentsByIds from ${collectionName}.`);
         }
-
-        // Apply pagination
-        if (startAfterDoc) {
-            q = query(q, startAfter(startAfterDoc));
-        }
-
-        const querySnapshot = await getDocs(q);
-        return querySnapshot.docs.map((doc) =>
-            convertTimestamps({ id: doc.id, ...doc.data() })
-        ) as T[];
-    } catch (error) {
-        console.error(`Error querying documents from ${collectionName}:`, error);
+        console.error(`Error batch fetching documents from ${collectionName}:`, error);
         throw error;
     }
 }
@@ -137,7 +214,10 @@ export async function getAllDocuments<T>(collectionName: string): Promise<T[]> {
         return querySnapshot.docs.map((doc) =>
             convertTimestamps({ id: doc.id, ...doc.data() })
         ) as T[];
-    } catch (error) {
+    } catch (error: any) {
+        if (error.code === 'resource-exhausted' || error.code === 8) {
+            console.warn(`Firestore Quota Exceeded during getAllDocuments from ${collectionName}.`);
+        }
         console.error(`Error getting all documents from ${collectionName}:`, error);
         throw error;
     }

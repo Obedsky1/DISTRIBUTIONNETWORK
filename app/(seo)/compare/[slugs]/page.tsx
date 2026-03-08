@@ -7,7 +7,6 @@ import Breadcrumb from '@/components/pseo/Breadcrumb';
 import ComparisonTable from '@/components/pseo/ComparisonTable';
 import CTAButton from '@/components/pseo/CTAButton';
 import { SITE_URL, ISR_REVALIDATE } from '@/lib/pseo/constants';
-import Link from 'next/link';
 
 export const revalidate = ISR_REVALIDATE;
 
@@ -28,7 +27,7 @@ export async function generateMetadata({ params }: { params: { slugs: string } }
     if (!a || !b) return { title: 'Comparison Not Found' };
 
     return {
-        title: `${a.name} vs ${b.name} — Which Is Better? | Community For Me`,
+        title: `${a.name} vs ${b.name} — Which Is Better? | DistriBurst`,
         description: `Compare ${a.name} and ${b.name} side-by-side. See which platform is better for your startup based on DA, pricing, backlinks, and ease of submission.`,
         alternates: { canonical: `${SITE_URL}/compare/${params.slugs}` },
         openGraph: {
@@ -114,26 +113,26 @@ export default async function ComparisonPage({ params }: { params: { slugs: stri
                     <h2 className="text-lg font-semibold text-purple-300 mb-3">About {platformA.name}</h2>
                     <p className="text-gray-300 text-sm leading-relaxed">{platformA.description}</p>
                     <div className="mt-4">
-                        <Link href={`/platform/${platformA.slug}`} className="text-sm text-purple-400 hover:text-purple-300">
+                        <a href={`/platform/${platformA.slug}`} className="text-sm text-purple-400 hover:text-purple-300 relative z-10">
                             View full profile →
-                        </Link>
+                        </a>
                     </div>
                 </section>
                 <section className="glass rounded-xl p-6">
                     <h2 className="text-lg font-semibold text-pink-300 mb-3">About {platformB.name}</h2>
                     <p className="text-gray-300 text-sm leading-relaxed">{platformB.description}</p>
                     <div className="mt-4">
-                        <Link href={`/platform/${platformB.slug}`} className="text-sm text-pink-400 hover:text-pink-300">
+                        <a href={`/platform/${platformB.slug}`} className="text-sm text-pink-400 hover:text-pink-300 relative z-10">
                             View full profile →
-                        </Link>
+                        </a>
                     </div>
                 </section>
             </div>
 
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
-                <CTAButton href={platformA.submissionLink} label={`Submit to ${platformA.name}`} platformName={platformA.name} />
-                <CTAButton href={platformB.submissionLink} label={`Submit to ${platformB.name}`} platformName={platformB.name} />
+                <CTAButton href={platformA.submissionLink} label="Start Distributing on DistriBurst" platformName={platformA.name} />
+                <CTAButton href={platformB.submissionLink} label="Start Distributing on DistriBurst" platformName={platformB.name} />
             </div>
 
             {/* FAQ */}

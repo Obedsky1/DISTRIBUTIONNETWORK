@@ -8,6 +8,7 @@ export default function robots(): MetadataRoute.Robots {
                 allow: [
                     '/',
                     '/platform/',
+                    '/community/',
                     '/submit-to-*',
                     '/startup-directories',
                     '/startup-communities',

@@ -6,7 +6,6 @@ import Breadcrumb from '@/components/pseo/Breadcrumb';
 import PlatformCard from '@/components/pseo/PlatformCard';
 import CTAButton from '@/components/pseo/CTAButton';
 import { SITE_URL, ISR_REVALIDATE } from '@/lib/pseo/constants';
-import Link from 'next/link';
 
 export const revalidate = ISR_REVALIDATE;
 
@@ -23,7 +22,7 @@ export async function generateMetadata({ params }: { params: { platform: string 
     if (!platform) return { title: 'Not Found' };
 
     return {
-        title: `Best ${platform.name} Alternatives (${new Date().getFullYear()}) | Community For Me`,
+        title: `Best ${platform.name} Alternatives (${new Date().getFullYear()}) | DistriBurst`,
         description: `Looking for alternatives to ${platform.name}? Compare the best ${platform.type === 'directory' ? 'startup directories' : 'communities'} similar to ${platform.name}. Free and paid options.`,
         alternates: { canonical: `${SITE_URL}/alternatives/${platform.slug}` },
         openGraph: {
@@ -114,9 +113,9 @@ export default async function AlternativesPage({ params }: { params: { platform:
                     </div>
                 </div>
                 <div className="mt-4">
-                    <Link href={`/platform/${platform.slug}`} className="text-sm text-purple-400 hover:text-purple-300">
+                    <a href={`/platform/${platform.slug}`} className="text-sm text-purple-400 hover:text-purple-300 relative z-10">
                         View full {platform.name} page →
-                    </Link>
+                    </a>
                 </div>
             </div>
 
@@ -137,9 +136,9 @@ export default async function AlternativesPage({ params }: { params: { platform:
                             <tr className="border-b border-white/5 bg-purple-500/5">
                                 <td className="py-3 px-4 text-gray-500">—</td>
                                 <td className="py-3 px-4">
-                                    <Link href={`/platform/${platform.slug}`} className="text-purple-300 font-medium">
+                                    <a href={`/platform/${platform.slug}`} className="text-purple-300 font-medium relative z-10">
                                         {platform.name} (Original)
-                                    </Link>
+                                    </a>
                                 </td>
                                 <td className="py-3 px-4 text-center text-white font-bold">{platform.domainAuthority}</td>
                                 <td className="py-3 px-4 text-center text-gray-300">{platform.pricing}</td>
@@ -149,9 +148,9 @@ export default async function AlternativesPage({ params }: { params: { platform:
                                 <tr key={alt.slug} className="border-b border-white/5 hover:bg-white/[0.02]">
                                     <td className="py-3 px-4 text-gray-500">{i + 1}</td>
                                     <td className="py-3 px-4">
-                                        <Link href={`/platform/${alt.slug}`} className="text-white hover:text-purple-300 font-medium">
+                                        <a href={`/platform/${alt.slug}`} className="text-white hover:text-purple-300 font-medium relative z-10">
                                             {alt.name}
-                                        </Link>
+                                        </a>
                                     </td>
                                     <td className="py-3 px-4 text-center text-white">{alt.domainAuthority}</td>
                                     <td className="py-3 px-4 text-center text-gray-300">{alt.pricing}</td>
@@ -173,9 +172,9 @@ export default async function AlternativesPage({ params }: { params: { platform:
             {alternatives.length === 0 && (
                 <div className="glass rounded-xl p-8 text-center mb-8">
                     <p className="text-gray-400">No direct alternatives found. Try browsing all directories.</p>
-                    <Link href="/startup-directories" className="text-purple-400 text-sm mt-2 inline-block">
+                    <a href="/startup-directories" className="text-purple-400 text-sm mt-2 inline-block relative z-10">
                         Browse all directories →
-                    </Link>
+                    </a>
                 </div>
             )}
 

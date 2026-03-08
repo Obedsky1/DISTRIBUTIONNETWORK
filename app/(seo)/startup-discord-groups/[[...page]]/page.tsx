@@ -9,7 +9,7 @@ import { SITE_URL, ITEMS_PER_PAGE, ISR_REVALIDATE } from '@/lib/pseo/constants';
 export const revalidate = ISR_REVALIDATE;
 
 export const metadata: Metadata = {
-    title: 'Best Startup Discord Servers to Join | Community For Me',
+    title: 'Best Startup Discord Servers to Join | DistriBurst',
     description: 'Find the most active Discord servers for startup founders and SaaS builders.',
     alternates: { canonical: `${SITE_URL}/startup-discord-groups` },
 };

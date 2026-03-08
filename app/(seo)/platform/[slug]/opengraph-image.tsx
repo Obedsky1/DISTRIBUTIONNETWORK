@@ -47,7 +47,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
                     >
                         C
                     </div>
-                    <span style={{ color: '#9ca3af', fontSize: '20px' }}>Community For Me</span>
+                    <span style={{ color: '#9ca3af', fontSize: '20px' }}>DistriBurst</span>
                 </div>
 
                 {/* Middle: Platform name */}

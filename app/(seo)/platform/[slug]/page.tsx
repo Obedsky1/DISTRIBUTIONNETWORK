@@ -270,16 +270,16 @@ export default async function PlatformPage({ params }: { params: { slug: string 
                                             return (
                                                 <tr key={alt.slug} className="group">
                                                     <td className="py-4 pr-4">
-                                                        <Link href={`/platform/${alt.slug}`} className="text-white hover:text-purple-400 font-medium">
+                                                        <a href={`/platform/${alt.slug}`} className="text-white hover:text-purple-400 font-medium relative z-10">
                                                             {alt.name}
-                                                        </Link>
+                                                        </a>
                                                     </td>
                                                     <td className="py-4 pr-4 text-gray-400">{p?.domainAuthority || '-'}</td>
                                                     <td className="py-4 pr-4 text-gray-400">{p?.pricing || '-'}</td>
                                                     <td className="py-4">
-                                                        <Link href={`/platform/${alt.slug}`} className="text-purple-400 hover:text-purple-300">
+                                                        <a href={`/platform/${alt.slug}`} className="text-purple-400 hover:text-purple-300 relative z-10">
                                                             View Guide →
-                                                        </Link>
+                                                        </a>
                                                     </td>
                                                 </tr>
                                             );
@@ -319,11 +319,10 @@ export default async function PlatformPage({ params }: { params: { slug: string 
                         </ul>
                     </section>
 
-                    {/* CTA */}
                     <div className="flex justify-center py-8">
                         <CTAButton
                             href={platform.submissionLink}
-                            label={`Submit to ${platform.name}`}
+                            label="Start Distributing on DistriBurst"
                             platformName={platform.name}
                         />
                     </div>
@@ -391,7 +390,7 @@ export default async function PlatformPage({ params }: { params: { slug: string 
                         </div>
                         <CTAButton
                             href={platform.submissionLink}
-                            label="Submit Now"
+                            label="Start Distributing on DistriBurst"
                             platformName={platform.name}
                         />
                     </div>

@@ -6,6 +6,7 @@ import { Sidebar } from './Sidebar';
 // SEO route prefixes — these pages are public and must NOT show the app sidebar
 const SEO_ROUTES = [
     '/platform/',
+    '/community/',
     '/platforms',
     '/submit-to-',
     '/startup-directories',

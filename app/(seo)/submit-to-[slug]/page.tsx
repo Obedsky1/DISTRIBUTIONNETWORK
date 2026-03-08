@@ -6,7 +6,6 @@ import { WebPageSchema } from '@/components/pseo/StructuredData';
 import Breadcrumb from '@/components/pseo/Breadcrumb';
 import CTAButton from '@/components/pseo/CTAButton';
 import { SITE_URL, ISR_REVALIDATE } from '@/lib/pseo/constants';
-import Link from 'next/link';
 
 export const revalidate = ISR_REVALIDATE;
 
@@ -184,19 +183,19 @@ export default async function SubmissionGuidePage({ params }: { params: { slug: 
                 <div className="text-center mb-8">
                     <CTAButton
                         href={platform.submissionLink}
-                        label={`Submit to ${platform.name} Now`}
+                        label="Start Distributing on DistriBurst"
                         platformName={platform.name}
                     />
                 </div>
 
                 {/* Link to full platform page */}
                 <div className="text-center">
-                    <Link
+                    <a
                         href={`/platform/${platform.slug}`}
-                        className="text-sm text-gray-400 hover:text-purple-300 transition-colors"
+                        className="text-sm text-gray-400 hover:text-purple-300 transition-colors relative z-10"
                     >
                         ← View full {platform.name} platform page
-                    </Link>
+                    </a>
                 </div>
             </div>
         </>

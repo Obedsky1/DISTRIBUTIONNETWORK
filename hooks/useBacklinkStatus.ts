@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config'; // Adjust the import path for your Firebase config
 
 export interface BacklinkData {
@@ -28,26 +28,25 @@ export function useBacklinkStatus(submissionId: string) {
             return;
         }
 
-        const backlinkRef = doc(db, 'backlinks', submissionId);
+        const fetchStatus = async () => {
+            try {
+                const backlinkRef = doc(db, 'backlinks', submissionId);
+                const docSnap = await getDoc(backlinkRef);
 
-        const unsubscribe = onSnapshot(
-            backlinkRef,
-            (docSnap) => {
                 if (docSnap.exists()) {
                     setBacklink({ id: docSnap.id, ...docSnap.data() } as BacklinkData);
                 } else {
                     setBacklink(null);
                 }
-                setLoading(false);
-            },
-            (err) => {
+            } catch (err: any) {
                 console.error("Error fetching backlink status:", err);
                 setError(err);
+            } finally {
                 setLoading(false);
             }
-        );
+        };
 
-        return () => unsubscribe();
+        fetchStatus();
     }, [submissionId]);
 
     const statusDisplay = () => {

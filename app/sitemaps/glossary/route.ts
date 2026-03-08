@@ -1,14 +1,11 @@
 import { MetadataRoute } from 'next';
 import { SITE_URL } from '@/lib/pseo/constants';
 
-// Manual static list of terms for now, matching app/(seo)/glossary/[term]/page.tsx
+// ─── Glossary Terms ───
+// These should match the keys in app/(seo)/glossary/[term]/page.tsx
 const TERMS = [
     'domain-authority',
     'dofollow-backlink',
-    'nofollow-backlink',
-    'saas',
-    'indie-hacker',
-    'startup-directory',
 ];
 
 export async function GET() {

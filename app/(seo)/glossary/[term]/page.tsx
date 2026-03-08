@@ -2,7 +2,6 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { SITE_URL, ISR_REVALIDATE } from '@/lib/pseo/constants';
 import Breadcrumb from '@/components/pseo/Breadcrumb';
-import Link from 'next/link';
 
 export const revalidate = ISR_REVALIDATE;
 
@@ -56,12 +55,12 @@ export default function GlossaryTermPage({ params }: { params: { term: string } 
             <section className="py-8">
                 <h2 className="text-2xl font-bold text-white mb-6">Explore More</h2>
                 <div className="flex flex-wrap gap-4">
-                    <Link href="/startup-directories" className="px-6 py-3 rounded-xl glass border border-white/10 hover:border-purple-500/30 text-white transition-all">
+                    <a href="/startup-directories" className="px-6 py-3 rounded-xl glass border border-white/10 hover:border-purple-500/30 text-white transition-all relative z-10">
                         Find Directories
-                    </Link>
-                    <Link href="/glossary" className="px-6 py-3 rounded-xl bg-white/5 text-gray-400 hover:text-white transition-all">
+                    </a>
+                    <a href="/glossary" className="px-6 py-3 rounded-xl bg-white/5 text-gray-400 hover:text-white transition-all relative z-10">
                         Back to Glossary
-                    </Link>
+                    </a>
                 </div>
             </section>
         </article>

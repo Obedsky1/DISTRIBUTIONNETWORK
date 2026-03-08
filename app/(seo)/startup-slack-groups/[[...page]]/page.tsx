@@ -9,7 +9,7 @@ import { SITE_URL, ITEMS_PER_PAGE, ISR_REVALIDATE } from '@/lib/pseo/constants';
 export const revalidate = ISR_REVALIDATE;
 
 export const metadata: Metadata = {
-    title: 'Best Startup Slack Groups to Join | Community For Me',
+    title: 'Best Startup Slack Groups to Join | DistriBurst',
     description: 'Discover the best Slack communities for startup founders and marketers.',
     alternates: { canonical: `${SITE_URL}/startup-slack-groups` },
 };

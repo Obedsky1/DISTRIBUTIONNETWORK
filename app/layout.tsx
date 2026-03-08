@@ -16,6 +16,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+    metadataBase: new URL('https://distriburst.com'),
     title: 'DistriBurst - Distribute everywhere, all at once.',
     description: 'Submit to 800+ directories and communities from one dashboard. DistriBurst is the distribution engine for startup founders.',
     keywords: ['distriburst', 'startup marketing', 'distribution platform', 'saas marketing', 'find clients', 'hire developers', 'build audience', 'discord', 'reddit', 'telegram', 'founders', 'freelancers'],

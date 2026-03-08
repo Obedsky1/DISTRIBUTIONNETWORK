@@ -93,7 +93,7 @@ function applyDiversityBoost(
         }
 
         // Penalize over-represented categories
-        rec.community.category.forEach((cat) => {
+        (rec.community.category || []).forEach((cat) => {
             const catCount = categoryCounts[cat] || 0;
             categoryCounts[cat] = catCount + 1;
             if (catCount > 2) {
@@ -148,8 +148,8 @@ function generateRecommendationReason(
     }
 
     // Check category preferences
-    const matchingCategories = community.category.filter((cat) =>
-        user.preferences.categories.includes(cat)
+    const matchingCategories = (community.category || []).filter((cat) =>
+        (user.preferences.categories || []).includes(cat)
     );
 
     if (matchingCategories.length > 0) {
