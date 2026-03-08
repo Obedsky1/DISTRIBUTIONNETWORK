@@ -94,17 +94,19 @@ export default async function CommunityPage({ params }: Props) {
     };
 
     // If FAQ exists, add FAQPage schema
-    const faqSchema = community.faq && community.faq.length > 0 ? {
+    const faqSchema = (community.faq && Array.isArray(community.faq) && community.faq.length > 0) ? {
         '@context': 'https://schema.org',
         '@type': 'FAQPage',
-        mainEntity: community.faq.map(f => ({
-            '@type': 'Question',
-            name: f.question,
-            acceptedAnswer: {
-                '@type': 'Answer',
-                text: f.answer
-            }
-        }))
+        mainEntity: community.faq
+            .filter(f => f && f.question && f.answer)
+            .map(f => ({
+                '@type': 'Question',
+                name: f.question,
+                acceptedAnswer: {
+                    '@type': 'Answer',
+                    text: f.answer
+                }
+            }))
     } : null;
 
     return (

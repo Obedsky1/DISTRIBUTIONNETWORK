@@ -17,20 +17,18 @@ const nextConfig = {
             },
         ],
     },
-    // Tell webpack NOT to bundle these heavy server-only packages.
-    // They will be resolved at runtime by Node.js instead, dramatically speeding up compilation.
-    serverExternalPackages: [
-        'firebase-admin',
-        'firebase-admin/app',
-        'firebase-admin/firestore',
-        'firebase-admin/auth',
-        '@google-cloud/firestore',
-        'stripe',
-        'cheerio',
-        '@xpoz/xpoz',
-        'groq-sdk',
-    ],
     experimental: {
+        serverComponentsExternalPackages: [
+            'firebase-admin',
+            'firebase-admin/app',
+            'firebase-admin/firestore',
+            'firebase-admin/auth',
+            '@google-cloud/firestore',
+            'stripe',
+            'cheerio',
+            '@xpoz/xpoz',
+            'groq-sdk',
+        ],
         serverActions: {
             bodySizeLimit: '2mb',
         },

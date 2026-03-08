@@ -8,12 +8,20 @@ const apps = getApps();
 let isInitialized = false;
 try {
     if (!apps.length) {
-        if (process.env.FIREBASE_ADMIN_PRIVATE_KEY) {
+        let privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY;
+
+        if (privateKey) {
+            // Robust PEM formatting
+            privateKey = privateKey.replace(/\\n/g, '\n');
+            if (!privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
+                privateKey = `-----BEGIN PRIVATE KEY-----\n${privateKey}\n-----END PRIVATE KEY-----`;
+            }
+
             initializeApp({
                 credential: cert({
                     projectId: process.env.FIREBASE_ADMIN_PROJECT_ID,
                     clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
-                    privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+                    privateKey: privateKey,
                 }),
             });
             isInitialized = true;

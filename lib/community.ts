@@ -18,7 +18,7 @@ export async function getAllCommunities(): Promise<Community[]> {
 
     // 2. Load from Firestore
     let firestoreCommunities: Community[] = [];
-    if (adminDb) {
+    if (adminDb && process.env.DISABLE_FIRESTORE_FETCH !== 'true' && process.env.NEXT_PHASE !== 'phase-production-build') {
         try {
             const snapshot = await adminDb.collection('communities').get();
             firestoreCommunities = snapshot.docs.map(doc => {
