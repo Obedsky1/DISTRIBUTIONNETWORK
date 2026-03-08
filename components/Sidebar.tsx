@@ -20,7 +20,7 @@ const NAV_ITEMS = [
     { name: 'Startup Profile', href: '/profile', icon: UserCircle, premium: false },
     { name: 'Account Settings', href: '/account', icon: Settings, premium: false },
     { name: 'Premium Plan', href: '/premium', icon: Crown, premium: false },
-    { name: 'Support', href: 'mailto:justoneguy@gmail.com', icon: LifeBuoy, premium: false },
+    { name: 'Give Feedback', href: 'mailto:justoneguy@gmail.com?subject=Distribution%20Journey%20Feedback&body=Hi%20there,%20I%d%20like%20to%20share%20some%20feedback%20on%20DistriBurst%20and%20suggest%20some%20features%20that%20would%20improve%20my%20distribution%20journey...', icon: MessageSquare, premium: false },
 ];
 
 export function Sidebar() {

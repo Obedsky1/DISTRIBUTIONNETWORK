@@ -426,9 +426,12 @@ export default function HomePage() {
                     <img src="/logo.svg" alt="DistriBurst" className="w-6 h-6 opacity-80" />
                     <span className="font-bold text-white">Distri<span className="text-blue-500">Burst</span></span>
                 </div>
-                <p className="text-slate-600 text-xs mb-2">© 2025 DistriBurst. Built for founders who ship.</p>
-                <a href="mailto:justoneguy@gmail.com" className="text-indigo-400 hover:text-indigo-300 text-xs font-semibold transition-colors">
-                    Support: justoneguy@gmail.com
+                <p className="text-slate-600 text-xs mb-3">© 2025 DistriBurst. Built for founders who ship.</p>
+                <a
+                    href="mailto:justoneguy@gmail.com?subject=Improving%20the%20Distribution%20Journey&body=Hey!%20I%20have%20some%20ideas%20on%20how%20to%20make%20DistriBurst%20better%20for%20my%20distribution..."
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 hover:text-indigo-300 text-xs font-bold transition-all border border-indigo-500/20"
+                >
+                    Give us feedback & help us improve your distribution journey
                 </a>
             </footer>
 
