@@ -84,10 +84,13 @@ export default async function SitemapIndexPage() {
                         <ul className="space-y-3">
                             {Object.entries(CATEGORY_ROUTES).map(([slug, route]) => (
                                 <li key={slug}>
-                                    <a href={`/${slug}`} className="text-sm text-purple-400 hover:underline relative z-10">{route.title}</a>
+                                    <a href={`/best/${slug}`} className="text-sm text-purple-400 hover:underline relative z-10">{route.title}</a>
                                 </li>
                             ))}
+                            <li><a href="/best" className="text-sm text-purple-400 font-bold hover:underline relative z-10">All Filtered Rankings</a></li>
                             <li><a href="/free-startup-directories" className="text-sm text-purple-400 hover:underline relative z-10">Free Startup Directories</a></li>
+                            <li><a href="/tag" className="text-sm text-purple-400 font-bold hover:underline relative z-10">Browse by Tag</a></li>
+                            <li><a href="/locations" className="text-sm text-purple-400 font-bold hover:underline relative z-10">Browse by Location</a></li>
                         </ul>
                     </section>
 
@@ -99,15 +102,18 @@ export default async function SitemapIndexPage() {
                                     <a href={`/best/${cat}`} className="text-sm text-gray-400 hover:text-white relative z-10">Best {cat.replace(/-/g, ' ')}</a>
                                 </li>
                             ))}
+                            <li><a href="/best" className="text-sm text-yellow-400 hover:underline mt-2 inline-block relative z-10">View all categories →</a></li>
                         </ul>
                     </section>
 
                     <section className="glass rounded-2xl p-6 border border-white/5">
                         <h2 className="text-xl font-bold text-white mb-4">Personas & Use-Cases</h2>
                         <ul className="space-y-3">
+                            <li><a href="/for" className="text-sm text-orange-400 font-bold hover:underline relative z-10">All Personas</a></li>
                             {PERSONAS.map(p => (
                                 <li key={p.slug}><a href={`/for/${p.slug}`} className="text-sm text-gray-400 hover:text-white relative z-10">For {p.label}</a></li>
                             ))}
+                            <li className="pt-2"><a href="/promote" className="text-sm text-cyan-400 font-bold hover:underline relative z-10">All Use-Cases</a></li>
                             {USE_CASES.map(u => (
                                 <li key={u.slug}><a href={`/promote/${u.slug}`} className="text-sm text-gray-400 hover:text-white relative z-10">{u.label}</a></li>
                             ))}

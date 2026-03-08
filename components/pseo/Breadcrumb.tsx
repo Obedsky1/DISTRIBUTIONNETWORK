@@ -1,4 +1,4 @@
-import { SITE_NAME } from '@/lib/pseo/constants';
+import { SITE_NAME, SITE_URL } from '@/lib/pseo/constants';
 
 interface BreadcrumbItem {
     label: string;
@@ -20,7 +20,7 @@ export default function Breadcrumb({ items }: BreadcrumbProps) {
             '@type': 'ListItem',
             position: index + 1,
             name: item.label,
-            item: item.href.startsWith('http') ? item.href : `https://communityforme.com${item.href}`,
+            item: item.href.startsWith('http') ? item.href : `${SITE_URL}${item.href}`,
         })),
     };
 

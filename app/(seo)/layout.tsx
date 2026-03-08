@@ -7,7 +7,7 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
     title: 'DistriBurst', // Changed from 'Community For Me' to 'DistriBurst'
-    metadataBase: new URL('https://communityforme.com'),
+    metadataBase: new URL('https://distriburst.com'),
     verification: {
         google: 'YOUR_GSC_VERIFICATION_CODE', // Replace with your Google Search Console verification code
     },
