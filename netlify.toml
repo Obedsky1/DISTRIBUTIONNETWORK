@@ -4,6 +4,10 @@
 
 [build.environment]
   NODE_VERSION = "20"
+  DISABLE_FIRESTORE_FETCH = "true"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
 
 [context.production]
   environment = { NODE_ENV = "production" }

@@ -160,7 +160,7 @@ export const getPlatformBySlug = reactCache(async function (slug: string): Promi
     }
 
     // Fallback to direct Firestore query for full document
-    if (!adminDb || process.env.DISABLE_FIRESTORE_FETCH === 'true') return null;
+    if (!adminDb || process.env.DISABLE_FIRESTORE_FETCH === 'true' || process.env.NEXT_PHASE === 'phase-production-build') return null;
 
     try {
         // Optimization: First check if we have the Firestore ID from the minimal list
@@ -243,7 +243,7 @@ export async function getAllSlugs(): Promise<string[]> {
     const slugs = new Set([...jsonCommunitiesSlugs, ...jsonDirectoriesSlugs]);
 
     // Merge from Firestore (optimized select)
-    if (adminDb && process.env.DISABLE_FIRESTORE_FETCH !== 'true') {
+    if (adminDb && process.env.DISABLE_FIRESTORE_FETCH !== 'true' && process.env.NEXT_PHASE !== 'phase-production-build') {
         try {
             const snapshot = await adminDb.collection('platforms').select('slug').get();
             snapshot.docs.forEach(doc => {
@@ -295,7 +295,7 @@ export async function getAllRedirects(): Promise<PlatformRedirect[]> {
     const cached = getCached<PlatformRedirect[]>('all_redirects');
     if (cached) return cached;
 
-    if (!adminDb || process.env.DISABLE_FIRESTORE_FETCH === 'true') return [];
+    if (!adminDb || process.env.DISABLE_FIRESTORE_FETCH === 'true' || process.env.NEXT_PHASE === 'phase-production-build') return [];
 
     try {
         // Optimized select
