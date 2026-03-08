@@ -9,11 +9,11 @@ export const revalidate = ISR_REVALIDATE;
 
 export const metadata: Metadata = {
     title: 'Find the Best Startup Directories & Communities | DistriBurst',
-    description: 'Discover 800+ startup directories, communities, Discord servers, Telegram groups, and Slack workspaces to promote your SaaS product, gain backlinks, and grow your audience.',
+    description: 'Discover 800+ startup directories, communities, Discord servers, Telegram groups, and Slack workspaces to distribute your SaaS product, gain backlinks, and grow your audience.',
     alternates: { canonical: `${SITE_URL}/platforms` },
     openGraph: {
         title: 'Explore Startup Platforms — DistriBurst',
-        description: 'Discover 800+ platforms to promote your startup.',
+        description: 'Discover 800+ platforms to distribute your startup.',
         url: `${SITE_URL}/platforms`,
         siteName: 'DistriBurst',
         type: 'website',
@@ -36,7 +36,7 @@ export default async function PlatformsHubPage() {
 
     return (
         <>
-            <WebPageSchema title="Explore Startup Platforms" description="Discover 800+ platforms to promote your startup." url="/platforms" />
+            <WebPageSchema title="Explore Startup Platforms" description="Discover 800+ platforms to distribute your startup." url="/platforms" />
             <ItemListSchema
                 items={topDirectories.slice(0, 5).map((p, i) => ({ name: p.name, url: `/platform/${p.slug}`, position: i + 1 }))}
                 name="Top Startup Directories"
@@ -47,7 +47,7 @@ export default async function PlatformsHubPage() {
                 <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
                     Find the Best Platforms to{' '}
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
-                        Promote Your Startup
+                        Distribute Your Startup
                     </span>
                 </h1>
                 <p className="text-lg md:text-xl text-gray-400 max-w-3xl mx-auto mb-8">
@@ -133,9 +133,9 @@ export default async function PlatformsHubPage() {
                 </div>
             </section>
 
-            {/* Promote */}
+            {/* Distribute */}
             <section className="py-12">
-                <h2 className="text-2xl font-bold text-white mb-6">Promote Your Product</h2>
+                <h2 className="text-2xl font-bold text-white mb-6">Distribute Your Product</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {USE_CASES.map((uc) => (
                         <Link key={uc.slug} href={`/promote/${uc.slug}`} className="glass rounded-xl p-6 border border-white/5 hover:border-cyan-500/20 transition-all">

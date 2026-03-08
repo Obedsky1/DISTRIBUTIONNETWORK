@@ -48,7 +48,7 @@ export default async function UseCasePage({ params }: { params: { useCase: strin
             <ItemListSchema items={platforms.slice(0, 20).map((p, i) => ({ name: p.name, url: `/platform/${p.slug}`, position: i + 1 }))} name={useCase.label} />
 
             <Breadcrumb items={[
-                { label: 'Promote', href: '/promote/startup' },
+                { label: 'Distribute', href: '/promote/startup' },
                 { label: useCase.label, href: `/promote/${useCase.slug}` },
             ]} />
 

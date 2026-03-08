@@ -25,7 +25,7 @@ const GOALS = [
     { id: 'find-clients', name: 'Find Clients', icon: '💰', description: 'Land more customers and projects' },
     { id: 'build-audience', name: 'Build Audience', icon: '📢', description: 'Grow followers and community' },
     { id: 'hire-talent', name: 'Hire Talent', icon: '🎯', description: 'Find developers, designers, marketers' },
-    { id: 'promote-product', name: 'Promote Product', icon: '🛍️', description: 'Get visibility for your SaaS/project' },
+    { id: 'distribute-product', name: 'Distribute Product', icon: '🛍️', description: 'Get visibility for your SaaS/project' },
     { id: 'network', name: 'Network & Connect', icon: '🤝', description: 'Meet like-minded builders' },
     { id: 'learn-grow', name: 'Learn & Grow', icon: '📚', description: 'Skill up from community knowledge' },
 ];
@@ -150,15 +150,15 @@ export default function OnboardingPage() {
             <FadeTransition>
                 <div className="w-full max-w-2xl">
                     {/* Header */}
-                    <div className="text-center mb-6 sm:mb-8 fade-in-down px-2">
-                        <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full glass mb-3 sm:mb-4">
-                            <Sparkles className="w-4 h-4 text-primary-400" />
+                    <div className="text-center mb-4 md:mb-8 fade-in-down px-2">
+                        <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full glass mb-2 md:mb-4">
+                            <Sparkles className="w-3.5 h-3.5 text-primary-400" />
                             <span className="text-xs sm:text-sm text-white/80">Find Your Growth Communities</span>
                         </div>
-                        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-2">
+                        <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-1">
                             Let's Match You
                         </h1>
-                        <p className="text-sm sm:text-base text-white/60">
+                        <p className="text-xs sm:text-base text-white/60">
                             Help us find the best communities for your goals
                         </p>
                     </div>
@@ -180,7 +180,7 @@ export default function OnboardingPage() {
                     </div>
 
                     {/* Form content */}
-                    <div className="glass-strong rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 lg:p-12 mb-4 sm:mb-6">
+                    <div className="glass-strong rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-10 mb-4 sm:mb-6">
                         <AnimatePresence mode="wait">
                             {step === 1 && (
                                 <motion.div
@@ -204,14 +204,14 @@ export default function OnboardingPage() {
                                                     : 'bg-white/5 border-2 border-white/10 hover:border-white/20'
                                                     }`}
                                             >
-                                                <div className="flex items-center gap-4">
-                                                    <span className="text-3xl">{type.icon}</span>
+                                                <div className="flex items-center gap-3 md:gap-4">
+                                                    <span className="text-2xl md:text-3xl">{type.icon}</span>
                                                     <div className="flex-1">
-                                                        <div className="font-semibold">{type.name}</div>
-                                                        <div className="text-sm text-white/60">{type.description}</div>
+                                                        <div className="font-semibold text-sm md:text-base">{type.name}</div>
+                                                        <div className="text-[11px] md:text-sm text-white/60">{type.description}</div>
                                                     </div>
                                                     {formData.userType === type.id && (
-                                                        <Check className="w-6 h-6 text-primary-400" />
+                                                        <Check className="w-5 h-5 md:w-6 md:h-6 text-primary-400" />
                                                     )}
                                                 </div>
                                             </motion.button>
@@ -242,14 +242,14 @@ export default function OnboardingPage() {
                                                     : 'bg-white/5 border-2 border-white/10 hover:border-white/20'
                                                     }`}
                                             >
-                                                <div className="flex items-center gap-4">
-                                                    <span className="text-3xl">{goal.icon}</span>
+                                                <div className="flex items-center gap-3 md:gap-4">
+                                                    <span className="text-2xl md:text-3xl">{goal.icon}</span>
                                                     <div className="flex-1">
-                                                        <div className="font-semibold">{goal.name}</div>
-                                                        <div className="text-sm text-white/60">{goal.description}</div>
+                                                        <div className="font-semibold text-sm md:text-base">{goal.name}</div>
+                                                        <div className="text-[11px] md:text-sm text-white/60">{goal.description}</div>
                                                     </div>
                                                     {formData.goals.includes(goal.id) && (
-                                                        <Check className="w-6 h-6 text-primary-400" />
+                                                        <Check className="w-5 h-5 md:w-6 md:h-6 text-primary-400" />
                                                     )}
                                                 </div>
                                             </motion.button>
@@ -280,14 +280,14 @@ export default function OnboardingPage() {
                                                     : 'bg-white/5 border-2 border-white/10 hover:border-white/20'
                                                     }`}
                                             >
-                                                <div className="flex items-center gap-4">
-                                                    <span className="text-3xl">{platform.icon}</span>
+                                                <div className="flex items-center gap-3 md:gap-4">
+                                                    <span className="text-2xl md:text-3xl">{platform.icon}</span>
                                                     <div className="flex-1">
-                                                        <div className="font-semibold">{platform.name}</div>
-                                                        <div className="text-sm text-white/60">{platform.description}</div>
+                                                        <div className="font-semibold text-sm md:text-base">{platform.name}</div>
+                                                        <div className="text-[11px] md:text-sm text-white/60">{platform.description}</div>
                                                     </div>
                                                     {formData.platforms.includes(platform.id) && (
-                                                        <Check className="w-6 h-6 text-primary-400" />
+                                                        <Check className="w-5 h-5 md:w-6 md:h-6 text-primary-400" />
                                                     )}
                                                 </div>
                                             </motion.button>

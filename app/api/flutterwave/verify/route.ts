@@ -53,6 +53,27 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Missing transaction_id' }, { status: 400 });
     }
 
+    // 0. Check if this transaction has already been processed (Security Patch)
+    if (!adminDb) {
+        console.error('[Verify] Firebase Admin SDK not initialized');
+        return NextResponse.json({ error: 'Internal server error: Database not configured' }, { status: 500 });
+    }
+
+    try {
+        const existingSub = await adminDb.collection('subscriptions')
+            .where('transactionId', '==', transaction_id)
+            .limit(1)
+            .get();
+
+        if (!existingSub.empty) {
+            console.warn(`[Verify] Attempted reuse of transaction ID: ${transaction_id}`);
+            return NextResponse.json({ error: 'This transaction has already been processed.' }, { status: 400 });
+        }
+    } catch (err: any) {
+        console.error('[Verify] Error checking for existing subscription:', err.message);
+        return NextResponse.json({ error: 'Internal server error: Security check failed' }, { status: 500 });
+    }
+
     // 1. Verify payment with Flutterwave
     let transactionData: any;
     try {

@@ -214,98 +214,86 @@ export default function DiscoverPage() {
     const totalChannels = communities.length + directories.length;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-gray-900 to-black Discover_grid_container">
+        <div className="min-h-screen bg-[#0a0a0f] Discover_grid_container">
 
             {/* Header */}
-            <header className="sticky top-0 z-50 glass-dark backdrop-blur-xl border-b border-white/10 md:hidden">
-                <div className="max-w-7xl mx-auto px-4 py-3 sm:py-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                        <div>
-                            <div className="flex items-center gap-2">
-                                <span className="text-xl">⚡</span>
-                                <h1 className="text-xl sm:text-2xl font-black tracking-tight">
-                                    Discovery <span className="text-emerald-400">Channels</span>
-                                </h1>
-                            </div>
-                            <p className="text-xs text-white/45 mt-0.5">
-                                {totalChannels.toLocaleString()} channels · {communities.length} communities · {directories.length} directories
+            {/* Header - Optimized for mobile by relying on global sidebar header */}
+            <div className="max-w-7xl mx-auto px-4 py-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <div className="flex items-center gap-2">
+                            <span className="text-2xl">⚡</span>
+                            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
+                                Discovery <span className="text-emerald-400">Channels</span>
+                            </h1>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2">
+                            <p className="text-xs text-white/45">
+                                {totalChannels.toLocaleString()} channels
+                            </p>
+                            <div className="w-1 h-1 bg-white/20 rounded-full" />
+                            <p className="text-xs text-emerald-400/70 font-bold">
+                                {communities.length} communities
+                            </p>
+                            <div className="w-1 h-1 bg-white/20 rounded-full" />
+                            <p className="text-xs text-yellow-400/70 font-bold">
+                                {directories.length} directories
                             </p>
                         </div>
-                        <div className="flex gap-2 flex-wrap text-sm">
-                            <a href="/dashboard/communities"
-                                className="glass px-3 py-1.5 rounded-xl hover:glass-strong transition-all flex items-center gap-1.5 font-medium">
-                                👥 <span>Communities</span>
-                            </a>
-                            <a href="/dashboard/directories"
-                                className="glass px-3 py-1.5 rounded-xl hover:glass-strong transition-all flex items-center gap-1.5 font-medium border border-yellow-500/25">
-                                👑 <span>500+ Directories</span>
-                            </a>
-                            <a href="/" className="glass px-3 py-1.5 rounded-xl hover:glass-strong transition-all">← Home</a>
-                        </div>
                     </div>
-
-                    {/* Search */}
-                    <div className="mt-3 relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <input type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-                            placeholder={`Search ${totalChannels}+ communities, directories, platforms…`}
-                            className="w-full pl-10 pr-4 py-2.5 glass rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white/5 text-sm" />
-                    </div>
-
-                    {/* Channel type tabs */}
-                    <div className="mt-3 flex gap-2">
-                        {CHANNEL_TABS.map(tab => (
-                            <button key={tab.id} onClick={() => setActiveTab(tab.id as any)}
-                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border ${activeTab === tab.id
-                                    ? 'bg-white/12 border-white/20 text-white'
-                                    : 'border-white/8 text-white/40 hover:text-white hover:border-white/15'
-                                    }`}>
-                                <span>{tab.icon}</span>
-                                {tab.label}
-                                <span className="text-[10px] opacity-50">
-                                    ({tab.id === 'all' ? totalChannels : tab.id === 'community' ? communities.length : directories.length})
-                                </span>
-                            </button>
-                        ))}
-                    </div>
-
-                    {/* Quick-access links */}
-                    <div className="mt-3 flex gap-2 flex-wrap">
-                        <a href="/campaign"
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:scale-[1.02] transition-all text-white font-bold text-xs shadow-lg shadow-indigo-600/20">
-                            🎯 Campaigns
-                        </a>
+                    <div className="flex gap-2 flex-wrap items-center">
                         <a href="/dashboard/communities"
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/15 border border-emerald-500/25 hover:bg-emerald-500/22 transition-all text-emerald-300 font-bold text-xs">
-                            📡 Community Workspace
+                            className="glass px-4 py-2 rounded-xl hover:glass-strong transition-all flex items-center gap-2 text-sm font-semibold border border-white/5">
+                            📡 <span>Communities</span>
                         </a>
-                        <a href="/workspace"
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/6 border border-white/10 hover:bg-white/10 transition-all text-white/70 font-bold text-xs">
-                            📋 Distribution Workspace
+                        <a href="/dashboard/directories"
+                            className="glass px-4 py-2 rounded-xl hover:glass-strong transition-all flex items-center gap-2 text-sm font-semibold border border-yellow-500/20">
+                            📁 <span>Directories</span>
                         </a>
                     </div>
                 </div>
-            </header>
 
-            {/* Stats band */}
-            <div className="max-w-7xl mx-auto px-4 pt-5 stats_grid">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-                    {[
-                        { icon: '👥', label: 'Social Communities', val: communities.length, color: 'text-emerald-400' },
-                        { icon: '📁', label: 'Directories', val: directories.length, color: 'text-yellow-400' },
-                        { icon: '🌐', label: 'Platforms Covered', val: 8, color: 'text-blue-400' },
-                        { icon: '⭐', label: 'Total Channels', val: totalChannels, color: 'text-purple-400' },
-                    ].map(s => (
-                        <div key={s.label} className="glass-strong rounded-xl p-3 sm:p-4 flex items-center gap-3">
-                            <span className="text-xl sm:text-2xl">{s.icon}</span>
-                            <div>
-                                <p className={`text-lg sm:text-xl font-black ${s.color}`}>{s.val.toLocaleString()}</p>
-                                <p className="text-[10px] text-white/35">{s.label}</p>
-                            </div>
-                        </div>
+                {/* Search */}
+                <div className="mt-6 relative">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+                        placeholder={`Search ${totalChannels}+ communities, directories, platforms…`}
+                        className="w-full pl-12 pr-4 py-3.5 glass rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 bg-white/5 text-sm transition-all" />
+                </div>
+
+                <div className="mt-4 flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+                    {CHANNEL_TABS.map(tab => (
+                        <button key={tab.id} onClick={() => setActiveTab(tab.id as any)}
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all border whitespace-nowrap ${activeTab === tab.id
+                                ? 'bg-white/10 border-white/20 text-white shadow-lg'
+                                : 'border-white/5 text-white/40 hover:text-white hover:border-white/10 hover:bg-white/5'
+                                }`}>
+                            <span>{tab.icon}</span>
+                            {tab.label}
+                            <span className="text-[10px] opacity-40 ml-1 font-medium">
+                                ({tab.id === 'all' ? totalChannels : tab.id === 'community' ? communities.length : directories.length})
+                            </span>
+                        </button>
                     ))}
                 </div>
+
+                {/* Quick-access links */}
+                <div className="mt-4 flex gap-2 overflow-x-auto scrollbar-hide pb-2">
+                    <a href="/campaign"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:scale-[1.02] transition-all text-white font-bold text-xs shadow-lg shadow-indigo-600/20 whitespace-nowrap">
+                        🎯 Campaigns
+                    </a>
+                    <a href="/dashboard/communities"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 transition-all text-emerald-400 font-bold text-xs whitespace-nowrap">
+                        📡 Community Workspace
+                    </a>
+                    <a href="/workspace"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-white/60 font-bold text-xs whitespace-nowrap">
+                        📋 Distribution Workspace
+                    </a>
+                </div>
             </div>
+
 
             {/* Main grid */}
             {loading ? (

@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Compass, FolderCheck, Users, Megaphone, UserCircle, Settings, Crown, LogOut, Menu, X, Rocket, Search, Globe, LayoutDashboard, Sparkles, MessageSquare, Link as LinkIcon, BarChart3, Lock } from 'lucide-react';
+import { Compass, FolderCheck, Users, Megaphone, UserCircle, Settings, Crown, LogOut, Menu, X, Rocket, Search, Globe, LayoutDashboard, Sparkles, MessageSquare, Link as LinkIcon, BarChart3, Lock, LifeBuoy } from 'lucide-react';
 import { useAuthStore } from '@/lib/store/auth-store';
 import { signOut } from '@/lib/firebase/auth';
 import { useState, useEffect } from 'react';
@@ -20,6 +20,7 @@ const NAV_ITEMS = [
     { name: 'Startup Profile', href: '/profile', icon: UserCircle, premium: false },
     { name: 'Account Settings', href: '/account', icon: Settings, premium: false },
     { name: 'Premium Plan', href: '/premium', icon: Crown, premium: false },
+    { name: 'Support', href: 'mailto:justoneguy@gmail.com', icon: LifeBuoy, premium: false },
 ];
 
 export function Sidebar() {
@@ -80,16 +81,7 @@ export function Sidebar() {
 
             <div className={`h-20 flex items-center ${isOpen ? 'px-6' : 'justify-center'} border-b border-white/5 bg-[#0a0a0f]`}>
                 <Link href="/" className="flex items-center gap-2.5 no-underline group hover:opacity-80 transition-opacity">
-                    <div className="grid grid-cols-2 gap-[4px]">
-                        <div className="w-2.5 h-2.5 bg-indigo-500 rounded-full" />
-                        <div className="w-2.5 h-2.5 bg-white/80 rounded-full" />
-                        {!isOpen ? null : (
-                            <>
-                                <div className="w-2.5 h-2.5 bg-white/80 rounded-full" />
-                                <div className="w-2.5 h-2.5 bg-white/80 rounded-full" />
-                            </>
-                        )}
-                    </div>
+                    <img src="/logo.svg" alt="DistriBurst" className={`${isOpen ? 'w-8 h-8' : 'w-6 h-6'} transition-all`} />
                     {isOpen && (
                         <span className="font-bold text-xl tracking-tight text-white group-hover:text-indigo-50 transition-colors">
                             Distri<span className="text-indigo-500">Burst</span>
@@ -222,9 +214,9 @@ export function Sidebar() {
     return (
         <>
             {/* Mobile Header & Hamburger */}
-            <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-[#0a0a0f]/90 backdrop-blur-md border-b border-white/10 z-50 flex items-center justify-between px-4">
+            <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-[#0a0a0f]/90 backdrop-blur-md border-b border-white/10 z-[70] flex items-center justify-between px-4">
                 <Link href="/" className="flex items-center gap-2 no-underline">
-                    <div className="w-2.5 h-2.5 bg-indigo-500 rounded-full" />
+                    <img src="/logo.svg" alt="Logo" className="w-7 h-7" />
                     <span className="font-bold text-lg text-white">DistriBurst</span>
                 </Link>
                 <button onClick={toggleMobileSidebar} className="p-2 text-white/60 hover:text-white bg-white/5 rounded-lg active:scale-95 transition-all">
@@ -235,21 +227,21 @@ export function Sidebar() {
             {/* Mobile Overlay */}
             {isMobileOpen && (
                 <div
-                    className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+                    className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]"
                     onClick={toggleMobileSidebar}
                 />
             )}
 
             {/* Sidebar Desktop + Mobile sliding */}
             <div className={`
-                fixed top-0 bottom-0 left-0 z-50 transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]
+                fixed top-0 bottom-0 left-0 z-[70] transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]
                 ${isMobileOpen ? 'translate-x-0 w-64' : '-translate-x-full md:translate-x-0'}
                 ${isOpen ? 'md:w-64' : 'md:w-20'}
             `}>
                 <SidebarContent />
             </div>
 
-            {/* Injected Style for Main Content Margin - FIXED FOR REDUCED DARK SPACE */}
+            {/* Injected Style for Main Content Margin */}
             <style jsx global>{`
                 @media (min-width: 768px) {
                     main {
@@ -258,19 +250,12 @@ export function Sidebar() {
                         margin-left: ${isOpen ? '256px' : '80px'} !important;
                         transition: all 0.3s ease !important;
                     }
-                    /* EXTRME ALIGNMENT FIX: Force all common container widths to align to the left */
-                    .max-w-6xl, .max-w-7xl, .max-w-4xl, .container, .mx-auto {
-                        margin-left: 0 !important;
-                        margin-right: auto !important;
-                        max-width: 100% !important;
-                        padding-left: 1.5rem !important;
-                        padding-right: 1.5rem !important;
-                    }
-
-                    /* Specific fix for Discover page cards grid and headers */
-                    .Discover_grid_container, .stats_grid, .Campaign_grid_container {
-                         margin-left: 0 !important;
-                         width: 100% !important;
+                }
+                
+                /* Mobile adjustments for main content */
+                @media (max-width: 767px) {
+                    main {
+                        padding-top: 3.5rem !important; /* height of h-14 */
                     }
                 }
             `}</style>

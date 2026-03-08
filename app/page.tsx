@@ -6,8 +6,9 @@ import Link from 'next/link';
 import PricingCards from '@/components/PricingCards';
 import {
     ArrowRight, Zap, Users, Globe, BarChart2, Sparkles,
-    Link2, CheckCircle2, Star, ChevronRight
+    Link2, CheckCircle2, Star, ChevronRight, X, Menu
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const PLATFORMS = [
     'Product Hunt', 'BetaList', 'Indie Hackers', 'Reddit', 'Hacker News',
@@ -44,8 +45,8 @@ const FEATURES = [
     {
         icon: Sparkles,
         color: 'bg-pink-50 text-pink-600',
-        title: 'Auto-Generated Assets',
-        description: 'Get AI-crafted taglines, descriptions, and copy pre-formatted for every platform you submit to.',
+        title: 'Asset Storage',
+        description: 'Keep your distribution scripts, videos, and marketing assets organized in your dashboard for easy access.',
     },
     {
         icon: BarChart2,
@@ -82,7 +83,7 @@ const TESTIMONIALS = [
         gradient: 'from-blue-400 to-indigo-500',
         name: 'Marc Klein',
         handle: '@marcklein_dev',
-        text: 'Just used DistriBurst to submit to 40+ directories in 2 hours. Got 3 sign-ups the same day 🔥 This tool is a game changer for solo founders.',
+        text: 'Just used DistriBurst to submit to 40+ directories in 2 hours. Got 50+ sign-ups the same day 🔥 This tool is a game changer for solo founders.',
         likes: 142,
         reposts: 38,
         date: 'Mar 12, 2025',
@@ -90,7 +91,7 @@ const TESTIMONIALS = [
     {
         initials: 'SA',
         gradient: 'from-emerald-400 to-teal-500',
-        name: 'Sara Adeola',
+        name: 'Sara patful',
         handle: '@sara_builds',
         text: 'The community discovery feature alone saved me 10+ hours of research. Found niche Slack groups I had no idea existed. Must-have for product distributes 🚀',
         likes: 87,
@@ -102,7 +103,7 @@ const TESTIMONIALS = [
         gradient: 'from-orange-400 to-red-500',
         name: 'James Liu',
         handle: '@jliu_founder',
-        text: 'Went from 0 to 200 waitlist sign-ups in a week. The drip campaign feature keeps things organised and manageable. Incredible ROI 💸',
+        text: 'Went from 0 to 200 waitlist sign-ups in 3days. The drip campaign feature keeps things organised and manageable. Incredible ROI 💸',
         likes: 203,
         reposts: 55,
         date: 'Jan 15, 2025',
@@ -118,21 +119,17 @@ const X_ICON = (
 export default function HomePage() {
     const { user, openAuthModal } = useAuthStore();
     const tickerRef = useRef<HTMLDivElement>(null);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
     return (
         <div className="min-h-screen bg-white text-slate-900 font-sans overflow-x-hidden">
 
             {/* ── Navbar ── */}
             <nav className="sticky top-0 z-50 w-full border-b border-slate-100 bg-white/90 backdrop-blur-md">
-                <div className="max-w-7xl mx-auto px-5 md:px-10 py-4 flex items-center justify-between">
+                <div className="max-w-7xl mx-auto px-5 md:px-10 py-3.5 flex items-center justify-between">
                     <a href="/" className="flex items-center gap-2.5 no-underline">
-                        <div className="grid grid-cols-2 gap-[4px]">
-                            <div className="w-2.5 h-2.5 bg-blue-500 rounded-full" />
-                            <div className="w-2.5 h-2.5 bg-slate-900 rounded-full" />
-                            <div className="w-2.5 h-2.5 bg-slate-900 rounded-full" />
-                            <div className="w-2.5 h-2.5 bg-slate-900 rounded-full" />
-                        </div>
-                        <span className="font-bold text-xl tracking-tight">
+                        <img src="/logo.svg" alt="DistriBurst" className="w-8 h-8 md:w-9 md:h-9" />
+                        <span className="font-bold text-lg md:text-xl tracking-tight text-slate-900">
                             Distri<span className="text-blue-500">Burst</span>
                         </span>
                     </a>
@@ -144,25 +141,63 @@ export default function HomePage() {
                         <a href="#pricing" className="hover:text-slate-900 transition-colors">Pricing</a>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                        {user ? (
-                            <Link href="/account" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors hidden sm:block">
-                                Dashboard
-                            </Link>
-                        ) : (
-                            <button onClick={openAuthModal} className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors hidden sm:block">
-                                Sign in
-                            </button>
-                        )}
-                        <a href="/discover" className="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-700 text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors shadow-sm">
-                            Get started free <ChevronRight className="w-4 h-4" />
+                    <div className="flex items-center gap-2 md:gap-3">
+                        <div className="hidden md:flex items-center gap-3">
+                            {user ? (
+                                <Link href="/account" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
+                                    Dashboard
+                                </Link>
+                            ) : (
+                                <button onClick={openAuthModal} className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">
+                                    Sign in
+                                </button>
+                            )}
+                        </div>
+                        <a href="/discover" className="hidden sm:flex items-center gap-1.5 bg-slate-900 hover:bg-slate-700 text-white text-xs md:text-sm font-semibold px-3 md:px-4 py-2 md:py-2.5 rounded-lg transition-colors shadow-sm">
+                            Get started free <ChevronRight className="w-3 md:w-4 h-3 md:h-4" />
                         </a>
+
+                        {/* Mobile Menu Toggle */}
+                        <button
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            className="p-2 md:hidden text-slate-600 hover:text-slate-900 transition-colors"
+                        >
+                            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                        </button>
                     </div>
                 </div>
+
+                {/* Mobile Menu Overlay */}
+                <AnimatePresence>
+                    {isMobileMenuOpen && (
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="md:hidden border-t border-slate-100 bg-white overflow-hidden"
+                        >
+                            <div className="flex flex-col p-5 gap-4 text-sm font-semibold text-slate-600">
+                                <a href="/discover" onClick={() => setIsMobileMenuOpen(false)}>Channels</a>
+                                <a href="/dashboard/communities" onClick={() => setIsMobileMenuOpen(false)}>Communities</a>
+                                <a href="/dashboard/directories" onClick={() => setIsMobileMenuOpen(false)}>Directories</a>
+                                <a href="#pricing" onClick={() => setIsMobileMenuOpen(false)}>Pricing</a>
+                                <div className="h-px bg-slate-100 my-1" />
+                                {user ? (
+                                    <Link href="/account" onClick={() => setIsMobileMenuOpen(false)}>Dashboard</Link>
+                                ) : (
+                                    <button onClick={() => { openAuthModal(); setIsMobileMenuOpen(false); }} className="text-left">Sign in</button>
+                                )}
+                                <a href="/discover" onClick={() => setIsMobileMenuOpen(false)} className="bg-blue-600 text-white py-3 rounded-xl text-center">
+                                    Get started free
+                                </a>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </nav>
 
             {/* ── Hero ── */}
-            <section className="relative overflow-hidden bg-white pt-20 pb-16 px-5 md:px-10">
+            <section className="relative overflow-hidden bg-white pt-12 md:pt-20 pb-12 md:pb-16 px-5 md:px-10">
                 {/* Subtle grid background */}
                 <div className="absolute inset-0 pointer-events-none opacity-[0.035]"
                     style={{ backgroundImage: 'linear-gradient(#000 1px,transparent 1px),linear-gradient(90deg,#000 1px,transparent 1px)', backgroundSize: '48px 48px' }} />
@@ -176,8 +211,8 @@ export default function HomePage() {
                         850+ distribution channels — all in one place
                     </div>
 
-                    <h1 className="text-[48px] md:text-[72px] font-black tracking-[-0.03em] text-slate-900 leading-[1.05] mb-6">
-                        Promote everywhere,<br />
+                    <h1 className="text-[40px] md:text-[72px] font-black tracking-[-0.03em] text-slate-900 leading-[1.1] md:leading-[1.05] mb-6">
+                        Distribute everywhere,<br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-indigo-600">all at once.</span>
                     </h1>
 
@@ -197,7 +232,7 @@ export default function HomePage() {
                     {/* Trust line */}
                     <p className="text-sm text-slate-400 flex items-center justify-center gap-1.5">
                         <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                        Trusted by 1,200+ founders. No credit card required.
+                        Trusted by 1,200+ founders. No credit card or login required.
                     </p>
 
                     {/* Stat badges */}
@@ -206,7 +241,7 @@ export default function HomePage() {
                             { val: '850+', label: 'Channels' },
                             { val: '500+', label: 'Communities' },
                             { val: '1,200+', label: 'Founders' },
-                            { val: '50hrs', label: 'Saved per distribute' },
+                            { val: '50hrs', label: 'Saved per distribution' },
                         ].map(s => (
                             <div key={s.val} className="flex flex-col items-center bg-slate-50 border border-slate-100 px-6 py-3 rounded-2xl">
                                 <span className="text-2xl font-black text-slate-900">{s.val}</span>
@@ -218,32 +253,32 @@ export default function HomePage() {
             </section>
 
             {/* ── Platform Ticker ── */}
-            <div className="border-y border-slate-100 bg-slate-50 py-4 overflow-hidden">
-                <div className="flex items-center gap-2 mb-1">
-                    <p className="text-[10px] font-bold tracking-widest text-slate-400 uppercase text-center w-full mb-0">
-                        Submit to platforms like
-                    </p>
-                </div>
-                <div className="relative flex overflow-x-hidden">
-                    <div className="flex animate-[marquee_30s_linear_infinite] whitespace-nowrap">
+            <div className="border-y border-slate-100 bg-slate-50 py-3 md:py-4 overflow-hidden">
+                <p className="text-[10px] font-bold tracking-widest text-slate-400 uppercase text-center w-full mb-3">
+                    Submit to platforms like
+                </p>
+                <div className="relative flex overflow-hidden">
+                    <div className="flex animate-marquee whitespace-nowrap min-w-full">
                         {PLATFORMS.map((p, i) => (
-                            <span key={i} className="mx-6 text-sm font-semibold text-slate-400">
-                                {p} <span className="text-slate-200 ml-6">•</span>
-                            </span>
+                            <div key={i} className="flex items-center px-6">
+                                <span className="text-sm font-semibold text-slate-400">{p}</span>
+                                <span className="text-slate-200 ml-6">•</span>
+                            </div>
                         ))}
                     </div>
-                    <div className="flex animate-[marquee_30s_linear_infinite] whitespace-nowrap absolute left-full">
+                    <div className="flex animate-marquee whitespace-nowrap min-w-full absolute top-0 left-full">
                         {PLATFORMS.map((p, i) => (
-                            <span key={i} className="mx-6 text-sm font-semibold text-slate-400">
-                                {p} <span className="text-slate-200 ml-6">•</span>
-                            </span>
+                            <div key={i} className="flex items-center px-6">
+                                <span className="text-sm font-semibold text-slate-400">{p}</span>
+                                <span className="text-slate-200 ml-6">•</span>
+                            </div>
                         ))}
                     </div>
                 </div>
             </div>
 
             {/* ── How It Works ── */}
-            <section id="how-it-works" className="bg-slate-50 py-24 px-5 md:px-10">
+            <section id="how-it-works" className="py-12 md:py-20 px-5 md:px-10 bg-slate-50">
                 <div className="max-w-6xl mx-auto">
                     <div className="text-center mb-16">
                         <span className="text-xs font-bold tracking-widest text-blue-600 uppercase mb-3 block">How it works</span>
@@ -270,7 +305,7 @@ export default function HomePage() {
             </section>
 
             {/* ── Features ── */}
-            <section className="bg-white py-24 px-5 md:px-10">
+            <section className="py-12 md:py-20 px-5 md:px-10">
                 <div className="max-w-6xl mx-auto">
                     <div className="text-center mb-16">
                         <span className="text-xs font-bold tracking-widest text-blue-600 uppercase mb-3 block">Everything you need</span>
@@ -297,7 +332,7 @@ export default function HomePage() {
             </section>
 
             {/* ── Testimonials ── */}
-            <section className="bg-slate-50 py-24 px-5 md:px-10">
+            <section className="py-12 md:py-20 px-5 md:px-10 bg-slate-50 overflow-hidden">
                 <div className="max-w-6xl mx-auto">
                     <div className="text-center mb-12">
                         <div className="flex items-center justify-center gap-1 mb-3">
@@ -339,7 +374,7 @@ export default function HomePage() {
             </section>
 
             {/* ── Final CTA Band ── */}
-            <section className="bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 py-20 px-5 md:px-10 text-center relative overflow-hidden">
+            <section className="py-12 md:py-20 px-5 md:px-10 bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 text-center relative overflow-hidden">
                 <div className="absolute inset-0 pointer-events-none">
                     <div className="absolute top-0 right-1/3 w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-3xl" />
                     <div className="absolute bottom-0 left-1/3 w-[400px] h-[400px] bg-indigo-500/10 rounded-full blur-3xl" />
@@ -387,16 +422,14 @@ export default function HomePage() {
 
             {/* ── Footer ── */}
             <footer className="bg-slate-950 text-slate-500 py-10 px-5 md:px-12 text-center text-sm border-t border-white/5">
-                <div className="flex items-center justify-center gap-2 mb-4">
-                    <div className="grid grid-cols-2 gap-[3px]">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full" />
-                        <div className="w-2 h-2 bg-slate-500 rounded-full" />
-                        <div className="w-2 h-2 bg-slate-500 rounded-full" />
-                        <div className="w-2 h-2 bg-slate-500 rounded-full" />
-                    </div>
+                <div className="flex items-center justify-center gap-2.5 mb-4">
+                    <img src="/logo.svg" alt="DistriBurst" className="w-6 h-6 opacity-80" />
                     <span className="font-bold text-white">Distri<span className="text-blue-500">Burst</span></span>
                 </div>
-                <p className="text-slate-600 text-xs">© 2025 DistriBurst. Built for founders who ship.</p>
+                <p className="text-slate-600 text-xs mb-2">© 2025 DistriBurst. Built for founders who ship.</p>
+                <a href="mailto:justoneguy@gmail.com" className="text-indigo-400 hover:text-indigo-300 text-xs font-semibold transition-colors">
+                    Support: justoneguy@gmail.com
+                </a>
             </footer>
 
             {/* Marquee keyframe */}

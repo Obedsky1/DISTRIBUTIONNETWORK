@@ -349,24 +349,24 @@ function DirectoriesContent() {
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5">
 
                 {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-5">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 border-b border-white/10 pb-4">
                     <div>
-                        <div className="flex items-center gap-2.5 mb-1">
-                            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-lg">🌐</div>
-                            <h1 className="text-2xl sm:text-3xl font-black tracking-tight">Distribution Workspace</h1>
+                        <div className="flex items-center gap-2.5 mb-0.5">
+                            <div className="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-base md:text-lg">🌐</div>
+                            <h1 className="text-xl md:text-2xl lg:text-3xl font-black tracking-tight">Distribution Workspace</h1>
                         </div>
-                        <p className="text-white/35 text-xs sm:text-sm ml-11">
+                        <p className="text-white/35 text-[10px] md:text-xs lg:text-sm ml-10 md:ml-11">
                             Track and manage your {directories.length} curated directory submissions.
                         </p>
                     </div>
-                    <div className="flex items-center gap-1 bg-[#1a1a24] p-1.5 rounded-xl border border-white/10 self-start md:self-auto">
+                    <div className="flex items-center gap-1 bg-[#1a1a24] p-1 rounded-xl border border-white/10 self-start md:self-auto overflow-x-auto max-w-full scrollbar-hide">
                         {[
-                            { id: 'grid', icon: <Globe className="w-4 h-4" />, label: 'Discover' },
-                            { id: 'pipeline', icon: <Kanban className="w-4 h-4" />, label: 'Pipeline' },
-                            { id: 'table', icon: <TableProperties className="w-4 h-4" />, label: 'List' },
+                            { id: 'grid', icon: <Globe className="w-3.5 h-3.5" />, label: 'Discover' },
+                            { id: 'pipeline', icon: <Kanban className="w-3.5 h-3.5" />, label: 'Pipeline' },
+                            { id: 'table', icon: <TableProperties className="w-3.5 h-3.5" />, label: 'List' },
                         ].map(v => (
                             <button key={v.id} onClick={() => setViewMode(v.id as any)}
-                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${viewMode === v.id ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/80'}`}>
+                                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs md:text-sm font-medium transition-all whitespace-nowrap ${viewMode === v.id ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/80'}`}>
                                 {v.icon} {v.label}
                             </button>
                         ))}
