@@ -36,6 +36,14 @@ export async function GET() {
   // Add base "Best" categories
   ['startup-directories', 'saas-communities', 'product-launch-platforms'].forEach(c => dynamicCategories.add(c));
 
+  // Index Hub
+  urls.push(`
+    <url>
+      <loc>${SITE_URL}/sitemap-index</loc>
+      <changefreq>daily</changefreq>
+      <priority>1.0</priority>
+    </url>`);
+
   Array.from(dynamicCategories).forEach((cat) => {
     urls.push(`
     <url>

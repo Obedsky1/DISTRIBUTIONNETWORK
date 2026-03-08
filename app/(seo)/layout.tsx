@@ -95,6 +95,7 @@ export default function SEOLayout({ children }: { children: React.ReactNode }) {
                                 <li><a href="/promote/startup" className="text-sm text-gray-400 hover:text-purple-300 relative z-10">Distribute Startup</a></li>
                                 <li><a href="/promote/saas-product" className="text-sm text-gray-400 hover:text-purple-300 relative z-10">Distribute SaaS</a></li>
                                 <li><a href="/promote/ai-tool" className="text-sm text-gray-400 hover:text-purple-300 relative z-10">Distribute AI Tool</a></li>
+                                <li><a href="/sitemap-index" className="text-sm text-purple-400 font-semibold hover:text-purple-300 relative z-10">Sitemap Index</a></li>
                             </ul>
                         </div>
                     </div>
